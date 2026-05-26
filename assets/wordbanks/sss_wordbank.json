@@ -1,0 +1,402 @@
+[
+  {
+    "id": "sw_001", "text": "aberration", "ssr": 1080, "tier": "sss", "language": "en",
+    "definition": "A departure from what is normal or expected; an anomaly.",
+    "context_sentences": ["The minister described the corruption as an aberration, not the norm.", "Scientists recorded an aberration in the climate data from the Niger Delta."],
+    "phonetic": "ab-uh-RAY-shun",
+    "etymology": "From Latin aberrare — to wander away",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_002", "text": "belligerent", "ssr": 1120, "tier": "sss", "language": "en",
+    "definition": "Hostile and aggressive; engaged in a war or conflict.",
+    "context_sentences": ["The belligerent tone of the speech alarmed the peace delegates.", "A belligerent attitude never resolves disputes — dialogue does."],
+    "phonetic": "beh-LIJ-ur-unt",
+    "etymology": "From Latin belligerare — to wage war",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_003", "text": "cacophony", "ssr": 1200, "tier": "sss", "language": "en",
+    "definition": "A harsh, discordant mixture of sounds.",
+    "context_sentences": ["The cacophony of Lagos traffic at rush hour is unlike anything else.", "The debate descended into a cacophony of shouting and accusations."],
+    "phonetic": "kuh-KOF-uh-nee",
+    "etymology": "From Greek kakophonia — bad sound",
+    "language_of_origin": "Greek"
+  },
+  {
+    "id": "sw_004", "text": "dilapidated", "ssr": 1060, "tier": "sss", "language": "en",
+    "definition": "In a state of disrepair or ruin due to neglect.",
+    "context_sentences": ["The dilapidated school building had no roof left after the rainy season.", "Many dilapidated hospitals in rural areas lack basic medical equipment."],
+    "phonetic": "dih-LAP-ih-day-tid",
+    "etymology": "From Latin dilapidare — to scatter like stones",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_005", "text": "ephemeral", "ssr": 1260, "tier": "sss", "language": "en",
+    "definition": "Lasting for only a very short time; transitory.",
+    "context_sentences": ["Social media fame is often ephemeral — here today, forgotten tomorrow.", "Beauty is ephemeral, but the impact of good character lasts forever."],
+    "phonetic": "eh-FEM-ur-ul",
+    "etymology": "From Greek ephemeros — lasting only a day",
+    "language_of_origin": "Greek"
+  },
+  {
+    "id": "sw_006", "text": "fastidious", "ssr": 1180, "tier": "sss", "language": "en",
+    "definition": "Very attentive to accuracy and detail; very concerned about cleanliness.",
+    "context_sentences": ["The fastidious editor corrected every comma in the student's essay.", "Her fastidious attention to hygiene earned her praise from the school nurse."],
+    "phonetic": "fas-TID-ee-us",
+    "etymology": "From Latin fastidiosus — disdainful, squeamish",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_007", "text": "garrulous", "ssr": 1240, "tier": "sss", "language": "en",
+    "definition": "Excessively talkative, especially about trivial matters.",
+    "context_sentences": ["The garrulous market woman had a story for every customer who passed.", "His garrulous nature made meetings run over time every single week."],
+    "phonetic": "GAR-uh-lus",
+    "etymology": "From Latin garrulus — chattering, talkative",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_008", "text": "hegemony", "ssr": 1380, "tier": "sss", "language": "en",
+    "definition": "Leadership or dominance, especially of one country or social group over others.",
+    "context_sentences": ["Nigeria's cultural hegemony in West Africa is reflected in its music and film.", "Economic hegemony does not always translate into the welfare of ordinary people."],
+    "phonetic": "heh-JEM-uh-nee",
+    "etymology": "From Greek hegemonia — leadership",
+    "language_of_origin": "Greek"
+  },
+  {
+    "id": "sw_009", "text": "idiosyncratic", "ssr": 1420, "tier": "sss", "language": "en",
+    "definition": "Relating to or characteristic of an individual's peculiar behaviour or way of thinking.",
+    "context_sentences": ["His idiosyncratic teaching style confused students at first but proved effective.", "The idiosyncratic naming traditions of the Yoruba reflect their deep spirituality."],
+    "phonetic": "id-ee-oh-sin-KRAT-ik",
+    "etymology": "From Greek idios (own) + synkrasis (mixture)",
+    "language_of_origin": "Greek"
+  },
+  {
+    "id": "sw_010", "text": "juxtaposition", "ssr": 1340, "tier": "sss", "language": "en",
+    "definition": "The fact of placing two things close together for contrasting effect.",
+    "context_sentences": ["The juxtaposition of wealth and poverty on Lagos Island tells a powerful story.", "Achebe's juxtaposition of tradition and modernity drives the conflict in 'Things Fall Apart'."],
+    "phonetic": "juk-stuh-puh-ZI-shun",
+    "etymology": "From Latin juxta (next to) + positio (placing)",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_011", "text": "lachrymose", "ssr": 1460, "tier": "sss", "language": "en",
+    "definition": "Tearful or given to weeping; inducing tears.",
+    "context_sentences": ["The lachrymose ending of the play moved every student in the audience.", "She became lachrymose whenever she recalled her years of hardship before success."],
+    "phonetic": "LAK-rih-mohs",
+    "etymology": "From Latin lacrima — tear",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_012", "text": "magnanimous", "ssr": 1280, "tier": "sss", "language": "en",
+    "definition": "Very generous or forgiving, especially toward a rival or someone less powerful.",
+    "context_sentences": ["The magnanimous victor offered the defeated team words of genuine encouragement.", "A magnanimous leader forgives past wrongs for the sake of national unity."],
+    "phonetic": "mag-NAN-ih-mus",
+    "etymology": "From Latin magnus (great) + animus (spirit)",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_013", "text": "nefarious", "ssr": 1220, "tier": "sss", "language": "en",
+    "definition": "Wicked and criminal; morally wrong in a scandalous way.",
+    "context_sentences": ["The nefarious activities of corrupt officials rob the nation of its future.", "In literature, the villain's nefarious schemes are usually exposed by the hero."],
+    "phonetic": "neh-FAIR-ee-us",
+    "etymology": "From Latin nefarius — wicked, abominable",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_014", "text": "ostentatious", "ssr": 1300, "tier": "sss", "language": "en",
+    "definition": "Characterized by a showy display intended to impress; pretentious.",
+    "context_sentences": ["The ostentatious party was widely criticized as an insult to the poor.", "Ostentatious wealth without corresponding humility is frowned upon in many Nigerian cultures."],
+    "phonetic": "os-ten-TAY-shus",
+    "etymology": "From Latin ostentare — to display",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_015", "text": "pernicious", "ssr": 1260, "tier": "sss", "language": "en",
+    "definition": "Having a harmful effect, especially in a gradual or subtle way.",
+    "context_sentences": ["Drug abuse has a pernicious influence on young people's academic performance.", "Fake news spreads pernicious misinformation that can destroy communities."],
+    "phonetic": "pur-NISH-us",
+    "etymology": "From Latin perniciosus — destructive",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_016", "text": "quixotic", "ssr": 1480, "tier": "sss", "language": "en",
+    "definition": "Exceedingly idealistic; unrealistic and impractical.",
+    "context_sentences": ["His quixotic dream of ending corruption overnight ignored the depth of the problem.", "The reformer was called quixotic, yet history proved his ideals were right."],
+    "phonetic": "kwik-SOT-ik",
+    "etymology": "From Don Quixote, the idealistic character by Cervantes",
+    "language_of_origin": "Spanish"
+  },
+  {
+    "id": "sw_017", "text": "recalcitrant", "ssr": 1360, "tier": "sss", "language": "en",
+    "definition": "Having an obstinately uncooperative attitude toward authority.",
+    "context_sentences": ["The recalcitrant student refused to apologize despite the teacher's patience.", "Some recalcitrant officials refused to implement the new transparency policies."],
+    "phonetic": "reh-KAL-sih-trant",
+    "etymology": "From Latin recalcitrare — to kick back",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_018", "text": "sycophant", "ssr": 1320, "tier": "sss", "language": "en",
+    "definition": "A person who tries to gain favour through flattery and excessive agreement.",
+    "context_sentences": ["The politician surrounded himself with sycophants who told him only what he wanted to hear.", "A true friend speaks the truth; a sycophant only praises to gain favour."],
+    "phonetic": "SIK-uh-fant",
+    "etymology": "From Greek sykophantes — informer, slanderer",
+    "language_of_origin": "Greek"
+  },
+  {
+    "id": "sw_019", "text": "tergiversation", "ssr": 1560, "tier": "sss", "language": "en",
+    "definition": "The action of evading clear commitment to a definite course of action; equivocation.",
+    "context_sentences": ["The senator's tergiversation on the bill frustrated his constituents.", "Tergiversation in leadership erodes public trust faster than outright failure."],
+    "phonetic": "tur-jih-vur-SAY-shun",
+    "etymology": "From Latin tergiversari — to turn one's back",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_020", "text": "umbrage", "ssr": 1280, "tier": "sss", "language": "en",
+    "definition": "Offence or annoyance; the feeling of being insulted.",
+    "context_sentences": ["She took great umbrage at the suggestion that she had cheated.", "The delegation took umbrage at the disrespectful tone of the negotiations."],
+    "phonetic": "UM-brij",
+    "etymology": "From Latin umbra — shadow",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_021", "text": "vociferous", "ssr": 1200, "tier": "sss", "language": "en",
+    "definition": "Expressing opinions or complaints loudly and forcefully.",
+    "context_sentences": ["The vociferous protest outside the National Assembly lasted three days.", "Human rights activists are vociferous in demanding justice for the oppressed."],
+    "phonetic": "voh-SIF-ur-us",
+    "etymology": "From Latin vox (voice) + ferre (to bear)",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_022", "text": "wanton", "ssr": 1100, "tier": "sss", "language": "en",
+    "definition": "Deliberately cruel or harmful without reason; unrestrained.",
+    "context_sentences": ["The wanton destruction of school property is a criminal offence.", "There is no justification for the wanton abuse of human rights."],
+    "phonetic": "WON-tun",
+    "etymology": "From Middle English wantowen — undisciplined",
+    "language_of_origin": "Old English"
+  },
+  {
+    "id": "sw_023", "text": "xenophobia", "ssr": 1180, "tier": "sss", "language": "en",
+    "definition": "Intense dislike or fear of people from other countries or cultures.",
+    "context_sentences": ["Xenophobia tears apart communities that could benefit from cultural exchange.", "The WAEC essay required students to discuss the causes of xenophobia in Africa."],
+    "phonetic": "zen-uh-FOH-bee-uh",
+    "etymology": "From Greek xenos (stranger) + phobos (fear)",
+    "language_of_origin": "Greek"
+  },
+  {
+    "id": "sw_024", "text": "zealotry", "ssr": 1220, "tier": "sss", "language": "en",
+    "definition": "Fanatical and uncompromising pursuit of ideals; extreme devotion to a cause.",
+    "context_sentences": ["Religious zealotry has been the source of conflicts throughout human history.", "There is a fine line between passionate belief and dangerous zealotry."],
+    "phonetic": "ZEL-uh-tree",
+    "etymology": "From Greek zelotes — one who is jealous or zealous",
+    "language_of_origin": "Greek"
+  },
+  {
+    "id": "sw_025", "text": "acrimony", "ssr": 1240, "tier": "sss", "language": "en",
+    "definition": "Bitterness or ill feeling in speech or manner.",
+    "context_sentences": ["The acrimony between the two political parties made governance impossible.", "She expressed her disappointment without acrimony, only quiet sadness."],
+    "phonetic": "AK-rih-moh-nee",
+    "etymology": "From Latin acrimonia — sharpness, bitterness",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_026", "text": "bombastic", "ssr": 1160, "tier": "sss", "language": "en",
+    "definition": "Using high-sounding language with little real meaning; inflated.",
+    "context_sentences": ["His bombastic speech impressed no one who understood the real issues at hand.", "Good writers avoid bombastic language and prefer clarity over complexity."],
+    "phonetic": "bom-BAS-tik",
+    "etymology": "From Greek bombyx — cotton padding (stuffed speech)",
+    "language_of_origin": "Greek"
+  },
+  {
+    "id": "sw_027", "text": "capricious", "ssr": 1200, "tier": "sss", "language": "en",
+    "definition": "Given to sudden changes of mood or behaviour; unpredictable.",
+    "context_sentences": ["The capricious policy changes made it impossible for businesses to plan.", "A capricious leader cannot build the stable institutions a nation needs."],
+    "phonetic": "kuh-PRISH-us",
+    "etymology": "From Italian capriccio — a sudden start, whim",
+    "language_of_origin": "Italian"
+  },
+  {
+    "id": "sw_028", "text": "draconian", "ssr": 1260, "tier": "sss", "language": "en",
+    "definition": "Excessively harsh or severe, especially with regard to laws or punishment.",
+    "context_sentences": ["The draconian law imposed a curfew that violated citizens' basic freedoms.", "Human rights groups protested the draconian penalties for minor offences."],
+    "phonetic": "druh-KOH-nee-un",
+    "etymology": "From Draco, the ancient Athenian lawmaker known for harsh laws",
+    "language_of_origin": "Greek"
+  },
+  {
+    "id": "sw_029", "text": "equivocate", "ssr": 1300, "tier": "sss", "language": "en",
+    "definition": "To use ambiguous language to avoid commitment or to mislead.",
+    "context_sentences": ["The official tried to equivocate when questioned about the missing funds.", "A person of integrity does not equivocate — they speak plainly and honestly."],
+    "phonetic": "ih-KWIV-oh-kayt",
+    "etymology": "From Latin aequivocus — of equal voice, ambiguous",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_030", "text": "filibuster", "ssr": 1340, "tier": "sss", "language": "en",
+    "definition": "The obstruction of legislation by prolonged speechmaking.",
+    "context_sentences": ["The opposition senator staged a filibuster that delayed the vote for six hours.", "A filibuster is a tactic used to prevent a bill from being passed into law."],
+    "phonetic": "FIL-ih-bus-tur",
+    "etymology": "From Dutch vrijbuiter — freebooter, pirate",
+    "language_of_origin": "Dutch"
+  },
+  {
+    "id": "sw_031", "text": "gregarious", "ssr": 1140, "tier": "sss", "language": "en",
+    "definition": "Fond of company; sociable; living in flocks or communities.",
+    "context_sentences": ["Her gregarious personality made her the most popular student in the school.", "Humans are gregarious by nature — we thrive in communities."],
+    "phonetic": "greh-GAIR-ee-us",
+    "etymology": "From Latin grex — flock, herd",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_032", "text": "harangue", "ssr": 1280, "tier": "sss", "language": "en",
+    "definition": "A lengthy and aggressive speech; to lecture someone at length.",
+    "context_sentences": ["The principal's harangue about punctuality lasted the entire assembly period.", "He harangued his team after the loss, which only decreased their morale."],
+    "phonetic": "huh-RANG",
+    "etymology": "From Old French harangue — public speech",
+    "language_of_origin": "Old French"
+  },
+  {
+    "id": "sw_033", "text": "impunity", "ssr": 1160, "tier": "sss", "language": "en",
+    "definition": "Exemption from punishment or freedom from the consequences of an action.",
+    "context_sentences": ["Corruption thrives when officials act with impunity and face no consequences.", "The rule of law ensures that no one can break the law with impunity."],
+    "phonetic": "im-PYOO-nuh-tee",
+    "etymology": "From Latin impunitas — freedom from punishment",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_034", "text": "kleptocracy", "ssr": 1420, "tier": "sss", "language": "en",
+    "definition": "A government in which leaders use political power to steal their country's resources.",
+    "context_sentences": ["The essay argued that kleptocracy, not poverty, is Africa's greatest curse.", "Citizens must demand accountability to prevent their nation from becoming a kleptocracy."],
+    "phonetic": "klep-TOK-ruh-see",
+    "etymology": "From Greek kleptes (thief) + kratos (rule)",
+    "language_of_origin": "Greek"
+  },
+  {
+    "id": "sw_035", "text": "litigious", "ssr": 1300, "tier": "sss", "language": "en",
+    "definition": "Excessively ready to use legal proceedings to settle disputes.",
+    "context_sentences": ["The litigious nature of the business dispute clogged up the court system.", "A litigious society can sometimes stifle progress through endless legal battles."],
+    "phonetic": "lih-TIJ-us",
+    "etymology": "From Latin litigiosus — fond of disputes",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_036", "text": "malfeasance", "ssr": 1380, "tier": "sss", "language": "en",
+    "definition": "Wrongdoing, especially by a public official.",
+    "context_sentences": ["The governor was impeached for malfeasance in the management of public funds.", "Malfeasance in office is a serious charge that can end a political career."],
+    "phonetic": "mal-FEE-zuns",
+    "etymology": "From Old French malfaisance — wrongdoing",
+    "language_of_origin": "Old French"
+  },
+  {
+    "id": "sw_037", "text": "nepotism", "ssr": 1160, "tier": "sss", "language": "en",
+    "definition": "The practice of favouring relatives or close friends in employment, regardless of merit.",
+    "context_sentences": ["Nepotism in public service appointments denies qualified candidates their chance.", "The committee investigated allegations of nepotism in the scholarship awards."],
+    "phonetic": "NEP-uh-tiz-um",
+    "etymology": "From Italian nipote — nephew (originally referring to popes favouring nephews)",
+    "language_of_origin": "Italian"
+  },
+  {
+    "id": "sw_038", "text": "obsequious", "ssr": 1360, "tier": "sss", "language": "en",
+    "definition": "Obedient or attentive to an excessive or servile degree.",
+    "context_sentences": ["The obsequious aide agreed with everything the director said, however wrong.", "Genuine respect is different from obsequious flattery — one builds, the other corrodes."],
+    "phonetic": "ub-SEE-kwee-us",
+    "etymology": "From Latin obsequium — compliance, deference",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_039", "text": "perfidious", "ssr": 1340, "tier": "sss", "language": "en",
+    "definition": "Deceitful and untrustworthy; guilty of betrayal.",
+    "context_sentences": ["The perfidious ally signed the peace treaty and then broke it within weeks.", "History remembers perfidious leaders who betrayed the trust of their people."],
+    "phonetic": "pur-FID-ee-us",
+    "etymology": "From Latin perfidiosus — treacherous",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_040", "text": "querulous", "ssr": 1280, "tier": "sss", "language": "en",
+    "definition": "Complaining in a petulant or whining manner.",
+    "context_sentences": ["The querulous passenger complained about every detail of the journey.", "A querulous attitude alienates friends and closes doors that patience would open."],
+    "phonetic": "KWER-uh-lus",
+    "etymology": "From Latin querulus — complaining",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_041", "text": "rhetoric", "ssr": 1100, "tier": "sss", "language": "en",
+    "definition": "The art of effective and persuasive speaking or writing; language designed to persuade.",
+    "context_sentences": ["The candidate's inspiring rhetoric won over many undecided voters.", "Empty rhetoric without action is one of the hallmarks of poor leadership."],
+    "phonetic": "RET-ur-ik",
+    "etymology": "From Greek rhetorike — art of the orator",
+    "language_of_origin": "Greek"
+  },
+  {
+    "id": "sw_042", "text": "seditious", "ssr": 1320, "tier": "sss", "language": "en",
+    "definition": "Inciting or causing people to rebel against the authority of a state.",
+    "context_sentences": ["The government declared the pamphlets seditious and ordered them confiscated.", "Freedom of speech does not protect seditious material that incites violence."],
+    "phonetic": "seh-DISH-us",
+    "etymology": "From Latin seditio — going apart, revolt",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_043", "text": "truculent", "ssr": 1260, "tier": "sss", "language": "en",
+    "definition": "Eager to argue or fight; aggressively defiant.",
+    "context_sentences": ["The truculent defendant interrupted the proceedings multiple times.", "A truculent negotiator often achieves less than a measured and calm one."],
+    "phonetic": "TRUK-yuh-lunt",
+    "etymology": "From Latin truculentus — fierce, savage",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_044", "text": "vicissitude", "ssr": 1400, "tier": "sss", "language": "en",
+    "definition": "A change of circumstances or fortune, typically for the worse; ups and downs.",
+    "context_sentences": ["Nigeria's history is marked by the vicissitudes of military rule and democracy.", "Through every vicissitude, the resilient people rebuilt their lives and communities."],
+    "phonetic": "vih-SIS-ih-tyood",
+    "etymology": "From Latin vicissitudo — alternation, change",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_045", "text": "magniloquent", "ssr": 1500, "tier": "sss", "language": "en",
+    "definition": "Using high-flown or bombastic language; grandiloquent.",
+    "context_sentences": ["The magniloquent speech was impressive in delivery but shallow in substance.", "Writers are warned against magniloquent prose that prioritises sound over sense."],
+    "phonetic": "mag-NIL-oh-kwunt",
+    "etymology": "From Latin magnus (great) + loqui (to speak)",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_046", "text": "perspicacious", "ssr": 1460, "tier": "sss", "language": "en",
+    "definition": "Having a ready insight into things; shrewd and discerning.",
+    "context_sentences": ["A perspicacious student recognises the deeper themes beneath a poem's surface.", "Her perspicacious analysis of the budget revealed hidden inconsistencies."],
+    "phonetic": "pur-spih-KAY-shus",
+    "etymology": "From Latin perspicax — sharp-sighted",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_047", "text": "tendentious", "ssr": 1380, "tier": "sss", "language": "en",
+    "definition": "Expressing or promoting a particular cause or point of view; biased.",
+    "context_sentences": ["The tendentious newspaper article ignored all evidence that contradicted its thesis.", "Academic writing should be objective, not tendentious or politically motivated."],
+    "phonetic": "ten-DEN-shus",
+    "etymology": "From Latin tendere — to stretch, aim",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_048", "text": "verisimilitude", "ssr": 1540, "tier": "sss", "language": "en",
+    "definition": "The appearance of being true or real; believable realism in a narrative.",
+    "context_sentences": ["Chinua Achebe's descriptions of Igbo village life give his fiction remarkable verisimilitude.", "Good historical fiction balances invention with verisimilitude to feel authentic."],
+    "phonetic": "ver-ih-sih-MIL-ih-tyood",
+    "etymology": "From Latin verisimilis — truth-like",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_049", "text": "pusillanimous", "ssr": 1480, "tier": "sss", "language": "en",
+    "definition": "Showing a lack of courage or determination; timid and cowardly.",
+    "context_sentences": ["The pusillanimous minister refused to speak out against the unjust policy.", "History does not remember pusillanimous leaders — it remembers the courageous ones."],
+    "phonetic": "pyoo-sil-AN-ih-mus",
+    "etymology": "From Latin pusillus (very small) + animus (spirit)",
+    "language_of_origin": "Latin"
+  },
+  {
+    "id": "sw_050", "text": "circumlocution", "ssr": 1380, "tier": "sss", "language": "en",
+    "definition": "The use of many words where fewer would do; the use of indirect expression.",
+    "context_sentences": ["Politicians are notorious for using circumlocution to avoid direct answers.", "Good writing replaces circumlocution with precise, clear, and direct language."],
+    "phonetic": "sur-kum-loh-KYOO-shun",
+    "etymology": "From Latin circum (around) + locutio (speech)",
+    "language_of_origin": "Latin"
+  }
+]
