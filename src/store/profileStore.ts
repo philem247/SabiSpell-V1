@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppConfig, getXPTitle } from '../constants/AppConfig';
 import { PlayerProfile, DEMO_PROFILE } from '../constants/DemoSeeds';
+import { calculateEnergyRefill, deductEnergy as serviceDeductEnergy } from '../services/energy';
 
 // Simple in-memory storage fallback for Node.js unit testing environments
 const memoryStorage: Record<string, string> = {};
@@ -66,26 +67,11 @@ export const useProfileStore = create<ProfileStore>()(
 
       checkAndRefillEnergy: () => {
         const state = get();
-        if (state.energy >= AppConfig.ENERGY_CAP) {
-          // Keep timestamp fresh if already capped
-          set({ last_energy_refill_ts: Date.now() });
-          return;
-        }
-
-        const now = Date.now();
-        const elapsedMs = now - state.last_energy_refill_ts;
-        const intervalMs = AppConfig.ENERGY_REFILL_INTERVAL_MS;
-
-        if (elapsedMs >= intervalMs) {
-          const pipsToAdd = Math.floor(elapsedMs / intervalMs);
-          const newEnergy = Math.min(AppConfig.ENERGY_CAP, state.energy + pipsToAdd);
-          const newRefillTs = state.last_energy_refill_ts + pipsToAdd * intervalMs;
-
-          set({
-            energy: newEnergy,
-            last_energy_refill_ts: newEnergy === AppConfig.ENERGY_CAP ? now : newRefillTs,
-          });
-        }
+        const result = calculateEnergyRefill(state.energy, state.last_energy_refill_ts, Date.now());
+        set({
+          energy: result.energy,
+          last_energy_refill_ts: result.lastRefillTs,
+        });
       },
 
       setOnboarded: (username, declaredClass) => {
@@ -153,19 +139,14 @@ export const useProfileStore = create<ProfileStore>()(
       },
 
       deductEnergy: (amount) => {
-        get().checkAndRefillEnergy();
         const state = get();
-        if (state.energy < amount) {
+        const result = serviceDeductEnergy(state.energy, amount, state.last_energy_refill_ts, Date.now());
+        if (!result.success) {
           return false;
         }
-
-        const newEnergy = state.energy - amount;
-        const now = Date.now();
-
         set({
-          energy: newEnergy,
-          last_energy_refill_ts:
-            state.energy === AppConfig.ENERGY_CAP ? now : state.last_energy_refill_ts,
+          energy: result.energy,
+          last_energy_refill_ts: result.lastRefillTs,
         });
         return true;
       },
