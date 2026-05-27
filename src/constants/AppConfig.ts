@@ -29,6 +29,8 @@ export const AppConfig = {
   SSR_MAX:             2000,
   SSR_SSS_DEFAULT:     1100, // Starting SSR for SSS 2 when the diagnostic is skipped
   SSR_WORD_PROXIMITY:  300,  // Only select words within ±300 SSR of the player
+  SSR_CORRECT_MULTIPLIER: 1.2,
+  SSR_INCORRECT_MULTIPLIER: 0.5,
 
   // ── Game parameters ──────────────────────────────────────────────────────────
   WORDS_PER_ROUND:     5,
