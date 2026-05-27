@@ -20,7 +20,7 @@ const mockMemoryStorage = {
 };
 
 // Detect if we are running in a Node.js testing environment vs React Native runtime
-const isNode = typeof globalThis !== 'undefined' && (globalThis as any).process && (globalThis as any).process.env && (globalThis as any).process.env.NODE_ENV === 'test';
+const isNode = typeof process !== 'undefined' && process.versions && !!process.versions.node;
 const activeStorage = isNode ? mockMemoryStorage : AsyncStorage;
 
 const DEFAULT_PROFILE: PlayerProfile = {

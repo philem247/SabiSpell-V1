@@ -22,18 +22,26 @@ export function EnergyBar({ energy, themeKey = 'sss' }: EnergyBarProps) {
     <View style={styles.container}>
       <Text style={[styles.label, { color: theme.textSecondary }]}>ENERGY</Text>
       <View style={styles.bar}>
-        {pips.map((active, idx) => (
-          <View
-            key={idx}
-            style={[
-              styles.pip,
-              {
-                backgroundColor: active ? theme.energyFill : theme.energyEmpty,
-                borderColor: active ? theme.brandSecondary : theme.border,
-              },
-            ]}
-          />
-        ))}
+        <View style={styles.pipsRow}>
+          {pips.map((active, idx) => (
+            <View
+              key={idx}
+              style={[
+                styles.pip,
+                {
+                  backgroundColor: active ? theme.energyFill : 'rgba(196, 220, 244, 0.3)',
+                  borderColor: active ? theme.brandPrimary : 'rgba(196, 220, 244, 0.6)',
+                  // iOS shadow for active pips
+                  shadowColor: active ? theme.brandPrimary : 'transparent',
+                  shadowOffset: active ? { width: 0, height: 2 } : { width: 0, height: 0 },
+                  shadowOpacity: active ? 0.4 : 0,
+                  shadowRadius: 3,
+                  elevation: active ? 2 : 0,
+                },
+              ]}
+            />
+          ))}
+        </View>
         <Text style={[styles.text, { color: theme.textPrimary }]}>
           {energy}/{cap}
         </Text>
@@ -50,24 +58,28 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 10,
     fontFamily: FontFamily.bodySemiBold,
-    letterSpacing: 1,
-    marginBottom: 4,
+    letterSpacing: 1.2,
+    marginBottom: 6,
   },
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  pipsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   pip: {
-    width: 14,
-    height: 18,
-    borderRadius: 3,
-    borderWidth: 1,
-    marginRight: 4,
+    width: 16,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    marginRight: 6,
   },
   text: {
     fontSize: FontSizes.sm,
     fontFamily: FontFamily.mono,
-    marginLeft: 6,
-    fontWeight: 'bold',
+    marginLeft: 8,
+    fontWeight: '700',
   },
 });

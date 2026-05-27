@@ -9,9 +9,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  SafeAreaView,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useProfileStore } from '../src/store/profileStore';
 import { Themes, GlobalColors, FontSizes, FontFamily, Radii, Shadows, Spacing } from '../src/constants/Colors';
@@ -84,7 +84,9 @@ export default function OnboardingScreen() {
           <View style={[styles.card, Shadows.card]}>
             {/* Mascot Greeting */}
             <View style={styles.mascotSection}>
-              <Image source={ajalaStandardImg} style={styles.mascot} resizeMode="contain" />
+              <View style={[styles.mascotBadge, { backgroundColor: theme.bgSecondary, borderColor: theme.brandAccent }]}>
+                <Image source={ajalaStandardImg} style={styles.mascot} resizeMode="contain" />
+              </View>
               <View style={[styles.speechBubble, { backgroundColor: theme.bgSecondary }]}>
                 <Text style={[styles.speechText, { color: theme.textPrimary }]}>
                   Ẹ n lẹ́! Hello! I am <Text style={styles.boldText}>Àjàlá</Text>, your spelling guide. What nickname would you like to be called?
@@ -196,10 +198,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.xl,
   },
-  mascot: {
+  mascotBadge: {
     width: 110,
     height: 110,
+    borderRadius: 55,
+    borderWidth: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: Spacing.md,
+    // Add micro shadow for depth
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  mascot: {
+    width: 80,
+    height: 80,
   },
   speechBubble: {
     padding: Spacing.md,

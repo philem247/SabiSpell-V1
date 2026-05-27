@@ -6,12 +6,12 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   StatusBar,
   Modal,
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useProfileStore } from '../src/store/profileStore';
 import { EnergyBar } from '../src/components/EnergyBar';
 import { XPBar } from '../src/components/XPBar';
@@ -23,6 +23,7 @@ const sabiSpellLogoImg = require('../assets/images/sabispell_logo.png');
 
 export default function DashboardScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   // Load profile state
   const {
@@ -71,7 +72,7 @@ export default function DashboardScreen() {
     // Academic League costs 1 energy
     const success = deductEnergy(AppConfig.ENERGY_COST_ACADEMIC);
     if (success) {
-      router.push('/game/academic');
+      router.push('/game/academic' as any);
     } else {
       Alert.alert(
         'Out of Energy! ⚡',
@@ -82,13 +83,13 @@ export default function DashboardScreen() {
   };
 
   const handleModeSelect = () => {
-    router.push('/mode-select');
+    router.push('/mode-select' as any);
   };
 
   const theme = Themes.sss; // SSS Lagoon Blue theme
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.bgPrimary }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.bgPrimary }]} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="dark-content" />
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         
@@ -106,12 +107,12 @@ export default function DashboardScreen() {
           {/* HUD Stats */}
           <View style={styles.statsHUD}>
             {/* Streak */}
-            <View style={[styles.hudBadge, { backgroundColor: theme.bgSecondary }]}>
-              <Text style={styles.hudBadgeText}>🔥 {daily_streak}d</Text>
+            <View style={[styles.hudBadge, { backgroundColor: '#FFEBE3', borderColor: '#FF6B35', borderWidth: 1 }]}>
+              <Text style={[styles.hudBadgeText, { color: '#FF6B35' }]}>🔥 {daily_streak}d</Text>
             </View>
             {/* Coins */}
-            <View style={[styles.hudBadge, { backgroundColor: theme.bgSecondary }]}>
-              <Text style={styles.hudBadgeText}>🪙 {coins}</Text>
+            <View style={[styles.hudBadge, { backgroundColor: '#FFF5E6', borderColor: '#F5A623', borderWidth: 1 }]}>
+              <Text style={[styles.hudBadgeText, { color: '#D48806' }]}>🪙 {coins}</Text>
             </View>
           </View>
         </View>
@@ -152,7 +153,9 @@ export default function DashboardScreen() {
           >
             <View style={styles.modeCardHeader}>
               <Text style={[styles.modeTitle, { color: theme.textPrimary }]}>Academic League</Text>
-              <Text style={[styles.modeCostText, { color: theme.brandPrimary }]}>⚡ 1 Energy</Text>
+              <View style={[styles.modeCostBadge, { backgroundColor: 'rgba(10, 110, 189, 0.08)' }]}>
+                <Text style={[styles.modeCostText, { color: theme.brandPrimary }]}>⚡ 1 Energy</Text>
+              </View>
             </View>
             <Text style={[styles.modeDesc, { color: theme.textSecondary }]}>
               Practice advanced WAEC-relevant spelling words. Adaptive difficulty.
@@ -167,7 +170,9 @@ export default function DashboardScreen() {
           >
             <View style={styles.modeCardHeader}>
               <Text style={[styles.modeTitle, { color: theme.textPrimary }]}>Wazobia Mode</Text>
-              <Text style={[styles.modeCostText, { color: Themes.wazobia.brandPrimary }]}>⚡ 2 Energy</Text>
+              <View style={[styles.modeCostBadge, { backgroundColor: 'rgba(193, 68, 14, 0.08)' }]}>
+                <Text style={[styles.modeCostText, { color: Themes.wazobia.brandPrimary }]}>⚡ 2 Energy</Text>
+              </View>
             </View>
             <Text style={[styles.modeDesc, { color: theme.textSecondary }]}>
               Learn Yoruba tone spelling with Ankara patterns, custom keyboard, and drum beats.
@@ -182,7 +187,9 @@ export default function DashboardScreen() {
           >
             <View style={styles.modeCardHeader}>
               <Text style={[styles.modeTitle, { color: theme.textPrimary }]}>Spell Arena</Text>
-              <Text style={[styles.modeCostText, { color: GlobalColors.sabiGold }]}>⚡ 2 Energy</Text>
+              <View style={[styles.modeCostBadge, { backgroundColor: 'rgba(245, 166, 35, 0.08)' }]}>
+                <Text style={[styles.modeCostText, { color: GlobalColors.sabiGold }]}>⚡ 2 Energy</Text>
+              </View>
             </View>
             <Text style={[styles.modeDesc, { color: theme.textSecondary }]}>
               Compete live in real time against SabiBot. High stakes.
@@ -197,19 +204,23 @@ export default function DashboardScreen() {
               Ẹ lẹ́yìn, <Text style={styles.boldText}>{username}</Text>! Ready to climb the spelling rankings and unlock graduation today? 🎓
             </Text>
           </View>
-          <Image source={ajalaStandardImg} style={styles.ajalaMascot} resizeMode="contain" />
+          <View style={[styles.mascotBadge, { backgroundColor: theme.bgSecondary, borderColor: theme.brandAccent }]}>
+            <Image source={ajalaStandardImg} style={styles.ajalaMascot} resizeMode="contain" />
+          </View>
         </View>
 
-        {/* Large Play Now CTA */}
+      </ScrollView>
+
+      {/* Floating Sticky Bottom CTA Container */}
+      <View style={[styles.bottomCTAContainer, { backgroundColor: theme.bgPrimary + 'F0', paddingBottom: Math.max(insets.bottom, Spacing.base) }]}>
         <TouchableOpacity
           onPress={handlePlayNow}
-          activeOpacity={0.8}
+          activeOpacity={0.85}
           style={[styles.playButton, { backgroundColor: theme.brandPrimary }, Shadows.button]}
         >
           <Text style={styles.playButtonText}>Play SSS 2 Spell Round</Text>
         </TouchableOpacity>
-
-      </ScrollView>
+      </View>
 
       {/* Demo Controls Modal Panel */}
       <Modal
@@ -279,7 +290,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     paddingHorizontal: Spacing.base,
     paddingTop: Spacing.sm,
-    paddingBottom: Spacing.xxl,
+    paddingBottom: 110, // Increased bottom padding to prevent bottom CTA overlapping content
   },
   hudRow: {
     flexDirection: 'row',
@@ -300,11 +311,14 @@ const styles = StyleSheet.create({
   },
   usernameText: {
     fontSize: FontSizes.md,
-    fontFamily: FontFamily.headingSemi,
+    fontFamily: FontFamily.heading,
+    letterSpacing: 0.2,
   },
   classText: {
     fontSize: FontSizes.xs,
     fontFamily: FontFamily.bodySemiBold,
+    opacity: 0.8,
+    marginTop: 1,
   },
   statsHUD: {
     flexDirection: 'row',
@@ -326,6 +340,8 @@ const styles = StyleSheet.create({
     borderRadius: Radii.md,
     padding: Spacing.md,
     marginBottom: Spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(10, 110, 189, 0.08)',
   },
   refillInfoText: {
     fontSize: FontSizes.xs,
@@ -338,11 +354,15 @@ const styles = StyleSheet.create({
     borderRadius: Radii.md,
     padding: Spacing.md,
     marginBottom: Spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(10, 110, 189, 0.08)',
   },
   challengeCard: {
     borderRadius: Radii.md,
     padding: Spacing.md,
     marginBottom: Spacing.lg,
+    borderWidth: 1.5,
+    borderColor: '#FFEBE3',
   },
   challengeHeader: {
     flexDirection: 'row',
@@ -391,6 +411,8 @@ const styles = StyleSheet.create({
     borderRadius: Radii.md,
     padding: Spacing.md,
     marginBottom: Spacing.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(10, 110, 189, 0.08)',
   },
   modeCardHeader: {
     flexDirection: 'row',
@@ -434,9 +456,47 @@ const styles = StyleSheet.create({
   boldText: {
     fontFamily: FontFamily.bodySemiBold,
   },
-  ajalaMascot: {
+  mascotBadge: {
     width: 80,
     height: 80,
+    borderRadius: 40,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: GlobalColors.white,
+    // Add micro shadow for depth
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  ajalaMascot: {
+    width: 58,
+    height: 58,
+  },
+  modeCostBadge: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 3,
+    borderRadius: Radii.xs,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bottomCTAContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(10, 110, 189, 0.1)',
+    // Shadow to lift the floating panel
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 8,
   },
   playButton: {
     height: 52,

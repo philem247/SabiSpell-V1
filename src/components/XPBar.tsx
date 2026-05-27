@@ -109,10 +109,12 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.bodySemiBold,
   },
   track: {
-    height: 12,
+    height: 14,
     borderRadius: Radii.round,
     overflow: 'hidden',
     width: '100%',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
   },
   fill: {
     height: '100%',
@@ -126,9 +128,11 @@ const styles = StyleSheet.create({
   progressLabel: {
     fontSize: FontSizes.xs,
     fontFamily: FontFamily.mono,
+    fontWeight: '600',
   },
   percentageLabel: {
     fontSize: FontSizes.xs,
     fontFamily: FontFamily.bodySemiBold,
+    fontWeight: '600',
   },
 });
