@@ -1,0 +1,441 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  StyleSheet, View, Text, TextInput, TouchableOpacity,
+  Animated, Keyboard, KeyboardAvoidingView, Platform, StatusBar,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useProfileStore } from '../../src/store/profileStore';
+import { useGameStore } from '../../src/store/gameStore';
+import { getNextWord, Word } from '../../src/services/wordbank';
+import { calculateSSRDelta } from '../../src/services/ssr';
+import { calculateReward } from '../../src/services/economy';
+import { speak, stopSpeaking } from '../../src/services/tts';
+import { initAudio, playCorrect, playWrong } from '../../src/services/audio';
+import { Themes, GlobalColors, FontSizes, FontFamily, Radii, Spacing, Shadows } from '../../src/constants/Colors';
+import { AppConfig } from '../../src/constants/AppConfig';
+import AjalaAvatar, { AjalaState } from '../../src/components/AjalaAvatar';
+
+const WORDS_PER_ROUND = AppConfig.WORDS_PER_ROUND;
+const TIME_PER_WORD   = AppConfig.TIME_PER_WORD_SEC;
+
+type AnswerStatus = 'idle' | 'correct' | 'wrong' | 'timeout';
+
+export default function AcademicGameScreen() {
+  const router = useRouter();
+  const theme  = Themes.sss;
+
+  const {
+    academic_ssr, coins, daily_streak, word_history,
+    addXPAndCoins, updateSSR, addWordToHistory, updateDailyStreak,
+  } = useProfileStore();
+
+  const { startNewSession, setCurrentWord, recordAnswer, spellStreak } = useGameStore();
+
+  // ── State ────────────────────────────────────────────────────────────────────
+  const [currentWord,        setWord]             = useState<Word | null>(null);
+  const [wordIndex,          setWordIndex]         = useState(0);
+  const [userInput,          setUserInput]         = useState('');
+  const [answerStatus,       setAnswerStatus]      = useState<AnswerStatus>('idle');
+  const [correctSpelling,    setCorrectSpelling]   = useState('');
+  const [timeLeft,           setTimeLeft]          = useState<number>(TIME_PER_WORD);
+  const [ajalaState,         setAjalaState]        = useState<AjalaState>('standard');
+  const [ajalaCorrect,       setAjalaCorrect]      = useState(false);
+  const [ajalaWrong,         setAjalaWrong]        = useState(false);
+  const [hintUsed,           setHintUsed]          = useState(false);
+  const [hintRevealedIdx,    setHintRevealedIdx]   = useState<number | null>(null);
+  const [showCorrectFlash,   setShowCorrectFlash]  = useState(false);
+  const [showContext,        setShowContext]        = useState(false);
+  const [isLoading,          setIsLoading]         = useState(true);
+  const [currentSSR,         setCurrentSSR]        = useState(academic_ssr);
+
+  // ── Refs ─────────────────────────────────────────────────────────────────────
+  const timerRef      = useRef<ReturnType<typeof setInterval> | null>(null);
+  const sessionRef    = useRef<string[]>([]);
+  const timerAnim     = useRef(new Animated.Value(1)).current;
+  const feedbackFade  = useRef(new Animated.Value(0)).current;
+  const advancingRef  = useRef(false); // guard against double-advance
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+  const clearTimer = useCallback(() => {
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+  }, []);
+
+  const animateTimerBar = useCallback((durationMs: number) => {
+    timerAnim.setValue(1);
+    Animated.timing(timerAnim, { toValue: 0, duration: durationMs, useNativeDriver: false }).start();
+  }, [timerAnim]);
+
+  const flashFeedback = useCallback(() => {
+    feedbackFade.setValue(1);
+    Animated.timing(feedbackFade, { toValue: 0, duration: 1000, useNativeDriver: true }).start();
+  }, [feedbackFade]);
+
+  const buildDashes = (word: string, hintIdx: number | null): string =>
+    word.split('').map((ch, i) => {
+      if (ch === ' ') return '  ';
+      if (hintIdx !== null && i === hintIdx) return ch.toUpperCase();
+      return '_';
+    }).join(' ');
+
+  // ── Advance to next word (or end session) ────────────────────────────────────
+  const advance = useCallback((nextSSR: number, nextIdx: number) => {
+    if (advancingRef.current) return;
+    advancingRef.current = true;
+    setTimeout(() => {
+      advancingRef.current = false;
+      setAjalaState('standard');
+      if (nextIdx >= WORDS_PER_ROUND) {
+        router.replace('/result' as any);
+      } else {
+        setWordIndex(nextIdx);
+        loadNextWord(nextSSR, nextIdx);
+      }
+    }, nextIdx >= WORDS_PER_ROUND ? 600 : 1800);
+  }, [router]);
+
+  // ── Load next word ────────────────────────────────────────────────────────────
+  const loadNextWord = useCallback((ssrForSelection: number, _index?: number) => {
+    const next = getNextWord(ssrForSelection, 'sss', 'en', sessionRef.current, word_history.sss);
+    if (!next) { router.replace('/result' as any); return; }
+
+    sessionRef.current = [...sessionRef.current, next.id];
+    setCurrentWord(next);
+    setWord(next);
+    setUserInput('');
+    setAnswerStatus('idle');
+    setHintUsed(false);
+    setHintRevealedIdx(null);
+    setShowContext(false);
+    setTimeLeft(TIME_PER_WORD);
+    setIsLoading(false);
+
+    setTimeout(() => speak(next.text, 'en'), 500);
+    animateTimerBar(TIME_PER_WORD * 1000);
+  }, [word_history.sss, setCurrentWord, animateTimerBar, router]);
+
+  // ── Timeout handler ───────────────────────────────────────────────────────────
+  const handleTimeout = useCallback(() => {
+    if (!currentWord || answerStatus !== 'idle') return;
+    clearTimer();
+    stopSpeaking();
+    setAnswerStatus('timeout');
+    setCorrectSpelling(currentWord.text);
+    setAjalaState('sandbox');
+    setAjalaWrong(true);
+    setTimeout(() => setAjalaWrong(false), 800);
+    flashFeedback();
+    playWrong();
+
+    const delta = calculateSSRDelta(currentSSR, currentWord.ssr, false, false);
+    const newSSR = Math.max(AppConfig.SSR_MIN, Math.min(AppConfig.SSR_MAX, currentSSR + delta));
+    updateSSR(delta, 0);
+    addWordToHistory('sss', currentWord.id);
+    recordAnswer(false);
+    setCurrentSSR(newSSR);
+    advance(newSSR, wordIndex + 1);
+  }, [currentWord, answerStatus, currentSSR, wordIndex, clearTimer, flashFeedback, advance]);
+
+  // ── Submit handler ────────────────────────────────────────────────────────────
+  const handleSubmit = useCallback(() => {
+    if (!currentWord || answerStatus !== 'idle' || userInput.trim().length === 0) return;
+    Keyboard.dismiss();
+    clearTimer();
+    stopSpeaking();
+
+    const trimmed   = userInput.trim().toLowerCase();
+    const isCorrect = trimmed === currentWord.text.toLowerCase();
+
+    if (isCorrect) {
+      setAnswerStatus('correct');
+      setShowCorrectFlash(true);
+      setTimeout(() => setShowCorrectFlash(false), 900);
+      setAjalaCorrect(true);
+      setTimeout(() => setAjalaCorrect(false), 900);
+      flashFeedback();
+      playCorrect();
+
+      const delta   = calculateSSRDelta(currentSSR, currentWord.ssr, true, false);
+      const newSSR  = Math.max(AppConfig.SSR_MIN, Math.min(AppConfig.SSR_MAX, currentSSR + delta));
+      const reward  = calculateReward(currentWord.ssr, true, spellStreak, false);
+
+      updateSSR(delta, 0);
+      addXPAndCoins(reward.xp, reward.coins);
+      addWordToHistory('sss', currentWord.id);
+      updateDailyStreak();
+      recordAnswer(true);
+      setCurrentSSR(newSSR);
+      advance(newSSR, wordIndex + 1);
+    } else {
+      setAnswerStatus('wrong');
+      setCorrectSpelling(currentWord.text);
+      setAjalaState('sandbox');
+      setAjalaWrong(true);
+      setTimeout(() => setAjalaWrong(false), 900);
+      flashFeedback();
+      playWrong();
+
+      const delta  = calculateSSRDelta(currentSSR, currentWord.ssr, false, false);
+      const newSSR = Math.max(AppConfig.SSR_MIN, Math.min(AppConfig.SSR_MAX, currentSSR + delta));
+      updateSSR(delta, 0);
+      addWordToHistory('sss', currentWord.id);
+      recordAnswer(false);
+      setCurrentSSR(newSSR);
+      advance(newSSR, wordIndex + 1);
+    }
+  }, [currentWord, answerStatus, userInput, currentSSR, spellStreak, wordIndex, clearTimer, flashFeedback, advance]);
+
+  // ── Hint ──────────────────────────────────────────────────────────────────────
+  const handleHint = useCallback(() => {
+    if (!currentWord || hintUsed || coins < AppConfig.HINT_COST_COINS) return;
+    const idx = Math.floor(Math.random() * currentWord.text.length);
+    setHintRevealedIdx(idx);
+    setHintUsed(true);
+    addXPAndCoins(0, -AppConfig.HINT_COST_COINS);
+  }, [currentWord, hintUsed, coins, addXPAndCoins]);
+
+  // ── Mount ─────────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    startNewSession();
+    sessionRef.current = [];
+    setCurrentSSR(academic_ssr);
+    loadNextWord(academic_ssr, 0);
+    initAudio();
+  }, []);
+
+  // ── Timer start whenever a new word appears ───────────────────────────────────
+  useEffect(() => {
+    if (isLoading || !currentWord || answerStatus !== 'idle') return;
+    clearTimer();
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) { clearInterval(timerRef.current!); timerRef.current = null; handleTimeout(); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return clearTimer;
+  }, [currentWord?.id, isLoading]);
+
+  // ── Derived UI ────────────────────────────────────────────────────────────────
+  const timerColor = timeLeft > 15 ? theme.success : timeLeft > 8 ? theme.warning : theme.error;
+
+  const pips = Array.from({ length: WORDS_PER_ROUND }, (_, i) =>
+    i < wordIndex ? 'done' : i === wordIndex ? 'active' : 'pending'
+  );
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.bgPrimary }]} edges={['top']}>
+        <View style={styles.centre}>
+          <Text style={[styles.loadingText, { color: theme.textSecondary }]}>Getting your word ready…</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.bgPrimary }]} edges={['top', 'left', 'right']}>
+      <StatusBar barStyle="dark-content" />
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+
+        {/* ── Header ── */}
+        <View style={styles.header}>
+          <TouchableOpacity id="academic-close-btn" onPress={() => { clearTimer(); stopSpeaking(); router.back(); }}>
+            <Text style={[styles.closeBtn, { color: theme.textMuted }]}>✕</Text>
+          </TouchableOpacity>
+
+          <View style={styles.pips}>
+            {pips.map((s, i) => (
+              <View key={i} style={[
+                styles.pip,
+                s === 'done'    && { backgroundColor: theme.success },
+                s === 'active'  && { backgroundColor: theme.brandPrimary, transform: [{ scale: 1.25 }] },
+                s === 'pending' && { backgroundColor: theme.bgSecondary },
+              ]} />
+            ))}
+          </View>
+
+          <View style={[styles.ssrBadge, { backgroundColor: theme.brandPrimary + '15', borderColor: theme.brandPrimary + '35' }]}>
+            <Text style={[styles.ssrText, { color: theme.brandPrimary }]}>SSR {currentSSR}</Text>
+          </View>
+        </View>
+
+        {/* ── Timer bar ── */}
+        <View style={[styles.timerTrack, { backgroundColor: theme.bgSecondary }]}>
+          <Animated.View style={[styles.timerFill, {
+            backgroundColor: timerColor,
+            width: timerAnim.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }),
+          }]} />
+        </View>
+        <Text style={[styles.timerLabel, { color: timerColor }]}>{timeLeft}s</Text>
+
+        {/* ── Word area ── */}
+        <View style={styles.wordArea}>
+          <AjalaAvatar state={ajalaState} size={76} triggerCorrect={ajalaCorrect} triggerWrong={ajalaWrong} />
+
+          <Text style={[styles.wordCountLabel, { color: theme.textMuted }]}>
+            Word {wordIndex + 1} of {WORDS_PER_ROUND}
+          </Text>
+
+          <Text id="word-dash-display" style={[styles.dashes, { color: theme.textPrimary }]}>
+            {currentWord ? buildDashes(currentWord.text, hintRevealedIdx) : ''}
+          </Text>
+
+          {currentWord && (
+            <Text style={[styles.wordDifficulty, { color: theme.textMuted }]}>
+              Difficulty: {currentWord.ssr} SSR
+            </Text>
+          )}
+
+          {/* Context toggle */}
+          <TouchableOpacity
+            id="academic-context-btn"
+            onPress={() => setShowContext(v => !v)}
+            style={[styles.contextToggle, { borderColor: theme.border }]}
+          >
+            <Text style={[styles.contextToggleText, { color: theme.brandPrimary }]}>
+              {showContext ? 'Hide definition ▲' : 'Show definition ▼'}
+            </Text>
+          </TouchableOpacity>
+
+          {showContext && currentWord && (
+            <View style={[styles.contextCard, { backgroundColor: theme.bgCard, borderColor: theme.border }]}>
+              <Text style={[styles.contextDef,  { color: theme.textPrimary }]}>{currentWord.definition}</Text>
+              {currentWord.context_sentences[0] && (
+                <Text style={[styles.contextEx, { color: theme.textSecondary }]}>"{currentWord.context_sentences[0]}"</Text>
+              )}
+              {currentWord.phonetic && (
+                <Text style={[styles.contextPhonetic, { color: theme.brandPrimary }]}>🔊 {currentWord.phonetic}</Text>
+              )}
+            </View>
+          )}
+        </View>
+
+        {/* ── Feedback overlays ── */}
+        {answerStatus !== 'idle' && (
+          <Animated.View
+            pointerEvents="none"
+            style={[StyleSheet.absoluteFill, styles.feedbackOverlay, {
+              backgroundColor: answerStatus === 'correct' ? theme.success + '20' : theme.error + '20',
+              opacity: feedbackFade,
+            }]}
+          />
+        )}
+
+        {showCorrectFlash && (
+          <View style={styles.correctOverlay} pointerEvents="none">
+            <Text style={styles.correctTick}>✓</Text>
+          </View>
+        )}
+
+        {(answerStatus === 'wrong' || answerStatus === 'timeout') && (
+          <View style={[styles.wrongReveal, { backgroundColor: theme.error + '12', borderColor: theme.error + '35' }]}>
+            <Text style={[styles.wrongLabel, { color: theme.error }]}>
+              {answerStatus === 'timeout' ? '⏰ Time up!' : '✗ Incorrect'}
+            </Text>
+            <Text style={[styles.wrongSpelling, { color: theme.textPrimary }]}>{correctSpelling}</Text>
+          </View>
+        )}
+
+        {/* ── Input area ── */}
+        {answerStatus === 'idle' && (
+          <View style={styles.inputArea}>
+            <View style={styles.chipsRow}>
+              <TouchableOpacity id="academic-speak-btn" onPress={() => currentWord && speak(currentWord.text, 'en')}
+                style={[styles.chip, { borderColor: theme.border }]}>
+                <Text style={[styles.chipText, { color: theme.brandPrimary }]}>🔊 Hear Again</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity id="academic-hint-btn" onPress={handleHint}
+                disabled={hintUsed || coins < AppConfig.HINT_COST_COINS}
+                style={[styles.chip, { borderColor: hintUsed ? theme.border : theme.warning },
+                  (hintUsed || coins < AppConfig.HINT_COST_COINS) && { opacity: 0.45 }]}>
+                <Text style={[styles.chipText, { color: hintUsed ? theme.textMuted : theme.warning }]}>
+                  💡 Hint ({AppConfig.HINT_COST_COINS} 🪙)
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <TextInput
+              id="academic-text-input"
+              style={[styles.input, {
+                backgroundColor: theme.inputBg,
+                borderColor: theme.inputBorder,
+                color: theme.textPrimary,
+                fontFamily: FontFamily.mono,
+              }]}
+              value={userInput}
+              onChangeText={setUserInput}
+              placeholder="Type spelling here…"
+              placeholderTextColor={theme.textMuted}
+              autoCorrect={false}
+              autoCapitalize="none"
+              returnKeyType="done"
+              onSubmitEditing={handleSubmit}
+              autoFocus
+            />
+
+            <TouchableOpacity
+              id="academic-submit-btn"
+              onPress={handleSubmit}
+              activeOpacity={0.85}
+              disabled={userInput.trim().length === 0}
+              style={[styles.submitBtn, Shadows.button, {
+                backgroundColor: userInput.trim().length > 0 ? theme.brandPrimary : theme.bgSecondary,
+              }]}
+            >
+              <Text style={[styles.submitText, { color: userInput.trim().length > 0 ? GlobalColors.white : theme.textMuted }]}>
+                Submit Answer
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea:     { flex: 1 },
+  centre:       { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  loadingText:  { fontSize: FontSizes.md, fontFamily: FontFamily.body },
+
+  header:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.base, paddingVertical: Spacing.sm },
+  closeBtn: { fontSize: FontSizes.xl, width: 36, textAlign: 'center' },
+  pips:     { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  pip:      { width: 12, height: 12, borderRadius: 6 },
+  ssrBadge: { paddingHorizontal: Spacing.sm, paddingVertical: 4, borderRadius: Radii.sm, borderWidth: 1 },
+  ssrText:  { fontSize: FontSizes.xs, fontFamily: FontFamily.mono, fontWeight: '700' },
+
+  timerTrack: { height: 5, marginHorizontal: Spacing.base, borderRadius: 3, overflow: 'hidden' },
+  timerFill:  { height: '100%', borderRadius: 3 },
+  timerLabel: { textAlign: 'right', paddingRight: Spacing.base, fontSize: FontSizes.xs, fontFamily: FontFamily.mono, marginTop: 3, marginBottom: Spacing.xs },
+
+  wordArea:      { flex: 1, alignItems: 'center', paddingHorizontal: Spacing.base, paddingTop: Spacing.xs },
+  wordCountLabel:{ fontSize: FontSizes.xs, fontFamily: FontFamily.bodySemiBold, marginTop: Spacing.sm, letterSpacing: 0.5 },
+  dashes:        { fontSize: 26, fontFamily: FontFamily.mono, letterSpacing: 4, marginTop: Spacing.md, textAlign: 'center', lineHeight: 38 },
+  wordDifficulty:{ fontSize: FontSizes.xs, fontFamily: FontFamily.body, marginTop: Spacing.xs },
+
+  contextToggle:     { marginTop: Spacing.md, paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs, borderRadius: Radii.sm, borderWidth: 1 },
+  contextToggleText: { fontSize: FontSizes.sm, fontFamily: FontFamily.bodySemiBold },
+  contextCard:       { width: '100%', marginTop: Spacing.sm, padding: Spacing.md, borderRadius: Radii.md, borderWidth: 1 },
+  contextDef:        { fontSize: FontSizes.sm, fontFamily: FontFamily.body, lineHeight: FontSizes.sm * 1.55, marginBottom: Spacing.xs },
+  contextEx:         { fontSize: FontSizes.sm, fontFamily: FontFamily.bodyMedium, fontStyle: 'italic', lineHeight: FontSizes.sm * 1.5, marginBottom: Spacing.xs },
+  contextPhonetic:   { fontSize: FontSizes.xs, fontFamily: FontFamily.mono, marginTop: 2 },
+
+  feedbackOverlay: { zIndex: 5 },
+  correctOverlay:  { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, alignItems: 'center', justifyContent: 'center' },
+  correctTick:     { fontSize: 80, color: '#27AE60' },
+  wrongReveal:     { marginHorizontal: Spacing.base, padding: Spacing.md, borderRadius: Radii.md, borderWidth: 1, alignItems: 'center', marginBottom: Spacing.md },
+  wrongLabel:      { fontSize: FontSizes.sm, fontFamily: FontFamily.bodySemiBold, marginBottom: 4 },
+  wrongSpelling:   { fontSize: FontSizes.xl, fontFamily: FontFamily.mono, letterSpacing: 2 },
+
+  inputArea: { paddingHorizontal: Spacing.base, paddingBottom: Spacing.base },
+  chipsRow:  { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.sm },
+  chip:      { flex: 1, paddingVertical: Spacing.xs, paddingHorizontal: Spacing.sm, borderRadius: Radii.sm, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  chipText:  { fontSize: FontSizes.xs, fontFamily: FontFamily.bodySemiBold },
+
+  input:      { height: 52, borderRadius: Radii.md, borderWidth: 1.5, paddingHorizontal: Spacing.md, fontSize: FontSizes.lg, marginBottom: Spacing.sm, letterSpacing: 2 },
+  submitBtn:  { height: 52, borderRadius: Radii.md, alignItems: 'center', justifyContent: 'center' },
+  submitText: { fontSize: FontSizes.md, fontFamily: FontFamily.headingSemi, letterSpacing: 0.5 },
+});
