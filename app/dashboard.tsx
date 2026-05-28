@@ -35,7 +35,6 @@ export default function DashboardScreen() {
     declaredClass,
     current_title,
     checkAndRefillEnergy,
-    deductEnergy,
     refillEnergy,
     addXPAndCoins,
     resetProfile,
@@ -69,21 +68,16 @@ export default function DashboardScreen() {
   };
 
   const handlePlayNow = () => {
-    // Academic League costs 1 energy
-    const success = deductEnergy(AppConfig.ENERGY_COST_ACADEMIC);
-    if (success) {
-      router.push('/game/academic' as any);
-    } else {
-      Alert.alert(
-        'Out of Energy! ⚡',
-        'You do not have enough energy to play. Tap the SabiSpell logo 5 times to access Demo Controls and refill, or wait for automatic refills.',
-        [{ text: 'OK' }]
-      );
-    }
+    // Route to mode selection — energy is deducted on the mode select screen
+    router.push('/mode-select' as any);
   };
 
   const handleModeSelect = () => {
     router.push('/mode-select' as any);
+  };
+
+  const handleGraduationExam = () => {
+    router.push('/graduation' as any);
   };
 
   const theme = Themes.sss; // SSS Lagoon Blue theme
@@ -197,7 +191,28 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Mascot Mascot Greeting */}
+        {/* Graduation Exam CTA */}
+        <TouchableOpacity
+          id="dashboard-graduation-btn"
+          activeOpacity={0.88}
+          onPress={handleGraduationExam}
+          style={[styles.graduationCard, Shadows.card]}
+        >
+          <View style={styles.graduationCardInner}>
+            <View style={styles.graduationIconWrap}>
+              <Text style={styles.graduationIcon}>🎓</Text>
+            </View>
+            <View style={styles.graduationTextBlock}>
+              <Text style={[styles.graduationTitle, { color: theme.textPrimary }]}>Graduation Exam</Text>
+              <Text style={[styles.graduationSub, { color: theme.textSecondary }]}>
+                SSS 2 Academic League · 20 words · 75% to pass
+              </Text>
+            </View>
+            <Text style={[styles.graduationArrow, { color: theme.brandPrimary }]}>→</Text>
+          </View>
+        </TouchableOpacity>
+
+        {/* Mascot Greeting */}
         <View style={styles.mascotSpeechSection}>
           <View style={[styles.speechBubble, Shadows.card]}>
             <Text style={[styles.speechText, { color: theme.textPrimary }]}>
@@ -214,11 +229,12 @@ export default function DashboardScreen() {
       {/* Floating Sticky Bottom CTA Container */}
       <View style={[styles.bottomCTAContainer, { backgroundColor: theme.bgPrimary + 'F0', paddingBottom: Math.max(insets.bottom, Spacing.base) }]}>
         <TouchableOpacity
+          id="dashboard-play-btn"
           onPress={handlePlayNow}
           activeOpacity={0.85}
           style={[styles.playButton, { backgroundColor: theme.brandPrimary }, Shadows.button]}
         >
-          <Text style={styles.playButtonText}>Play SSS 2 Spell Round</Text>
+          <Text style={styles.playButtonText}>🎮  Choose Game Mode</Text>
         </TouchableOpacity>
       </View>
 
@@ -404,7 +420,50 @@ const styles = StyleSheet.create({
   },
   modeGrid: {
     flexDirection: 'column',
+    marginBottom: Spacing.md,
+  },
+  graduationCard: {
+    backgroundColor: GlobalColors.white,
+    borderRadius: Radii.md,
+    padding: Spacing.md,
     marginBottom: Spacing.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(10, 110, 189, 0.12)',
+    borderLeftWidth: 5,
+    borderLeftColor: '#F5A623',
+  },
+  graduationCardInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  graduationIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: Radii.md,
+    backgroundColor: 'rgba(245, 166, 35, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: Spacing.sm,
+  },
+  graduationIcon: {
+    fontSize: 22,
+  },
+  graduationTextBlock: {
+    flex: 1,
+  },
+  graduationTitle: {
+    fontSize: FontSizes.base,
+    fontFamily: FontFamily.headingSemi,
+    marginBottom: 2,
+  },
+  graduationSub: {
+    fontSize: FontSizes.xs,
+    fontFamily: FontFamily.body,
+  },
+  graduationArrow: {
+    fontSize: FontSizes.xl,
+    fontFamily: FontFamily.heading,
+    marginLeft: Spacing.sm,
   },
   modeCard: {
     backgroundColor: GlobalColors.white,
