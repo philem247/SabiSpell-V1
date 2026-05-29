@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useProfileStore } from '../../src/store/profileStore';
 import { useGameStore } from '../../src/store/gameStore';
-import { getNextWord, Word } from '../../src/services/wordbank';
+import { getNextWord, Word, maskWordInSentence } from '../../src/services/wordbank';
 import { calculateSSRDelta } from '../../src/services/ssr';
 import { calculateReward } from '../../src/services/economy';
 import { speak, stopSpeaking } from '../../src/services/tts';
@@ -399,7 +399,9 @@ export default function AcademicGameScreen() {
             <View style={[styles.contextCard, { backgroundColor: theme.bgCard, borderColor: theme.border }]}>
               <Text style={[styles.contextDef,  { color: theme.textPrimary }]}>{currentWord.definition}</Text>
               {currentWord.context_sentences[0] && (
-                <Text style={[styles.contextEx, { color: theme.textSecondary }]}>"{currentWord.context_sentences[0]}"</Text>
+                <Text style={[styles.contextEx, { color: theme.textSecondary }]}>
+                  "{maskWordInSentence(currentWord.context_sentences[0], currentWord.text)}"
+                </Text>
               )}
             </View>
           )}

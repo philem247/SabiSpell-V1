@@ -10,7 +10,7 @@ declare var process: any;
 const assert = require('assert');
 
 import { calculateSSRDelta } from '../ssr';
-import { loadWordBank, getNextWord, getProverbForWord, updateWordHistory } from '../wordbank';
+import { loadWordBank, getNextWord, getProverbForWord, updateWordHistory, maskWordInSentence } from '../wordbank';
 import { calculateReward } from '../economy';
 import { getEnergyCap, calculateEnergyRefill, deductEnergy } from '../energy';
 import { useProfileStore } from '../../store/profileStore';
@@ -69,6 +69,17 @@ try {
   const proverb = getProverbForWord('yw_012');
   if (!proverb) throw new Error('proverb is null');
   assert.strictEqual(proverb.id, 'yp_001');
+
+  // Test maskWordInSentence
+  const sentence1 = "The juxtaposition of elements was key.";
+  const wordToMask = "juxtaposition";
+  const masked1 = maskWordInSentence(sentence1, wordToMask);
+  assert.strictEqual(masked1, "The _____ of elements was key.");
+
+  // Test case-insensitive masking
+  const sentence2 = "They are Juxtapositioning the images.";
+  const masked2 = maskWordInSentence(sentence2, "juxtaposition");
+  assert.strictEqual(masked2, "They are _____ing the images.");
 
   console.log('✅ Word Bank Service tests passed!\n');
 } catch (error) {

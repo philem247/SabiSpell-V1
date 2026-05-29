@@ -117,3 +117,15 @@ export function updateWordHistory(currentHistory: string[], wordId: string): str
   }
   return [...currentHistory, wordId];
 }
+
+/**
+ * Masks the spelling of the target word in an example sentence (case-insensitive replacement).
+ * e.g., "The juxtaposition of..." -> "The _____ of..."
+ */
+export function maskWordInSentence(sentence: string, word: string): string {
+  if (!sentence || !word) return sentence;
+  const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(escapedWord, 'gi');
+  return sentence.replace(regex, '_____');
+}
+

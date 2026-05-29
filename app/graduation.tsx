@@ -13,7 +13,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useProfileStore } from '../src/store/profileStore';
 import { useGameStore } from '../src/store/gameStore';
-import { loadWordBank, Word } from '../src/services/wordbank';
+import { loadWordBank, Word, maskWordInSentence } from '../src/services/wordbank';
 import {
   isGraduationUnlocked,
   processGraduationResult,
@@ -72,6 +72,7 @@ export default function GraduationExamScreen() {
   const progressAnim = useRef(new Animated.Value(1)).current;
   const feedbackFade = useRef(new Animated.Value(0)).current;
   const advancingRef = useRef(false);
+  const correctCountRef = useRef(0);
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
   const clearTimer = useCallback(() => {
@@ -144,6 +145,7 @@ export default function GraduationExamScreen() {
     setIsLoading(true);
     setWordIndex(0);
     setCorrectCount(0);
+    correctCountRef.current = 0;
     setExamFinished(false);
     setExamResult(null);
     setAnswerStatus('idle');
@@ -227,7 +229,11 @@ export default function GraduationExamScreen() {
       setTimeout(() => setShowCorrectFlash(false), 900);
       setAjalaCorrect(true);
       setTimeout(() => setAjalaCorrect(false), 900);
-      setCorrectCount((prev) => prev + 1);
+      setCorrectCount((prev) => {
+        const next = prev + 1;
+        correctCountRef.current = next;
+        return next;
+      });
       flashFeedback();
       playCorrect();
       advanceExam(wordIndex + 1);
@@ -261,7 +267,7 @@ export default function GraduationExamScreen() {
   const finishExam = () => {
     clearTimer();
     stopSpeaking();
-    const result = processGraduationResult(correctCount, EXAM_WORDS_COUNT);
+    const result = processGraduationResult(correctCountRef.current, EXAM_WORDS_COUNT);
     setExamResult(result);
     setExamFinished(true);
 
@@ -533,7 +539,9 @@ export default function GraduationExamScreen() {
             <View style={[styles.contextCard, { backgroundColor: theme.bgCard, borderColor: theme.border }]}>
               <Text style={[styles.contextDef,  { color: theme.textPrimary }]}>{currentWord.definition}</Text>
               {currentWord.context_sentences[0] && (
-                <Text style={[styles.contextEx, { color: theme.textSecondary }]}>"{currentWord.context_sentences[0]}"</Text>
+                <Text style={[styles.contextEx, { color: theme.textSecondary }]}>
+                  "{maskWordInSentence(currentWord.context_sentences[0], currentWord.text)}"
+                </Text>
               )}
             </View>
           )}
