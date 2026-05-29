@@ -54,7 +54,7 @@ export default function AcademicGameScreen() {
   // ── Refs ─────────────────────────────────────────────────────────────────────
   const timerRef      = useRef<ReturnType<typeof setInterval> | null>(null);
   const sessionRef    = useRef<string[]>([]);
-  const timerAnim     = useRef(new Animated.Value(1)).current;
+  const progressAnim  = useRef(new Animated.Value(1)).current;
   const feedbackFade  = useRef(new Animated.Value(0)).current;
   const advancingRef  = useRef(false); // guard against double-advance
 
@@ -62,11 +62,6 @@ export default function AcademicGameScreen() {
   const clearTimer = useCallback(() => {
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
   }, []);
-
-  const animateTimerBar = useCallback((durationMs: number) => {
-    timerAnim.setValue(1);
-    Animated.timing(timerAnim, { toValue: 0, duration: durationMs, useNativeDriver: false }).start();
-  }, [timerAnim]);
 
   const flashFeedback = useCallback(() => {
     feedbackFade.setValue(1);
@@ -127,8 +122,8 @@ export default function AcademicGameScreen() {
     setIsLoading(false);
 
     setTimeout(() => speak(next.text, 'en'), 500);
-    animateTimerBar(TIME_PER_WORD * 1000);
-  }, [word_history.sss, setCurrentWord, animateTimerBar, router]);
+    progressAnim.setValue(1);
+  }, [word_history.sss, setCurrentWord, router]);
 
   // ── Timeout handler ───────────────────────────────────────────────────────────
   const handleTimeout = useCallback(() => {
@@ -265,6 +260,19 @@ export default function AcademicGameScreen() {
     return clearTimer;
   }, [currentWord?.id, isLoading, showExitConfirmation]);
 
+  // ── Sync progress bar animation with timeLeft ────────────────────────────────
+  useEffect(() => {
+    if (timeLeft === TIME_PER_WORD) {
+      progressAnim.setValue(1);
+    } else {
+      Animated.timing(progressAnim, {
+        toValue: timeLeft / TIME_PER_WORD,
+        duration: 1000,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [timeLeft, progressAnim]);
+
   // ── Derived UI ────────────────────────────────────────────────────────────────
   const timerColor = timeLeft > 15 ? theme.success : timeLeft > 8 ? theme.warning : theme.error;
 
@@ -313,7 +321,7 @@ export default function AcademicGameScreen() {
         <View style={[styles.timerTrack, { backgroundColor: theme.bgSecondary }]}>
           <Animated.View style={[styles.timerFill, {
             backgroundColor: timerColor,
-            width: timerAnim.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }),
+            width: progressAnim.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }),
           }]} />
         </View>
         <Text style={[styles.timerLabel, { color: timerColor }]}>{timeLeft}s</Text>
