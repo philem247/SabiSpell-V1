@@ -170,7 +170,7 @@ export default function CertificateScreen() {
             
             {/* Mascot layered sitting slightly overlapping bottom frame */}
             <View style={styles.mascotOverlay}>
-              <AjalaAvatar state="graduation" size={72} borderColor={theme.brandAccent} />
+              <AjalaAvatar state="graduation" size={54} borderColor={theme.brandAccent} />
             </View>
           </View>
         </View>
@@ -251,15 +251,15 @@ const styles = StyleSheet.create({
   },
   mascotOverlay: {
     position: 'absolute',
-    bottom: 22,
-    right: 148, // Centered overlap on bottom layout
+    top: '5%',
+    right: '5%',
     zIndex: 100,
     // Soft shadow for layout depth
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 5,
-    elevation: 6,
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    elevation: 5,
   },
   actions: {
     width: '100%',
