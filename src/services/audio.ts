@@ -8,7 +8,7 @@
  * sounds for low-latency playback.
  */
 
-import { createAudioPlayer } from 'expo-audio';
+import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 
 type SoundKey = 'correct' | 'wrong' | 'celebration' | 'gangan';
 
@@ -30,6 +30,15 @@ let audioInitialised = false;
 export async function initAudio(): Promise<void> {
   if (audioInitialised) return;
   audioInitialised = true;
+
+  try {
+    await setAudioModeAsync({
+      playsInSilentMode: true,
+      allowsRecording: false,
+    });
+  } catch (e) {
+    console.warn('[audio] setAudioModeAsync failed:', e);
+  }
   
   const keys = Object.keys(soundFiles) as SoundKey[];
   keys.forEach((key) => {
