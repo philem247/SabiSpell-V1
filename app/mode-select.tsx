@@ -7,6 +7,7 @@ import {
   ScrollView,
   StatusBar,
   Alert,
+  Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -96,6 +97,7 @@ export default function ModeSelectScreen() {
   const theme = Themes.sss;
   const { energy, deductEnergy } = useProfileStore();
   const [pressing, setPressing] = useState<string | null>(null);
+  const [selectedModeToStart, setSelectedModeToStart] = useState<ModeCard | null>(null);
 
   const handleModePress = (mode: ModeCard) => {
     if (!mode.available || mode.comingSoon) {
@@ -113,13 +115,8 @@ export default function ModeSelectScreen() {
       return;
     }
 
-    // Deduct energy and navigate
-    const success = deductEnergy(mode.energyCost);
-    if (success) {
-      router.push(mode.route as any);
-    } else {
-      Alert.alert('Out of Energy! ⚡', 'Not enough energy. Wait for a refill or use Demo Controls.', [{ text: 'OK' }]);
-    }
+    // Show confirmation modal
+    setSelectedModeToStart(mode);
   };
 
   return (
@@ -234,6 +231,60 @@ export default function ModeSelectScreen() {
         {/* Bottom breathing room */}
         <View style={{ height: Spacing.xxl }} />
       </ScrollView>
+
+      {/* Confirmation Modal */}
+      <Modal
+        visible={selectedModeToStart !== null}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setSelectedModeToStart(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, Shadows.modal]}>
+            <View style={[styles.modalEmojiContainer, selectedModeToStart && { backgroundColor: selectedModeToStart.themeAccent + '15' }]}>
+              <Text style={styles.modalEmojiText}>{selectedModeToStart?.emoji}</Text>
+            </View>
+            <Text style={[styles.modalTitleText, { color: theme.textPrimary }]}>
+              Start {selectedModeToStart?.title}?
+            </Text>
+            <Text style={[styles.modalMessageText, { color: theme.textSecondary }]}>
+              Are you ready to play this round?
+            </Text>
+            <View style={[styles.modalEnergyBadge, selectedModeToStart && { borderColor: selectedModeToStart.themeAccent, backgroundColor: selectedModeToStart.themeAccent + '10' }]}>
+              <Text style={[styles.modalEnergyText, selectedModeToStart && { color: selectedModeToStart.themeAccent }]}>
+                ⚡ {selectedModeToStart?.energyCost} Energy will be deducted
+              </Text>
+            </View>
+
+            <View style={styles.modalActionsRow}>
+              <TouchableOpacity
+                onPress={() => setSelectedModeToStart(null)}
+                style={[styles.modalCancelBtn, { borderColor: theme.border }]}
+              >
+                <Text style={[styles.modalCancelText, { color: theme.textSecondary }]}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                onPress={() => {
+                  if (selectedModeToStart) {
+                    const mode = selectedModeToStart;
+                    setSelectedModeToStart(null);
+                    const success = deductEnergy(mode.energyCost);
+                    if (success) {
+                      router.push(mode.route as any);
+                    } else {
+                      Alert.alert('Out of Energy! ⚡', 'Not enough energy. Wait for a refill or use Demo Controls.', [{ text: 'OK' }]);
+                    }
+                  }
+                }}
+                style={[styles.modalConfirmBtn, selectedModeToStart && { backgroundColor: selectedModeToStart.themeAccent }]}
+              >
+                <Text style={styles.modalConfirmText}>Let's Go! 🎮</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -369,5 +420,94 @@ const styles = StyleSheet.create({
   noEnergyHint: {
     fontSize: FontSizes.xs,
     fontFamily: FontFamily.bodyMedium,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(10, 55, 115, 0.60)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: GlobalColors.white,
+    borderRadius: Radii.lg,
+    padding: 24,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#C4DCF4',
+  },
+  modalEmojiContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  modalEmojiText: {
+    fontSize: 32,
+  },
+  modalTitleText: {
+    fontSize: FontSizes.lg,
+    fontFamily: FontFamily.heading,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalMessageText: {
+    fontSize: FontSizes.sm,
+    fontFamily: FontFamily.body,
+    marginBottom: 16,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  modalEnergyBadge: {
+    borderWidth: 1,
+    borderRadius: Radii.sm,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalEnergyText: {
+    fontSize: FontSizes.sm,
+    fontFamily: FontFamily.mono,
+    fontWeight: 'bold',
+  },
+  modalActionsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  modalCancelBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: Radii.md,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCancelText: {
+    fontSize: FontSizes.base,
+    fontFamily: FontFamily.headingSemi,
+  },
+  modalConfirmBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: Radii.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  modalConfirmText: {
+    fontSize: FontSizes.base,
+    fontFamily: FontFamily.headingSemi,
+    color: '#FFFFFF',
   },
 });

@@ -134,62 +134,7 @@ export default function DashboardScreen() {
           <Text style={styles.challengeDesc}>Spell 5 words correctly in a row in the SSS 2 Academic League.</Text>
         </View>
 
-        {/* Game Mode Selection Grid Title */}
-        <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Choose Game Mode</Text>
 
-        {/* Game Modes Grid */}
-        <View style={styles.modeGrid}>
-          {/* Mode 1: SSS 2 Academic League */}
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={handleModeSelect}
-            style={[styles.modeCard, Shadows.card, { borderLeftColor: theme.brandPrimary, borderLeftWidth: 5 }]}
-          >
-            <View style={styles.modeCardHeader}>
-              <Text style={[styles.modeTitle, { color: theme.textPrimary }]}>Academic League</Text>
-              <View style={[styles.modeCostBadge, { backgroundColor: 'rgba(10, 110, 189, 0.08)' }]}>
-                <Text style={[styles.modeCostText, { color: theme.brandPrimary }]}>⚡ 1 Energy</Text>
-              </View>
-            </View>
-            <Text style={[styles.modeDesc, { color: theme.textSecondary }]}>
-              Practice advanced WAEC-relevant spelling words. Adaptive difficulty.
-            </Text>
-          </TouchableOpacity>
-
-          {/* Mode 2: Wazobia Mode */}
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={handleModeSelect}
-            style={[styles.modeCard, Shadows.card, { borderLeftColor: Themes.wazobia.brandPrimary, borderLeftWidth: 5 }]}
-          >
-            <View style={styles.modeCardHeader}>
-              <Text style={[styles.modeTitle, { color: theme.textPrimary }]}>Wazobia Mode</Text>
-              <View style={[styles.modeCostBadge, { backgroundColor: 'rgba(193, 68, 14, 0.08)' }]}>
-                <Text style={[styles.modeCostText, { color: Themes.wazobia.brandPrimary }]}>⚡ 2 Energy</Text>
-              </View>
-            </View>
-            <Text style={[styles.modeDesc, { color: theme.textSecondary }]}>
-              Learn Yoruba tone spelling with Ankara patterns, custom keyboard, and drum beats.
-            </Text>
-          </TouchableOpacity>
-
-          {/* Mode 3: Spell Arena */}
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={handleModeSelect}
-            style={[styles.modeCard, Shadows.card, { borderLeftColor: GlobalColors.sabiGold, borderLeftWidth: 5 }]}
-          >
-            <View style={styles.modeCardHeader}>
-              <Text style={[styles.modeTitle, { color: theme.textPrimary }]}>Spell Arena</Text>
-              <View style={[styles.modeCostBadge, { backgroundColor: 'rgba(245, 166, 35, 0.08)' }]}>
-                <Text style={[styles.modeCostText, { color: GlobalColors.sabiGold }]}>⚡ 2 Energy</Text>
-              </View>
-            </View>
-            <Text style={[styles.modeDesc, { color: theme.textSecondary }]}>
-              Compete live in real time against SabiBot. High stakes.
-            </Text>
-          </TouchableOpacity>
-        </View>
 
         {/* Graduation Exam CTA */}
         <TouchableOpacity

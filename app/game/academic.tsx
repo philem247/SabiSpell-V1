@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  StyleSheet, View, Text, TextInput, TouchableOpacity,
-  Animated, Keyboard, KeyboardAvoidingView, Platform, StatusBar,
+  StyleSheet, View, Text, TouchableOpacity,
+  Animated, Platform, StatusBar,
 } from 'react-native';
+import SpellingKeyboard from '../../src/components/SpellingKeyboard';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useProfileStore } from '../../src/store/profileStore';
@@ -102,7 +103,21 @@ export default function AcademicGameScreen() {
     sessionRef.current = [...sessionRef.current, next.id];
     setCurrentWord(next);
     setWord(next);
-    setUserInput('');
+    
+    // Auto-fill initial spaces or hyphens if any
+    let initialInput = '';
+    if (next) {
+      while (initialInput.length < next.text.length) {
+        const nextChar = next.text[initialInput.length];
+        if (nextChar === ' ' || nextChar === '-') {
+          initialInput += nextChar;
+        } else {
+          break;
+        }
+      }
+    }
+    setUserInput(initialInput);
+
     setAnswerStatus('idle');
     setHintUsed(false);
     setHintRevealedIdx(null);
@@ -139,7 +154,6 @@ export default function AcademicGameScreen() {
   // ── Submit handler ────────────────────────────────────────────────────────────
   const handleSubmit = useCallback(() => {
     if (!currentWord || answerStatus !== 'idle' || userInput.trim().length === 0) return;
-    Keyboard.dismiss();
     clearTimer();
     stopSpeaking();
 
@@ -194,6 +208,40 @@ export default function AcademicGameScreen() {
     addXPAndCoins(0, -AppConfig.HINT_COST_COINS);
   }, [currentWord, hintUsed, coins, addXPAndCoins]);
 
+  // ── Keyboard Helpers ─────────────────────────────────────────────────────────
+  const handleKeyboardPress = useCallback((key: string) => {
+    if (!currentWord) return;
+    setUserInput(prev => {
+      let nextInput = prev + key;
+      const targetLength = currentWord.text.length;
+      while (nextInput.length < targetLength) {
+        const nextChar = currentWord.text[nextInput.length];
+        if (nextChar === ' ' || nextChar === '-') {
+          nextInput += nextChar;
+        } else {
+          break;
+        }
+      }
+      return nextInput.slice(0, targetLength);
+    });
+  }, [currentWord]);
+
+  const handleKeyboardDelete = useCallback(() => {
+    setUserInput(prev => {
+      if (prev.length === 0) return '';
+      let nextInput = prev.slice(0, -1);
+      while (nextInput.length > 0) {
+        const lastChar = nextInput[nextInput.length - 1];
+        if (lastChar === ' ' || lastChar === '-') {
+          nextInput = nextInput.slice(0, -1);
+        } else {
+          break;
+        }
+      }
+      return nextInput;
+    });
+  }, []);
+
   // ── Mount ─────────────────────────────────────────────────────────────────────
   useEffect(() => {
     startNewSession();
@@ -236,7 +284,7 @@ export default function AcademicGameScreen() {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.bgPrimary }]} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="dark-content" />
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <View style={{ flex: 1 }}>
 
         {/* ── Header ── */}
         <View style={styles.header}>
@@ -277,9 +325,49 @@ export default function AcademicGameScreen() {
             Word {wordIndex + 1} of {WORDS_PER_ROUND}
           </Text>
 
-          <Text id="word-dash-display" style={[styles.dashes, { color: theme.textPrimary }]}>
-            {currentWord ? buildDashes(currentWord.text, hintRevealedIdx) : ''}
-          </Text>
+          <View style={styles.charSlotsContainer}>
+            {currentWord && currentWord.text.split('').map((char, index) => {
+              if (char === ' ') {
+                return <View key={index} style={styles.charSlotSpace} />;
+              }
+              if (char === '-') {
+                return (
+                  <View key={index} style={styles.charSlotSpecial}>
+                    <Text style={[styles.charSlotText, { color: theme.textPrimary }]}>-</Text>
+                  </View>
+                );
+              }
+
+              const displayChar = answerStatus === 'correct'
+                ? char.toUpperCase()
+                : (userInput[index] || (index === hintRevealedIdx ? char.toUpperCase() : ''));
+
+              const isActive = answerStatus === 'idle' && userInput.length === index;
+              const isFilled = !!userInput[index] || index === hintRevealedIdx;
+              const isLongWord = currentWord.text.length > 8;
+
+              return (
+                <View
+                  key={index}
+                  style={[
+                    styles.charSlot,
+                    isLongWord && styles.charSlotSmall,
+                    isActive && [styles.charSlotActive, { borderColor: theme.brandPrimary, backgroundColor: theme.brandPrimary + '10' }],
+                    isFilled && [styles.charSlotFilled, { borderColor: theme.brandPrimary }],
+                    { backgroundColor: theme.bgCard, borderColor: theme.border }
+                  ]}
+                >
+                  <Text style={[
+                    styles.charSlotText,
+                    isLongWord && styles.charSlotTextSmall,
+                    { color: theme.textPrimary }
+                  ]}>
+                    {displayChar}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
 
           {currentWord && (
             <Text style={[styles.wordDifficulty, { color: theme.textMuted }]}>
@@ -303,9 +391,6 @@ export default function AcademicGameScreen() {
               <Text style={[styles.contextDef,  { color: theme.textPrimary }]}>{currentWord.definition}</Text>
               {currentWord.context_sentences[0] && (
                 <Text style={[styles.contextEx, { color: theme.textSecondary }]}>"{currentWord.context_sentences[0]}"</Text>
-              )}
-              {currentWord.phonetic && (
-                <Text style={[styles.contextPhonetic, { color: theme.brandPrimary }]}>🔊 {currentWord.phonetic}</Text>
               )}
             </View>
           )}
@@ -355,42 +440,19 @@ export default function AcademicGameScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
-
-            <TextInput
-              id="academic-text-input"
-              style={[styles.input, {
-                backgroundColor: theme.inputBg,
-                borderColor: theme.inputBorder,
-                color: theme.textPrimary,
-                fontFamily: FontFamily.mono,
-              }]}
-              value={userInput}
-              onChangeText={setUserInput}
-              placeholder="Type spelling here…"
-              placeholderTextColor={theme.textMuted}
-              autoCorrect={false}
-              autoCapitalize="none"
-              returnKeyType="done"
-              onSubmitEditing={handleSubmit}
-              autoFocus
-            />
-
-            <TouchableOpacity
-              id="academic-submit-btn"
-              onPress={handleSubmit}
-              activeOpacity={0.85}
-              disabled={userInput.trim().length === 0}
-              style={[styles.submitBtn, Shadows.button, {
-                backgroundColor: userInput.trim().length > 0 ? theme.brandPrimary : theme.bgSecondary,
-              }]}
-            >
-              <Text style={[styles.submitText, { color: userInput.trim().length > 0 ? GlobalColors.white : theme.textMuted }]}>
-                Submit Answer
-              </Text>
-            </TouchableOpacity>
           </View>
         )}
-      </KeyboardAvoidingView>
+
+        {answerStatus === 'idle' && (
+          <SpellingKeyboard
+            onKeyPress={handleKeyboardPress}
+            onDelete={handleKeyboardDelete}
+            onSubmit={handleSubmit}
+            disabled={answerStatus !== 'idle'}
+            theme={theme}
+          />
+        )}
+      </View>
     </SafeAreaView>
   );
 }
@@ -413,7 +475,15 @@ const styles = StyleSheet.create({
 
   wordArea:      { flex: 1, alignItems: 'center', paddingHorizontal: Spacing.base, paddingTop: Spacing.xs },
   wordCountLabel:{ fontSize: FontSizes.xs, fontFamily: FontFamily.bodySemiBold, marginTop: Spacing.sm, letterSpacing: 0.5 },
-  dashes:        { fontSize: 26, fontFamily: FontFamily.mono, letterSpacing: 4, marginTop: Spacing.md, textAlign: 'center', lineHeight: 38 },
+  charSlotsContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: Spacing.md, paddingHorizontal: Spacing.md },
+  charSlot: { width: 36, height: 46, borderRadius: 8, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1.5 }, shadowOpacity: 0.05, shadowRadius: 1.5, elevation: 1 },
+  charSlotSmall: { width: 28, height: 38, borderRadius: 6 },
+  charSlotSpace: { width: 10, height: 38 },
+  charSlotSpecial: { width: 14, height: 38, justifyContent: 'center', alignItems: 'center' },
+  charSlotActive: { borderWidth: 2.2 },
+  charSlotFilled: { borderWidth: 2.2 },
+  charSlotText: { fontSize: 20, fontFamily: FontFamily.heading, fontWeight: 'bold' },
+  charSlotTextSmall: { fontSize: 15 },
   wordDifficulty:{ fontSize: FontSizes.xs, fontFamily: FontFamily.body, marginTop: Spacing.xs },
 
   contextToggle:     { marginTop: Spacing.md, paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs, borderRadius: Radii.sm, borderWidth: 1 },
@@ -421,7 +491,6 @@ const styles = StyleSheet.create({
   contextCard:       { width: '100%', marginTop: Spacing.sm, padding: Spacing.md, borderRadius: Radii.md, borderWidth: 1 },
   contextDef:        { fontSize: FontSizes.sm, fontFamily: FontFamily.body, lineHeight: FontSizes.sm * 1.55, marginBottom: Spacing.xs },
   contextEx:         { fontSize: FontSizes.sm, fontFamily: FontFamily.bodyMedium, fontStyle: 'italic', lineHeight: FontSizes.sm * 1.5, marginBottom: Spacing.xs },
-  contextPhonetic:   { fontSize: FontSizes.xs, fontFamily: FontFamily.mono, marginTop: 2 },
 
   feedbackOverlay: { zIndex: 5 },
   correctOverlay:  { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, alignItems: 'center', justifyContent: 'center' },
