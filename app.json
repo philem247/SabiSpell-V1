@@ -14,10 +14,8 @@
     "android": {
       "package": "com.sabispell.app",
       "adaptiveIcon": {
-        "backgroundColor": "#1565C0",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#141F25",
+        "foregroundImage": "./assets/android-icon-foreground.png"
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [

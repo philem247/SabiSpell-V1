@@ -168,9 +168,9 @@ export default function CertificateScreen() {
           <View ref={certificateRef} collapsable={false} style={styles.certificateCaptureFrame}>
             <CertificateSVG username={username} date={formattedDate} />
             
-            {/* Mascot layered sitting slightly overlapping bottom frame */}
+            {/* Mascot layered sitting in the top-right corner */}
             <View style={styles.mascotOverlay}>
-              <AjalaAvatar state="graduation" size={54} borderColor={theme.brandAccent} />
+              <AjalaAvatar state="graduation" size={44} borderColor={theme.brandAccent} />
             </View>
           </View>
         </View>
@@ -244,15 +244,15 @@ const styles = StyleSheet.create({
   },
   certificateCaptureFrame: {
     width: '100%',
-    alignItems: 'center',
+    aspectRatio: 400 / 280,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    paddingBottom: 4, // slight breathing room for layout composite
+    overflow: 'hidden',
   },
   mascotOverlay: {
     position: 'absolute',
-    top: '5%',
-    right: '5%',
+    top: '4%',
+    right: '4%',
     zIndex: 100,
     // Soft shadow for layout depth
     shadowColor: '#000',

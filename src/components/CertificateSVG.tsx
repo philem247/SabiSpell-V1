@@ -18,7 +18,7 @@ export default function CertificateSVG({
 
   return (
     <View style={styles.container}>
-      <Svg width="100%" height="280" viewBox="0 0 400 280" style={styles.svg}>
+      <Svg width="100%" height="100%" viewBox="0 0 400 280" style={styles.svg}>
         {/* Background Card */}
         <Rect x="0" y="0" width="400" height="280" rx="16" fill="#FFFFFF" />
 
@@ -203,6 +203,7 @@ export default function CertificateSVG({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
+    aspectRatio: 400 / 280,
     borderRadius: 16,
     overflow: 'hidden',
     backgroundColor: '#FFFFFF',
