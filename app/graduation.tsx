@@ -8,6 +8,7 @@ import {
   Platform,
   StatusBar,
   Modal,
+  ScrollView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -67,12 +68,15 @@ export default function GraduationExamScreen() {
   const [correctCount, setCorrectCount] = useState(0);
   const [examFinished, setExamFinished] = useState(false);
   const [examResult, setExamResult] = useState<GraduationResult | null>(null);
+  const [examHistory, setExamHistory] = useState<{ word: Word; isCorrect: boolean; userInput: string; }[]>([]);
+  const [showBreakdown, setShowBreakdown] = useState(false);
 
   // ── Refs ─────────────────────────────────────────────────────────────────────
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const progressAnim = useRef(new Animated.Value(1)).current;
   const feedbackFade = useRef(new Animated.Value(0)).current;
   const advancingRef = useRef(false);
+  const advanceExamTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const correctCountRef = useRef(0);
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -150,6 +154,8 @@ export default function GraduationExamScreen() {
     setExamFinished(false);
     setExamResult(null);
     setAnswerStatus('idle');
+    setExamHistory([]);
+    setShowBreakdown(false);
     const selectedWords = initExamWords();
     loadNextExamWord(selectedWords, 0);
     setExamStarted(true);
@@ -163,6 +169,9 @@ export default function GraduationExamScreen() {
     return () => {
       clearTimer();
       stopSpeaking();
+      if (advanceExamTimerRef.current) {
+        clearTimeout(advanceExamTimerRef.current);
+      }
     };
   }, [isUnlocked]);
 
@@ -198,6 +207,44 @@ export default function GraduationExamScreen() {
     }
   }, [timeLeft, progressAnim, isUnlocked, examFinished]);
 
+  // ── Advance to next word ──────────────────────────────────────────────────────
+  const advanceExam = useCallback((nextIdx: number) => {
+    if (advancingRef.current) return;
+    advancingRef.current = true;
+
+    if (advanceExamTimerRef.current) {
+      clearTimeout(advanceExamTimerRef.current);
+    }
+
+    const delay = nextIdx >= EXAM_WORDS_COUNT ? 3000 : 4500;
+
+    advanceExamTimerRef.current = setTimeout(() => {
+      advancingRef.current = false;
+      advanceExamTimerRef.current = null;
+      if (nextIdx >= EXAM_WORDS_COUNT) {
+        finishExam();
+      } else {
+        setWordIndex(nextIdx);
+        loadNextExamWord(examWords, nextIdx);
+      }
+    }, delay);
+  }, [examWords, loadNextExamWord]);
+
+  const handleNextExamWord = useCallback(() => {
+    if (advanceExamTimerRef.current) {
+      clearTimeout(advanceExamTimerRef.current);
+      advanceExamTimerRef.current = null;
+    }
+    advancingRef.current = false;
+    const nextIdx = wordIndex + 1;
+    if (nextIdx >= EXAM_WORDS_COUNT) {
+      finishExam();
+    } else {
+      setWordIndex(nextIdx);
+      loadNextExamWord(examWords, nextIdx);
+    }
+  }, [wordIndex, examWords, loadNextExamWord]);
+
   // ── Timeout handler ───────────────────────────────────────────────────────────
   const handleTimeout = useCallback(() => {
     const currentWord = examWords[wordIndex];
@@ -211,8 +258,9 @@ export default function GraduationExamScreen() {
     flashFeedback();
     playWrong();
 
+    setExamHistory(prev => [...prev, { word: currentWord, isCorrect: false, userInput: userInput || '[Timeout]' }]);
     advanceExam(wordIndex + 1);
-  }, [examWords, wordIndex, answerStatus, clearTimer, flashFeedback]);
+  }, [examWords, wordIndex, answerStatus, clearTimer, flashFeedback, userInput, advanceExam]);
 
   // ── Submit handler ────────────────────────────────────────────────────────────
   const handleSubmit = useCallback(() => {
@@ -223,6 +271,8 @@ export default function GraduationExamScreen() {
 
     const trimmed = userInput.trim().toLowerCase();
     const isCorrect = trimmed === currentWord.text.toLowerCase();
+
+    setExamHistory(prev => [...prev, { word: currentWord, isCorrect, userInput }]);
 
     if (isCorrect) {
       setAnswerStatus('correct');
@@ -247,22 +297,7 @@ export default function GraduationExamScreen() {
       playWrong();
       advanceExam(wordIndex + 1);
     }
-  }, [examWords, wordIndex, answerStatus, userInput, clearTimer, flashFeedback]);
-
-  // ── Advance to next word ──────────────────────────────────────────────────────
-  const advanceExam = useCallback((nextIdx: number) => {
-    if (advancingRef.current) return;
-    advancingRef.current = true;
-    setTimeout(() => {
-      advancingRef.current = false;
-      if (nextIdx >= EXAM_WORDS_COUNT) {
-        finishExam();
-      } else {
-        setWordIndex(nextIdx);
-        loadNextExamWord(examWords, nextIdx);
-      }
-    }, 1800);
-  }, [examWords, loadNextExamWord]);
+  }, [examWords, wordIndex, answerStatus, userInput, clearTimer, flashFeedback, advanceExam]);
 
   // ── Finish Exam ───────────────────────────────────────────────────────────────
   const finishExam = () => {
@@ -460,7 +495,7 @@ export default function GraduationExamScreen() {
     return (
       <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.bgPrimary }]} edges={['top', 'left', 'right', 'bottom']}>
         <StatusBar barStyle="dark-content" />
-        <View style={styles.lockedContainer}>
+        <ScrollView contentContainerStyle={styles.failedScrollContainer} showsVerticalScrollIndicator={false}>
           <View style={[styles.lockCard, Shadows.card, { borderColor: theme.error, borderWidth: 1.5 }]}>
             <View style={{ marginBottom: 12 }}>
               <AjalaAvatar state="sandbox" size={80} borderColor={theme.error} />
@@ -481,6 +516,55 @@ export default function GraduationExamScreen() {
             <Text style={[styles.lockedDesc, { color: theme.textSecondary, marginTop: 12 }]}>
               Don't worry! You can retake the exam as many times as you need. Revisit the Academic League to brush up on vocabulary, then come back.
             </Text>
+
+            {/* Collapsible Accordion Button */}
+            <TouchableOpacity
+              id="failed-breakdown-btn"
+              onPress={() => setShowBreakdown(v => !v)}
+              style={[styles.breakdownToggleBtn, { borderColor: theme.border }]}
+            >
+              <Text style={[styles.breakdownToggleText, { color: theme.brandPrimary }]}>
+                {showBreakdown ? 'Hide Spelling Review ▲' : 'View Spelling Review ▼'}
+              </Text>
+            </TouchableOpacity>
+
+            {showBreakdown && (
+              <View style={styles.breakdownList}>
+                {examHistory.map((item, idx) => (
+                  <View key={idx} style={[
+                    styles.breakdownCardItem,
+                    {
+                      borderColor: item.isCorrect ? theme.success + '30' : theme.error + '30',
+                      backgroundColor: item.isCorrect ? '#E8F8EF' : '#FFF0F0'
+                    }
+                  ]}>
+                    <View style={styles.breakdownCardHeader}>
+                      <Text style={[
+                        styles.breakdownCardCheck,
+                        { color: item.isCorrect ? theme.success : theme.error }
+                      ]}>
+                        {item.isCorrect ? '✓' : '✗'}
+                      </Text>
+                      <View style={{ flex: 1, marginLeft: 8 }}>
+                        <Text style={[styles.breakdownCardCorrectText, { color: theme.textPrimary }]}>
+                          {item.word.text.toUpperCase()}
+                        </Text>
+                        {!item.isCorrect && (
+                          <Text style={[styles.breakdownCardUserText, { color: theme.textSecondary }]}>
+                            Your spelling: <Text style={{ textDecorationLine: 'line-through', color: theme.error }}>
+                              {(item.userInput || '').toUpperCase() || '[TIMEOUT]'}
+                            </Text>
+                          </Text>
+                        )}
+                        <Text style={[styles.breakdownCardDef, { color: theme.textSecondary }]}>
+                          {item.word.definition}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
           </View>
 
           <View style={styles.failedActionsRow}>
@@ -500,7 +584,7 @@ export default function GraduationExamScreen() {
               <Text style={[styles.failedCancelText, { color: theme.textSecondary }]}>Back Home 🏠</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -591,17 +675,19 @@ export default function GraduationExamScreen() {
           </Text>
 
           {/* Context toggle */}
-          <TouchableOpacity
-            id="graduation-context-btn"
-            onPress={() => setShowContext(v => !v)}
-            style={[styles.contextToggle, { borderColor: theme.border }]}
-          >
-            <Text style={[styles.contextToggleText, { color: theme.brandPrimary }]}>
-              {showContext ? 'Hide definition ▲' : 'Show definition ▼'}
-            </Text>
-          </TouchableOpacity>
+          {answerStatus === 'idle' && (
+            <TouchableOpacity
+              id="graduation-context-btn"
+              onPress={() => setShowContext(v => !v)}
+              style={[styles.contextToggle, { borderColor: theme.border }]}
+            >
+              <Text style={[styles.contextToggleText, { color: theme.brandPrimary }]}>
+                {showContext ? 'Hide definition ▲' : 'Show definition ▼'}
+              </Text>
+            </TouchableOpacity>
+          )}
 
-          {showContext && currentWord && (
+          {answerStatus === 'idle' && showContext && currentWord && (
             <View style={[styles.contextCard, { backgroundColor: theme.bgCard, borderColor: theme.border }]}>
               <Text style={[styles.contextDef,  { color: theme.textPrimary }]}>{currentWord.definition}</Text>
               {currentWord.context_sentences[0] && (
@@ -630,14 +716,7 @@ export default function GraduationExamScreen() {
           </View>
         )}
 
-        {(answerStatus === 'wrong' || answerStatus === 'timeout') && (
-          <View style={[styles.wrongReveal, { backgroundColor: theme.error + '12', borderColor: theme.error + '35' }]}>
-            <Text style={[styles.wrongLabel, { color: theme.error }]}>
-              {answerStatus === 'timeout' ? '⏰ Time up!' : '✗ Incorrect'}
-            </Text>
-            <Text style={[styles.wrongSpelling, { color: theme.textPrimary }]}>{correctSpelling}</Text>
-          </View>
-        )}
+
 
         {/* ── Input area ── */}
         {answerStatus === 'idle' && (
@@ -659,6 +738,80 @@ export default function GraduationExamScreen() {
             disabled={answerStatus !== 'idle'}
             theme={theme}
           />
+        )}
+
+        {answerStatus !== 'idle' && (
+          <View style={[
+            styles.feedbackCard,
+            {
+              backgroundColor: theme.bgCard,
+              borderTopColor: answerStatus === 'correct' ? theme.success : theme.error,
+            }
+          ]}>
+            <View style={styles.feedbackHeader}>
+              <Text style={[
+                styles.feedbackTitle,
+                { color: answerStatus === 'correct' ? theme.success : theme.error }
+              ]}>
+                {answerStatus === 'correct'
+                  ? 'Correct! 🎉'
+                  : answerStatus === 'timeout'
+                  ? "Time's up! ⏰"
+                  : 'Incorrect ✗'}
+              </Text>
+              <View style={styles.rewardsRow}>
+                <View style={[styles.rewardBadge, { backgroundColor: '#EEF5FC' }]}>
+                  <Text style={[styles.rewardText, { color: theme.brandPrimary }]}>Exam Word {wordIndex + 1} of 20</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.comparisonContainer}>
+              {answerStatus === 'correct' ? (
+                <Text style={[styles.correctSpellingText, { color: theme.success }]}>
+                  {currentWord?.text.toUpperCase()}
+                </Text>
+              ) : (
+                <View style={styles.comparisonDetails}>
+                  <Text style={[styles.comparisonLabel, { color: theme.textSecondary }]}>
+                    Correct: <Text style={[styles.comparisonWord, { color: theme.success }]}>{currentWord?.text.toUpperCase()}</Text>
+                  </Text>
+                  <Text style={[styles.comparisonLabel, { color: theme.textSecondary }]}>
+                    You spelled: <Text style={[styles.comparisonWord, { color: theme.error, textDecorationLine: 'line-through' }]}>
+                      {userInput ? userInput.toUpperCase() : '[None]'}
+                    </Text>
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            {currentWord && (
+              <ScrollView style={styles.feedbackDefinitionScroll} contentContainerStyle={styles.feedbackDefinitionContent}>
+                <Text style={[styles.feedbackDefinition, { color: theme.textPrimary }]}>
+                  {currentWord.definition}
+                </Text>
+                {currentWord.context_sentences[0] && (
+                  <Text style={[styles.feedbackExample, { color: theme.textSecondary }]}>
+                    "{maskWordInSentence(currentWord.context_sentences[0], currentWord.text)}"
+                  </Text>
+                )}
+              </ScrollView>
+            )}
+
+            <TouchableOpacity
+              id="graduation-next-btn"
+              onPress={handleNextExamWord}
+              style={[
+                styles.feedbackNextBtn,
+                { backgroundColor: answerStatus === 'correct' ? theme.success : theme.brandPrimary }
+              ]}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.feedbackNextBtnText}>
+                {wordIndex + 1 >= EXAM_WORDS_COUNT ? 'Finish Exam 🎓' : 'Next Word ➡️'}
+              </Text>
+            </TouchableOpacity>
+          </View>
         )}
 
         {/* Exit Confirmation Modal */}
@@ -1049,5 +1202,155 @@ const styles = StyleSheet.create({
   ruleText: {
     fontSize: FontSizes.sm,
     fontFamily: FontFamily.bodySemiBold,
+  },
+  feedbackCard: {
+    padding: Spacing.md,
+    borderTopLeftRadius: Radii.lg,
+    borderTopRightRadius: Radii.lg,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#C4DCF4',
+    borderTopWidth: 4,
+    height: 290,
+    justifyContent: 'space-between',
+  },
+  feedbackHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  feedbackTitle: {
+    fontSize: FontSizes.lg,
+    fontFamily: FontFamily.heading,
+  },
+  rewardsRow: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  rewardBadge: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: Radii.sm,
+  },
+  rewardText: {
+    fontSize: FontSizes.xs,
+    fontFamily: FontFamily.headingSemi,
+  },
+  comparisonContainer: {
+    marginBottom: Spacing.sm,
+    backgroundColor: '#FAFAFA',
+    padding: Spacing.sm,
+    borderRadius: Radii.sm,
+    borderWidth: 1,
+    borderColor: '#EEEEEE',
+  },
+  correctSpellingText: {
+    fontSize: 20,
+    fontFamily: FontFamily.mono,
+    letterSpacing: 2,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  comparisonDetails: {
+    gap: 4,
+  },
+  comparisonLabel: {
+    fontSize: FontSizes.sm,
+    fontFamily: FontFamily.bodySemiBold,
+  },
+  comparisonWord: {
+    fontFamily: FontFamily.mono,
+    fontSize: FontSizes.md,
+    letterSpacing: 1,
+    fontWeight: 'bold',
+  },
+  feedbackDefinitionScroll: {
+    flex: 1,
+    marginBottom: Spacing.sm,
+  },
+  feedbackDefinitionContent: {
+    paddingBottom: Spacing.xs,
+  },
+  feedbackDefinition: {
+    fontSize: FontSizes.sm,
+    fontFamily: FontFamily.body,
+    lineHeight: 18,
+    marginBottom: 4,
+  },
+  feedbackExample: {
+    fontSize: FontSizes.xs,
+    fontFamily: FontFamily.bodyMedium,
+    fontStyle: 'italic',
+  },
+  feedbackNextBtn: {
+    height: 48,
+    borderRadius: Radii.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  feedbackNextBtnText: {
+    color: '#FFFFFF',
+    fontSize: FontSizes.base,
+    fontFamily: FontFamily.headingSemi,
+  },
+  failedScrollContainer: {
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.lg,
+    paddingBottom: 40,
+    alignItems: 'center',
+  },
+  breakdownToggleBtn: {
+    width: '100%',
+    paddingVertical: Spacing.sm,
+    borderWidth: 1.5,
+    borderRadius: Radii.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: Spacing.base,
+  },
+  breakdownToggleText: {
+    fontSize: FontSizes.sm,
+    fontFamily: FontFamily.headingSemi,
+  },
+  breakdownList: {
+    width: '100%',
+    marginTop: Spacing.base,
+    gap: Spacing.sm,
+  },
+  breakdownCardItem: {
+    width: '100%',
+    borderRadius: Radii.md,
+    borderWidth: 1,
+    padding: Spacing.sm,
+  },
+  breakdownCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  breakdownCardCheck: {
+    fontSize: FontSizes.lg,
+    fontWeight: 'bold',
+    marginTop: -2,
+  },
+  breakdownCardCorrectText: {
+    fontSize: FontSizes.base,
+    fontFamily: FontFamily.headingSemi,
+  },
+  breakdownCardUserText: {
+    fontSize: FontSizes.sm,
+    fontFamily: FontFamily.bodyMedium,
+    marginTop: 2,
+  },
+  breakdownCardDef: {
+    fontSize: FontSizes.xs,
+    fontFamily: FontFamily.body,
+    marginTop: 4,
+    lineHeight: 15,
   },
 });

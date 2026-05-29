@@ -33,7 +33,8 @@ export default function ResultScreen() {
   const theme  = Themes.sss;
 
   const { username, xp, academic_ssr, daily_streak } = useProfileStore();
-  const { sessionScore, sessionWords, spellStreak } = useGameStore();
+  const { sessionScore, sessionWords, spellStreak, sessionHistory } = useGameStore();
+  const [showBreakdown, setShowBreakdown] = useState(false);
 
   const wordsPlayed  = Math.max(sessionWords.length, 1);
   const correctCount = sessionScore;
@@ -147,6 +148,60 @@ export default function ResultScreen() {
               : `Gbiyanju, ${username}! Every miss is a lesson. Come back stronger. 🌱`}
           </Text>
         </View>
+
+        {/* Spelling Review Accordion */}
+        {sessionHistory && sessionHistory.length > 0 && (
+          <View style={{ width: '100%', marginBottom: Spacing.md }}>
+            <TouchableOpacity
+              id="result-breakdown-btn"
+              onPress={() => setShowBreakdown(v => !v)}
+              style={[styles.breakdownToggleBtn, { borderColor: theme.border }]}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.breakdownToggleText, { color: theme.brandPrimary }]}>
+                {showBreakdown ? 'Hide Spelling Review ▲' : 'View Spelling Review ▼'}
+              </Text>
+            </TouchableOpacity>
+
+            {showBreakdown && (
+              <View style={styles.breakdownList}>
+                {sessionHistory.map((item, idx) => (
+                  <View key={idx} style={[
+                    styles.breakdownCardItem,
+                    {
+                      borderColor: item.isCorrect ? theme.success + '30' : theme.error + '30',
+                      backgroundColor: item.isCorrect ? '#E8F8EF' : '#FFF0F0'
+                    }
+                  ]}>
+                    <View style={styles.breakdownCardHeader}>
+                      <Text style={[
+                        styles.breakdownCardCheck,
+                        { color: item.isCorrect ? theme.success : theme.error }
+                      ]}>
+                        {item.isCorrect ? '✓' : '✗'}
+                      </Text>
+                      <View style={{ flex: 1, marginLeft: 8 }}>
+                        <Text style={[styles.breakdownCardCorrectText, { color: theme.textPrimary }]}>
+                          {item.word.text.toUpperCase()}
+                        </Text>
+                        {!item.isCorrect && (
+                          <Text style={[styles.breakdownCardUserText, { color: theme.textSecondary }]}>
+                            Your spelling: <Text style={{ textDecorationLine: 'line-through', color: theme.error }}>
+                              {(item.userInput || '').toUpperCase() || '[TIMEOUT]'}
+                            </Text>
+                          </Text>
+                        )}
+                        <Text style={[styles.breakdownCardDef, { color: theme.textSecondary }]}>
+                          {item.word.definition}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
       </ScrollView>
 
       {/* Sticky bottom CTAs */}
@@ -206,4 +261,53 @@ const styles = StyleSheet.create({
   ctaPrimaryText: { color: GlobalColors.white, fontSize: FontSizes.md, fontFamily: FontFamily.headingSemi },
   ctaOutline:  { flex: 1, height: 52, borderRadius: Radii.md, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   ctaOutlineText: { fontSize: FontSizes.md, fontFamily: FontFamily.headingSemi },
+  breakdownToggleBtn: {
+    width: '100%',
+    paddingVertical: Spacing.sm,
+    borderWidth: 1.5,
+    borderRadius: Radii.md,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: Spacing.sm,
+  },
+  breakdownToggleText: {
+    fontSize: FontSizes.sm,
+    fontFamily: FontFamily.headingSemi,
+  },
+  breakdownList: {
+    width: '100%',
+    marginTop: Spacing.sm,
+    gap: Spacing.sm,
+  },
+  breakdownCardItem: {
+    width: '100%',
+    borderRadius: Radii.md,
+    borderWidth: 1,
+    padding: Spacing.sm,
+  },
+  breakdownCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  breakdownCardCheck: {
+    fontSize: FontSizes.lg,
+    fontWeight: 'bold',
+    marginTop: -2,
+  },
+  breakdownCardCorrectText: {
+    fontSize: FontSizes.base,
+    fontFamily: FontFamily.headingSemi,
+  },
+  breakdownCardUserText: {
+    fontSize: FontSizes.sm,
+    fontFamily: FontFamily.bodyMedium,
+    marginTop: 2,
+  },
+  breakdownCardDef: {
+    fontSize: FontSizes.xs,
+    fontFamily: FontFamily.body,
+    marginTop: 4,
+    lineHeight: 15,
+  },
 });

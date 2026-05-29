@@ -237,7 +237,7 @@ try {
   assert.strictEqual(gameState.currentWord?.id, 'dummy_01');
   assert.deepStrictEqual(gameState.sessionWords, ['dummy_01']);
 
-  useGameStore.getState().recordAnswer(true);
+  useGameStore.getState().recordAnswer(true, 'test');
   gameState = useGameStore.getState();
   assert.strictEqual(gameState.sessionScore, 1);
   assert.strictEqual(gameState.spellStreak, 1);

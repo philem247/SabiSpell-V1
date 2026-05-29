@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   StyleSheet, View, Text, TouchableOpacity,
-  Animated, Platform, StatusBar, Modal,
+  Animated, Platform, StatusBar, Modal, ScrollView,
 } from 'react-native';
 import SpellingKeyboard from '../../src/components/SpellingKeyboard';
 import { useRouter } from 'expo-router';
@@ -50,6 +50,9 @@ export default function AcademicGameScreen() {
   const [isLoading,          setIsLoading]         = useState(true);
   const [currentSSR,         setCurrentSSR]        = useState(academic_ssr);
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
+  const [ssrDelta,           setSsrDelta]          = useState(0);
+  const [xpReward,           setXpReward]          = useState(0);
+  const [coinReward,         setCoinReward]        = useState(0);
 
   // ── Refs ─────────────────────────────────────────────────────────────────────
   const timerRef      = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -57,6 +60,7 @@ export default function AcademicGameScreen() {
   const progressAnim  = useRef(new Animated.Value(1)).current;
   const feedbackFade  = useRef(new Animated.Value(0)).current;
   const advancingRef  = useRef(false); // guard against double-advance
+  const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
   const clearTimer = useCallback(() => {
@@ -74,22 +78,6 @@ export default function AcademicGameScreen() {
       if (hintIdx !== null && i === hintIdx) return ch.toUpperCase();
       return '_';
     }).join(' ');
-
-  // ── Advance to next word (or end session) ────────────────────────────────────
-  const advance = useCallback((nextSSR: number, nextIdx: number) => {
-    if (advancingRef.current) return;
-    advancingRef.current = true;
-    setTimeout(() => {
-      advancingRef.current = false;
-      setAjalaState('standard');
-      if (nextIdx >= WORDS_PER_ROUND) {
-        router.replace('/result' as any);
-      } else {
-        setWordIndex(nextIdx);
-        loadNextWord(nextSSR, nextIdx);
-      }
-    }, nextIdx >= WORDS_PER_ROUND ? 600 : 1800);
-  }, [router]);
 
   // ── Load next word ────────────────────────────────────────────────────────────
   const loadNextWord = useCallback((ssrForSelection: number, _index?: number) => {
@@ -125,6 +113,47 @@ export default function AcademicGameScreen() {
     progressAnim.setValue(1);
   }, [word_history.sss, setCurrentWord, router]);
 
+  // ── Advance to next word (or end session) ────────────────────────────────────
+  const advance = useCallback((nextSSR: number, nextIdx: number) => {
+    if (advancingRef.current) return;
+    advancingRef.current = true;
+
+    if (advanceTimerRef.current) {
+      clearTimeout(advanceTimerRef.current);
+    }
+
+    const delay = nextIdx >= WORDS_PER_ROUND ? 3000 : 4500;
+
+    advanceTimerRef.current = setTimeout(() => {
+      advancingRef.current = false;
+      advanceTimerRef.current = null;
+      setAjalaState('standard');
+      if (nextIdx >= WORDS_PER_ROUND) {
+        router.replace('/result' as any);
+      } else {
+        setWordIndex(nextIdx);
+        loadNextWord(nextSSR, nextIdx);
+      }
+    }, delay);
+  }, [router, loadNextWord]);
+
+  const handleNextWord = useCallback(() => {
+    if (advanceTimerRef.current) {
+      clearTimeout(advanceTimerRef.current);
+      advanceTimerRef.current = null;
+    }
+    advancingRef.current = false;
+    setAjalaState('standard');
+
+    const nextIdx = wordIndex + 1;
+    if (nextIdx >= WORDS_PER_ROUND) {
+      router.replace('/result' as any);
+    } else {
+      setWordIndex(nextIdx);
+      loadNextWord(currentSSR, nextIdx);
+    }
+  }, [wordIndex, currentSSR, router, loadNextWord]);
+
   // ── Timeout handler ───────────────────────────────────────────────────────────
   const handleTimeout = useCallback(() => {
     if (!currentWord || answerStatus !== 'idle') return;
@@ -140,12 +169,17 @@ export default function AcademicGameScreen() {
 
     const delta = calculateSSRDelta(currentSSR, currentWord.ssr, false, false);
     const newSSR = Math.max(AppConfig.SSR_MIN, Math.min(AppConfig.SSR_MAX, currentSSR + delta));
+
+    setSsrDelta(delta);
+    setXpReward(0);
+    setCoinReward(0);
+
     updateSSR(delta, 0);
     addWordToHistory('sss', currentWord.id);
-    recordAnswer(false);
+    recordAnswer(false, userInput || '[Timeout]');
     setCurrentSSR(newSSR);
     advance(newSSR, wordIndex + 1);
-  }, [currentWord, answerStatus, currentSSR, wordIndex, clearTimer, flashFeedback, advance]);
+  }, [currentWord, answerStatus, currentSSR, wordIndex, clearTimer, flashFeedback, advance, userInput]);
 
   // ── Submit handler ────────────────────────────────────────────────────────────
   const handleSubmit = useCallback(() => {
@@ -169,11 +203,15 @@ export default function AcademicGameScreen() {
       const newSSR  = Math.max(AppConfig.SSR_MIN, Math.min(AppConfig.SSR_MAX, currentSSR + delta));
       const reward  = calculateReward(currentWord.ssr, true, spellStreak, false);
 
+      setSsrDelta(delta);
+      setXpReward(reward.xp);
+      setCoinReward(reward.coins);
+
       updateSSR(delta, 0);
       addXPAndCoins(reward.xp, reward.coins);
       addWordToHistory('sss', currentWord.id);
       updateDailyStreak();
-      recordAnswer(true);
+      recordAnswer(true, userInput);
       setCurrentSSR(newSSR);
       advance(newSSR, wordIndex + 1);
     } else {
@@ -187,9 +225,14 @@ export default function AcademicGameScreen() {
 
       const delta  = calculateSSRDelta(currentSSR, currentWord.ssr, false, false);
       const newSSR = Math.max(AppConfig.SSR_MIN, Math.min(AppConfig.SSR_MAX, currentSSR + delta));
+
+      setSsrDelta(delta);
+      setXpReward(0);
+      setCoinReward(0);
+
       updateSSR(delta, 0);
       addWordToHistory('sss', currentWord.id);
-      recordAnswer(false);
+      recordAnswer(false, userInput);
       setCurrentSSR(newSSR);
       advance(newSSR, wordIndex + 1);
     }
@@ -245,6 +288,14 @@ export default function AcademicGameScreen() {
     setCurrentSSR(academic_ssr);
     loadNextWord(academic_ssr, 0);
     initAudio();
+
+    return () => {
+      clearTimer();
+      stopSpeaking();
+      if (advanceTimerRef.current) {
+        clearTimeout(advanceTimerRef.current);
+      }
+    };
   }, []);
 
   // ── Timer start whenever a new word appears ───────────────────────────────────
@@ -385,17 +436,19 @@ export default function AcademicGameScreen() {
           )}
 
           {/* Context toggle */}
-          <TouchableOpacity
-            id="academic-context-btn"
-            onPress={() => setShowContext(v => !v)}
-            style={[styles.contextToggle, { borderColor: theme.border }]}
-          >
-            <Text style={[styles.contextToggleText, { color: theme.brandPrimary }]}>
-              {showContext ? 'Hide definition ▲' : 'Show definition ▼'}
-            </Text>
-          </TouchableOpacity>
+          {answerStatus === 'idle' && (
+            <TouchableOpacity
+              id="academic-context-btn"
+              onPress={() => setShowContext(v => !v)}
+              style={[styles.contextToggle, { borderColor: theme.border }]}
+            >
+              <Text style={[styles.contextToggleText, { color: theme.brandPrimary }]}>
+                {showContext ? 'Hide definition ▲' : 'Show definition ▼'}
+              </Text>
+            </TouchableOpacity>
+          )}
 
-          {showContext && currentWord && (
+          {answerStatus === 'idle' && showContext && currentWord && (
             <View style={[styles.contextCard, { backgroundColor: theme.bgCard, borderColor: theme.border }]}>
               <Text style={[styles.contextDef,  { color: theme.textPrimary }]}>{currentWord.definition}</Text>
               {currentWord.context_sentences[0] && (
@@ -424,14 +477,7 @@ export default function AcademicGameScreen() {
           </View>
         )}
 
-        {(answerStatus === 'wrong' || answerStatus === 'timeout') && (
-          <View style={[styles.wrongReveal, { backgroundColor: theme.error + '12', borderColor: theme.error + '35' }]}>
-            <Text style={[styles.wrongLabel, { color: theme.error }]}>
-              {answerStatus === 'timeout' ? '⏰ Time up!' : '✗ Incorrect'}
-            </Text>
-            <Text style={[styles.wrongSpelling, { color: theme.textPrimary }]}>{correctSpelling}</Text>
-          </View>
-        )}
+
 
         {/* ── Input area ── */}
         {answerStatus === 'idle' && (
@@ -462,6 +508,94 @@ export default function AcademicGameScreen() {
             disabled={answerStatus !== 'idle'}
             theme={theme}
           />
+        )}
+
+        {answerStatus !== 'idle' && (
+          <View style={[
+            styles.feedbackCard,
+            {
+              backgroundColor: theme.bgCard,
+              borderTopColor: answerStatus === 'correct' ? theme.success : theme.error,
+            }
+          ]}>
+            <View style={styles.feedbackHeader}>
+              <Text style={[
+                styles.feedbackTitle,
+                { color: answerStatus === 'correct' ? theme.success : theme.error }
+              ]}>
+                {answerStatus === 'correct'
+                  ? 'Correct! 🎉'
+                  : answerStatus === 'timeout'
+                  ? "Time's up! ⏰"
+                  : 'Incorrect ✗'}
+              </Text>
+              <View style={styles.rewardsRow}>
+                {answerStatus === 'correct' ? (
+                  <>
+                    <View style={[styles.rewardBadge, { backgroundColor: '#E8F8EF' }]}>
+                      <Text style={[styles.rewardText, { color: theme.success }]}>+{xpReward} XP</Text>
+                    </View>
+                    <View style={[styles.rewardBadge, { backgroundColor: '#FFF9E6' }]}>
+                      <Text style={[styles.rewardText, { color: '#F5A623' }]}>+{coinReward} 🪙</Text>
+                    </View>
+                    <View style={[styles.rewardBadge, { backgroundColor: '#EEF5FC' }]}>
+                      <Text style={[styles.rewardText, { color: theme.brandPrimary }]}>+{ssrDelta} SSR</Text>
+                    </View>
+                  </>
+                ) : (
+                  <View style={[styles.rewardBadge, { backgroundColor: '#FFF0F0' }]}>
+                    <Text style={[styles.rewardText, { color: theme.error }]}>{ssrDelta} SSR</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            <View style={styles.comparisonContainer}>
+              {answerStatus === 'correct' ? (
+                <Text style={[styles.correctSpellingText, { color: theme.success }]}>
+                  {currentWord?.text.toUpperCase()}
+                </Text>
+              ) : (
+                <View style={styles.comparisonDetails}>
+                  <Text style={[styles.comparisonLabel, { color: theme.textSecondary }]}>
+                    Correct: <Text style={[styles.comparisonWord, { color: theme.success }]}>{currentWord?.text.toUpperCase()}</Text>
+                  </Text>
+                  <Text style={[styles.comparisonLabel, { color: theme.textSecondary }]}>
+                    You spelled: <Text style={[styles.comparisonWord, { color: theme.error, textDecorationLine: 'line-through' }]}>
+                      {userInput ? userInput.toUpperCase() : '[None]'}
+                    </Text>
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            {currentWord && (
+              <ScrollView style={styles.feedbackDefinitionScroll} contentContainerStyle={styles.feedbackDefinitionContent}>
+                <Text style={[styles.feedbackDefinition, { color: theme.textPrimary }]}>
+                  {currentWord.definition}
+                </Text>
+                {currentWord.context_sentences[0] && (
+                  <Text style={[styles.feedbackExample, { color: theme.textSecondary }]}>
+                    "{maskWordInSentence(currentWord.context_sentences[0], currentWord.text)}"
+                  </Text>
+                )}
+              </ScrollView>
+            )}
+
+            <TouchableOpacity
+              id="academic-next-btn"
+              onPress={handleNextWord}
+              style={[
+                styles.feedbackNextBtn,
+                { backgroundColor: answerStatus === 'correct' ? theme.success : theme.brandPrimary }
+              ]}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.feedbackNextBtnText}>
+                {wordIndex + 1 >= WORDS_PER_ROUND ? 'View Results 📊' : 'Next Word ➡️'}
+              </Text>
+            </TouchableOpacity>
+          </View>
         )}
 
         {/* Exit Confirmation Modal */}
@@ -634,5 +768,101 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.base,
     fontFamily: FontFamily.headingSemi,
     color: '#FFFFFF',
+  },
+  feedbackCard: {
+    padding: Spacing.md,
+    borderTopLeftRadius: Radii.lg,
+    borderTopRightRadius: Radii.lg,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#C4DCF4',
+    borderTopWidth: 4,
+    height: 290,
+    justifyContent: 'space-between',
+  },
+  feedbackHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  feedbackTitle: {
+    fontSize: FontSizes.lg,
+    fontFamily: FontFamily.heading,
+  },
+  rewardsRow: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  rewardBadge: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: Radii.sm,
+  },
+  rewardText: {
+    fontSize: FontSizes.xs,
+    fontFamily: FontFamily.headingSemi,
+  },
+  comparisonContainer: {
+    marginBottom: Spacing.sm,
+    backgroundColor: '#FAFAFA',
+    padding: Spacing.sm,
+    borderRadius: Radii.sm,
+    borderWidth: 1,
+    borderColor: '#EEEEEE',
+  },
+  correctSpellingText: {
+    fontSize: 20,
+    fontFamily: FontFamily.mono,
+    letterSpacing: 2,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  comparisonDetails: {
+    gap: 4,
+  },
+  comparisonLabel: {
+    fontSize: FontSizes.sm,
+    fontFamily: FontFamily.bodySemiBold,
+  },
+  comparisonWord: {
+    fontFamily: FontFamily.mono,
+    fontSize: FontSizes.md,
+    letterSpacing: 1,
+    fontWeight: 'bold',
+  },
+  feedbackDefinitionScroll: {
+    flex: 1,
+    marginBottom: Spacing.sm,
+  },
+  feedbackDefinitionContent: {
+    paddingBottom: Spacing.xs,
+  },
+  feedbackDefinition: {
+    fontSize: FontSizes.sm,
+    fontFamily: FontFamily.body,
+    lineHeight: 18,
+    marginBottom: 4,
+  },
+  feedbackExample: {
+    fontSize: FontSizes.xs,
+    fontFamily: FontFamily.bodyMedium,
+    fontStyle: 'italic',
+  },
+  feedbackNextBtn: {
+    height: 48,
+    borderRadius: Radii.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  feedbackNextBtnText: {
+    color: '#FFFFFF',
+    fontSize: FontSizes.base,
+    fontFamily: FontFamily.headingSemi,
   },
 });
