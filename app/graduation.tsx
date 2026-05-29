@@ -61,6 +61,7 @@ export default function GraduationExamScreen() {
   const [showContext, setShowContext] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
+  const [examStarted, setExamStarted] = useState(false);
 
   // Exam session final score tracking
   const [correctCount, setCorrectCount] = useState(0);
@@ -151,12 +152,12 @@ export default function GraduationExamScreen() {
     setAnswerStatus('idle');
     const selectedWords = initExamWords();
     loadNextExamWord(selectedWords, 0);
+    setExamStarted(true);
   }, [initExamWords, loadNextExamWord]);
 
   // ── Mount ─────────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (isUnlocked) {
-      startExamFlow();
       initAudio();
     }
     return () => {
@@ -378,7 +379,72 @@ export default function GraduationExamScreen() {
     );
   }
 
-  // 2. Loading State
+  // 2. Exam Briefing Screen View (Unstarted)
+  if (isUnlocked && !examStarted) {
+    return (
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.bgPrimary }]} edges={['top', 'left', 'right', 'bottom']}>
+        <StatusBar barStyle="dark-content" />
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} id="graduation-briefing-back-btn">
+            <Text style={[styles.backText, { color: theme.brandPrimary }]}>← Back</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.lockedContainer}>
+          <View style={[styles.lockCard, Shadows.card]}>
+            <View style={{ marginBottom: 12 }}>
+              <AjalaAvatar state="exam_warrior" size={80} />
+            </View>
+            <Text style={[styles.lockedTitle, { color: theme.textPrimary }]}>Graduation Exam</Text>
+            <Text style={[styles.lockedSub, { color: theme.brandPrimary }]}>READY TO START</Text>
+            <Text style={[styles.lockedDesc, { color: theme.textSecondary, marginBottom: 16 }]}>
+              Prove your spelling mastery and earn your official certificate of graduation!
+            </Text>
+
+            {/* Rules list */}
+            <View style={styles.rulesCard}>
+              <View style={styles.ruleRow}>
+                <Text style={styles.ruleEmoji}>📝</Text>
+                <Text style={[styles.ruleText, { color: theme.textPrimary }]}>20 WAEC-level spelling words</Text>
+              </View>
+              <View style={styles.ruleRow}>
+                <Text style={styles.ruleEmoji}>⏱️</Text>
+                <Text style={[styles.ruleText, { color: theme.textPrimary }]}>45 seconds limit per word</Text>
+              </View>
+              <View style={styles.ruleRow}>
+                <Text style={styles.ruleEmoji}>💡</Text>
+                <Text style={[styles.ruleText, { color: theme.textPrimary }]}>No hints allowed</Text>
+              </View>
+              <View style={styles.ruleRow}>
+                <Text style={styles.ruleEmoji}>🎯</Text>
+                <Text style={[styles.ruleText, { color: theme.textPrimary }]}>75% (15/20) score required to pass</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.failedActionsRow}>
+            <TouchableOpacity
+              onPress={startExamFlow}
+              activeOpacity={0.85}
+              style={[styles.failedCtaButton, { backgroundColor: theme.brandPrimary }, Shadows.button]}
+            >
+              <Text style={styles.failedCtaText}>Start Exam 🚀</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => router.back()}
+              activeOpacity={0.85}
+              style={[styles.failedCancelButton, { borderColor: theme.border }]}
+            >
+              <Text style={[styles.failedCancelText, { color: theme.textSecondary }]}>Not Ready Yet 🏠</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // 3. Loading State
   if (isLoading || examWords.length === 0) {
     return (
       <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.bgPrimary }]} edges={['top']}>
@@ -960,5 +1026,28 @@ const styles = StyleSheet.create({
   failedCancelText: {
     fontSize: FontSizes.md,
     fontFamily: FontFamily.headingSemi,
+  },
+  rulesCard: {
+    width: '100%',
+    backgroundColor: '#EEF5FC',
+    borderRadius: Radii.md,
+    padding: Spacing.base,
+    marginTop: Spacing.sm,
+    borderWidth: 1,
+    borderColor: '#C4DCF4',
+    alignItems: 'stretch',
+  },
+  ruleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  ruleEmoji: {
+    fontSize: 18,
+    marginRight: 10,
+  },
+  ruleText: {
+    fontSize: FontSizes.sm,
+    fontFamily: FontFamily.bodySemiBold,
   },
 });
