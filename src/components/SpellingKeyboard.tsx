@@ -7,6 +7,7 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { Themes, ThemeTokens, FontFamily } from '../constants/Colors';
 
@@ -85,6 +86,9 @@ export default function SpellingKeyboard({
   disabled = false,
   theme = Themes.sss,
 }: SpellingKeyboardProps) {
+  const insets = useSafeAreaInsets();
+  const bottomPadding = Math.max(insets.bottom, 22);
+
   const rows = [
     ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
     ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
@@ -126,7 +130,7 @@ export default function SpellingKeyboard({
   }, [disabled, onDelete, onSubmit, onKeyPress]);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.bgSecondary, borderTopColor: theme.border }]}>
+    <View style={[styles.container, { backgroundColor: theme.bgSecondary, borderTopColor: theme.border, paddingBottom: bottomPadding }]}>
       <View style={[styles.keyboardWrapper, isDesktop && styles.desktopWrapper]}>
         {rows.map((row, rowIndex) => (
           <View key={rowIndex} style={styles.row}>
@@ -194,7 +198,6 @@ export default function SpellingKeyboard({
 
 const styles = StyleSheet.create({
   container: {
-    paddingBottom: Platform.OS === 'ios' ? 30 : 12,
     paddingTop: 12,
     borderTopWidth: 1.5,
     width: '100%',
