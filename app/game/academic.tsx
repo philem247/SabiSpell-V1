@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   StyleSheet, View, Text, TouchableOpacity,
-  Animated, Platform, StatusBar,
+  Animated, Platform, StatusBar, Modal,
 } from 'react-native';
 import SpellingKeyboard from '../../src/components/SpellingKeyboard';
 import { useRouter } from 'expo-router';
@@ -49,6 +49,7 @@ export default function AcademicGameScreen() {
   const [showContext,        setShowContext]        = useState(false);
   const [isLoading,          setIsLoading]         = useState(true);
   const [currentSSR,         setCurrentSSR]        = useState(academic_ssr);
+  const [showExitConfirmation, setShowExitConfirmation] = useState(false);
 
   // ── Refs ─────────────────────────────────────────────────────────────────────
   const timerRef      = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -253,7 +254,7 @@ export default function AcademicGameScreen() {
 
   // ── Timer start whenever a new word appears ───────────────────────────────────
   useEffect(() => {
-    if (isLoading || !currentWord || answerStatus !== 'idle') return;
+    if (isLoading || !currentWord || answerStatus !== 'idle' || showExitConfirmation) return;
     clearTimer();
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
@@ -262,7 +263,7 @@ export default function AcademicGameScreen() {
       });
     }, 1000);
     return clearTimer;
-  }, [currentWord?.id, isLoading]);
+  }, [currentWord?.id, isLoading, showExitConfirmation]);
 
   // ── Derived UI ────────────────────────────────────────────────────────────────
   const timerColor = timeLeft > 15 ? theme.success : timeLeft > 8 ? theme.warning : theme.error;
@@ -288,7 +289,7 @@ export default function AcademicGameScreen() {
 
         {/* ── Header ── */}
         <View style={styles.header}>
-          <TouchableOpacity id="academic-close-btn" onPress={() => { clearTimer(); stopSpeaking(); router.back(); }}>
+          <TouchableOpacity id="academic-close-btn" onPress={() => setShowExitConfirmation(true)}>
             <Text style={[styles.closeBtn, { color: theme.textMuted }]}>✕</Text>
           </TouchableOpacity>
 
@@ -452,6 +453,47 @@ export default function AcademicGameScreen() {
             theme={theme}
           />
         )}
+
+        {/* Exit Confirmation Modal */}
+        <Modal
+          visible={showExitConfirmation}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowExitConfirmation(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalCard, Shadows.modal]}>
+              <View style={[styles.modalEmojiContainer, { backgroundColor: theme.error + '15' }]}>
+                <Text style={styles.modalEmojiText}>⚠️</Text>
+              </View>
+              <Text style={[styles.modalTitleText, { color: theme.textPrimary }]}>
+                Exit Game?
+              </Text>
+              <Text style={[styles.modalMessageText, { color: theme.textSecondary }]}>
+                Are you sure you want to quit? Your progress in this round will be lost, and energy spent cannot be refunded.
+              </Text>
+
+              <View style={styles.modalActionsRow}>
+                <TouchableOpacity
+                  onPress={() => setShowExitConfirmation(false)}
+                  style={[styles.modalCancelBtn, { borderColor: theme.border }]}
+                >
+                  <Text style={[styles.modalCancelText, { color: theme.textSecondary }]}>Keep Playing</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  onPress={() => {
+                    setShowExitConfirmation(false);
+                    stopSpeaking();
+                    router.back();
+                  }}
+                  style={[styles.modalConfirmBtn, { backgroundColor: theme.error }]}>
+                  <Text style={styles.modalConfirmText}>Yes, Exit</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     </SafeAreaView>
   );
@@ -507,4 +549,80 @@ const styles = StyleSheet.create({
   input:      { height: 52, borderRadius: Radii.md, borderWidth: 1.5, paddingHorizontal: Spacing.md, fontSize: FontSizes.lg, marginBottom: Spacing.sm, letterSpacing: 2 },
   submitBtn:  { height: 52, borderRadius: Radii.md, alignItems: 'center', justifyContent: 'center' },
   submitText: { fontSize: FontSizes.md, fontFamily: FontFamily.headingSemi, letterSpacing: 0.5 },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(10, 55, 115, 0.60)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 340,
+    backgroundColor: GlobalColors.white,
+    borderRadius: Radii.lg,
+    padding: 24,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#C4DCF4',
+  },
+  modalEmojiContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  modalEmojiText: {
+    fontSize: 32,
+  },
+  modalTitleText: {
+    fontSize: FontSizes.lg,
+    fontFamily: FontFamily.heading,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalMessageText: {
+    fontSize: FontSizes.sm,
+    fontFamily: FontFamily.body,
+    marginBottom: 24,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  modalActionsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  modalCancelBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: Radii.md,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCancelText: {
+    fontSize: FontSizes.base,
+    fontFamily: FontFamily.headingSemi,
+  },
+  modalConfirmBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: Radii.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  modalConfirmText: {
+    fontSize: FontSizes.base,
+    fontFamily: FontFamily.headingSemi,
+    color: '#FFFFFF',
+  },
 });

@@ -1,12 +1,11 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   Dimensions,
   Platform,
-  Animated,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Themes, ThemeTokens, FontFamily } from '../constants/Colors';
@@ -21,36 +20,24 @@ interface KeyboardKeyProps {
 }
 
 function KeyboardKey({ label, onPress, width, height, theme, disabled }: KeyboardKeyProps) {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-
-  const handlePress = () => {
-    if (disabled) return;
-    Animated.sequence([
-      Animated.timing(scaleAnim, { toValue: 0.90, duration: 60, useNativeDriver: true }),
-      Animated.spring(scaleAnim, { toValue: 1, friction: 3, tension: 40, useNativeDriver: true }),
-    ]).start();
-    onPress(label);
-  };
-
   return (
-    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        disabled={disabled}
-        onPress={handlePress}
-        style={[
-          styles.key,
-          {
-            backgroundColor: theme.bgCard,
-            borderColor: theme.border,
-            width,
-            height,
-          },
-        ]}
-      >
-        <Text style={[styles.keyText, { color: theme.textPrimary }]}>{label}</Text>
-      </TouchableOpacity>
-    </Animated.View>
+    <Pressable
+      disabled={disabled}
+      onPress={() => onPress(label)}
+      style={({ pressed }) => [
+        styles.key,
+        {
+          backgroundColor: theme.bgCard,
+          borderColor: theme.border,
+          width,
+          height,
+          transform: [{ scale: pressed && !disabled ? 0.90 : 1 }],
+          opacity: disabled ? 0.55 : 1,
+        },
+      ]}
+    >
+      <Text style={[styles.keyText, { color: theme.textPrimary }]}>{label}</Text>
+    </Pressable>
   );
 }
 
@@ -104,27 +91,6 @@ export default function SpellingKeyboard({
     ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
   ];
 
-  const submitScaleAnim = useRef(new Animated.Value(1)).current;
-  const deleteScaleAnim = useRef(new Animated.Value(1)).current;
-
-  const handleSubmitPress = () => {
-    if (disabled) return;
-    Animated.sequence([
-      Animated.timing(submitScaleAnim, { toValue: 0.90, duration: 60, useNativeDriver: true }),
-      Animated.spring(submitScaleAnim, { toValue: 1, friction: 3, tension: 40, useNativeDriver: true }),
-    ]).start();
-    onSubmit();
-  };
-
-  const handleDeletePress = () => {
-    if (disabled) return;
-    Animated.sequence([
-      Animated.timing(deleteScaleAnim, { toValue: 0.90, duration: 60, useNativeDriver: true }),
-      Animated.spring(deleteScaleAnim, { toValue: 1, friction: 3, tension: 40, useNativeDriver: true }),
-    ]).start();
-    onDelete();
-  };
-
   // Listen to physical keyboard events on Web
   React.useEffect(() => {
     if (Platform.OS !== 'web' || disabled) return;
@@ -166,25 +132,24 @@ export default function SpellingKeyboard({
           <View key={rowIndex} style={styles.row}>
             {/* Action button at the start of the third row */}
             {rowIndex === 2 && (
-              <Animated.View style={{ transform: [{ scale: submitScaleAnim }] }}>
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  disabled={disabled}
-                  onPress={handleSubmitPress}
-                  style={[
-                    styles.key,
-                    styles.specialKey,
-                    {
-                      backgroundColor: theme.success,
-                      borderColor: theme.success,
-                      width: KEY_WIDTH * 1.5,
-                      height: KEY_HEIGHT,
-                    },
-                  ]}
-                >
-                  <CheckIcon color="#FFFFFF" />
-                </TouchableOpacity>
-              </Animated.View>
+              <Pressable
+                disabled={disabled}
+                onPress={onSubmit}
+                style={({ pressed }) => [
+                  styles.key,
+                  styles.specialKey,
+                  {
+                    backgroundColor: theme.success,
+                    borderColor: theme.success,
+                    width: KEY_WIDTH * 1.5,
+                    height: KEY_HEIGHT,
+                    transform: [{ scale: pressed && !disabled ? 0.90 : 1 }],
+                    opacity: disabled ? 0.55 : 1,
+                  },
+                ]}
+              >
+                <CheckIcon color="#FFFFFF" />
+              </Pressable>
             )}
 
             {row.map((key) => (
@@ -201,25 +166,24 @@ export default function SpellingKeyboard({
 
             {/* Delete button at the end of the third row */}
             {rowIndex === 2 && (
-              <Animated.View style={{ transform: [{ scale: deleteScaleAnim }] }}>
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  disabled={disabled}
-                  onPress={handleDeletePress}
-                  style={[
-                    styles.key,
-                    styles.specialKey,
-                    {
-                      backgroundColor: theme.error + '25',
-                      borderColor: theme.border,
-                      width: KEY_WIDTH * 1.5,
-                      height: KEY_HEIGHT,
-                    },
-                  ]}
-                >
-                  <DeleteIcon color={theme.error} />
-                </TouchableOpacity>
-              </Animated.View>
+              <Pressable
+                disabled={disabled}
+                onPress={onDelete}
+                style={({ pressed }) => [
+                  styles.key,
+                  styles.specialKey,
+                  {
+                    backgroundColor: theme.error + '25',
+                    borderColor: theme.border,
+                    width: KEY_WIDTH * 1.5,
+                    height: KEY_HEIGHT,
+                    transform: [{ scale: pressed && !disabled ? 0.90 : 1 }],
+                    opacity: disabled ? 0.55 : 1,
+                  },
+                ]}
+              >
+                <DeleteIcon color={theme.error} />
+              </Pressable>
             )}
           </View>
         ))}
