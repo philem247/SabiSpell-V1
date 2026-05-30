@@ -25,17 +25,20 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#141F25"
-    },
     "plugins": [
       "expo-router",
       "expo-font",
       "expo-sharing",
       "expo-audio",
       "expo-asset",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#141F25",
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain"
+        }
+      ],
       [
         "expo-build-properties",
         {
