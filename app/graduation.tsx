@@ -11,7 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useProfileStore } from '../src/store/profileStore';
 import { useGameStore } from '../src/store/gameStore';
 import { loadWordBank, Word, maskWordInSentence } from '../src/services/wordbank';
@@ -37,6 +37,7 @@ type AnswerStatus = 'idle' | 'correct' | 'wrong' | 'timeout';
 export default function GraduationExamScreen() {
   const router = useRouter();
   const theme = Themes.sss; // SSS 2 Lagoon Blue theme
+  const insets = useSafeAreaInsets();
 
   // Load profile state
   const {
@@ -746,6 +747,8 @@ export default function GraduationExamScreen() {
             {
               backgroundColor: theme.bgCard,
               borderTopColor: answerStatus === 'correct' ? theme.success : theme.error,
+              paddingBottom: Math.max(insets.bottom, Spacing.md),
+              height: 290 + insets.bottom,
             }
           ]}>
             <View style={styles.feedbackHeader}>

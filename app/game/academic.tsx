@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import SpellingKeyboard from '../../src/components/SpellingKeyboard';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useProfileStore } from '../../src/store/profileStore';
 import { useGameStore } from '../../src/store/gameStore';
 import { getNextWord, Word, maskWordInSentence } from '../../src/services/wordbank';
@@ -25,6 +25,7 @@ type AnswerStatus = 'idle' | 'correct' | 'wrong' | 'timeout';
 export default function AcademicGameScreen() {
   const router = useRouter();
   const theme  = Themes.sss;
+  const insets = useSafeAreaInsets();
 
   const {
     academic_ssr, coins, daily_streak, word_history,
@@ -516,6 +517,8 @@ export default function AcademicGameScreen() {
             {
               backgroundColor: theme.bgCard,
               borderTopColor: answerStatus === 'correct' ? theme.success : theme.error,
+              paddingBottom: Math.max(insets.bottom, Spacing.md),
+              height: 290 + insets.bottom,
             }
           ]}>
             <View style={styles.feedbackHeader}>
