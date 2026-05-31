@@ -30,11 +30,14 @@ function useCountUp(target: number, durationMs = 1200) {
 export default function ResultScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const theme  = Themes.sss;
 
-  const { username, xp, academic_ssr, daily_streak } = useProfileStore();
+  const { username, xp, academic_ssr, wazobia_ssr, daily_streak } = useProfileStore();
   const { sessionScore, sessionWords, spellStreak, sessionHistory } = useGameStore();
   const [showBreakdown, setShowBreakdown] = useState(false);
+
+  const isWazobia = sessionHistory[0]?.word.tier === 'wazobia';
+  const theme  = isWazobia ? Themes.wazobia : Themes.sss;
+  const currentSSR = isWazobia ? wazobia_ssr : academic_ssr;
 
   const wordsPlayed  = Math.max(sessionWords.length, 1);
   const correctCount = sessionScore;
@@ -46,7 +49,7 @@ export default function ResultScreen() {
   const xpDisplay   = useCountUp(estimatedXP,    1400);
   const coinDisplay = useCountUp(estimatedCoins, 1100);
 
-  const [ajalaState, setAjalaState] = useState<AjalaState>('standard');
+  const [ajalaState, setAjalaState] = useState<AjalaState>(isWazobia ? 'wazobia' : 'standard');
   const cardSlide = useRef(new Animated.Value(36)).current;
   const cardFade  = useRef(new Animated.Value(0)).current;
 
@@ -58,7 +61,7 @@ export default function ResultScreen() {
 
     if (correctCount >= 4) {
       setAjalaState('graduation');
-      setTimeout(() => setAjalaState('standard'), 2000);
+      setTimeout(() => setAjalaState(isWazobia ? 'wazobia' : 'standard'), 2000);
     } else if (correctCount <= 2) {
       setAjalaState('sandbox');
     }
@@ -125,7 +128,7 @@ export default function ResultScreen() {
               </Text>
             </View>
           </View>
-          <Text style={[styles.ssrValue, { color: theme.textPrimary }]}>{academic_ssr}</Text>
+          <Text style={[styles.ssrValue, { color: theme.textPrimary }]}>{currentSSR}</Text>
           <Text style={[styles.ssrSub,   { color: theme.textMuted   }]}>ELO-based rating · updates after each word</Text>
         </Animated.View>
 
@@ -141,7 +144,13 @@ export default function ResultScreen() {
         {/* Mascot message */}
         <View style={[styles.mascotMsg, Shadows.card]}>
           <Text style={[styles.mascotText, { color: theme.textPrimary }]}>
-            {correctCount >= 4
+            {isWazobia
+              ? correctCount >= 4
+                ? `Kárà kárà, ${username}! 🥁 Outstanding Yoruba spelling performance!`
+                : correctCount >= 3
+                ? `Ẹ kú iṣẹ́, ${username}! You are getting the hang of tone marks. Keep it up! 🌟`
+                : `Gbìyànjú sí i, ${username}! Practice makes perfect. Don't let the accents deter you! 🌱`
+              : correctCount >= 4
               ? `Ẹ kú ìjókòó, ${username}! 🎉 Outstanding — your SSR is climbing!`
               : correctCount >= 3
               ? `Good work, ${username}! Keep building that streak. 💪`
