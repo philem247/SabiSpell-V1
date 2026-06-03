@@ -54,6 +54,8 @@ export default function GraduationExamScreen() {
   const [examWords, setExamWords] = useState<Word[]>([]);
   const [wordIndex, setWordIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
+  const userInputRef = useRef('');
+  userInputRef.current = userInput;
   const [answerStatus, setAnswerStatus] = useState<AnswerStatus>('idle');
   const [correctSpelling, setCorrectSpelling] = useState('');
   const [timeLeft, setTimeLeft] = useState<number>(TIME_PER_WORD);
@@ -259,21 +261,21 @@ export default function GraduationExamScreen() {
     flashFeedback();
     playWrong();
 
-    setExamHistory(prev => [...prev, { word: currentWord, isCorrect: false, userInput: userInput || '[Timeout]' }]);
+    setExamHistory(prev => [...prev, { word: currentWord, isCorrect: false, userInput: userInputRef.current || '[Timeout]' }]);
     advanceExam(wordIndex + 1);
-  }, [examWords, wordIndex, answerStatus, clearTimer, flashFeedback, userInput, advanceExam]);
+  }, [examWords, wordIndex, answerStatus, clearTimer, flashFeedback, advanceExam]);
 
   // ── Submit handler ────────────────────────────────────────────────────────────
   const handleSubmit = useCallback(() => {
     const currentWord = examWords[wordIndex];
-    if (!currentWord || answerStatus !== 'idle' || userInput.trim().length === 0) return;
+    if (!currentWord || answerStatus !== 'idle' || userInputRef.current.trim().length === 0) return;
     clearTimer();
     stopSpeaking();
 
-    const trimmed = userInput.trim().toLowerCase();
+    const trimmed = userInputRef.current.trim().toLowerCase();
     const isCorrect = trimmed === currentWord.text.toLowerCase();
 
-    setExamHistory(prev => [...prev, { word: currentWord, isCorrect, userInput }]);
+    setExamHistory(prev => [...prev, { word: currentWord, isCorrect, userInput: userInputRef.current }]);
 
     if (isCorrect) {
       setAnswerStatus('correct');
@@ -298,7 +300,7 @@ export default function GraduationExamScreen() {
       playWrong();
       advanceExam(wordIndex + 1);
     }
-  }, [examWords, wordIndex, answerStatus, userInput, clearTimer, flashFeedback, advanceExam]);
+  }, [examWords, wordIndex, answerStatus, clearTimer, flashFeedback, advanceExam]);
 
   // ── Finish Exam ───────────────────────────────────────────────────────────────
   const finishExam = () => {

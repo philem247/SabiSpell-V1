@@ -39,6 +39,8 @@ export default function AcademicGameScreen() {
   const [currentWord,        setWord]             = useState<Word | null>(null);
   const [wordIndex,          setWordIndex]         = useState(0);
   const [userInput,          setUserInput]         = useState('');
+  const userInputRef = useRef('');
+  userInputRef.current = userInput;
   const [answerStatus,       setAnswerStatus]      = useState<AnswerStatus>('idle');
   const [correctSpelling,    setCorrectSpelling]   = useState('');
   const [timeLeft,           setTimeLeft]          = useState<number>(TIME_PER_WORD);
@@ -178,18 +180,18 @@ export default function AcademicGameScreen() {
 
     updateSSR(delta, 0);
     addWordToHistory('sss', currentWord.id);
-    recordAnswer(false, userInput || '[Timeout]');
+    recordAnswer(false, userInputRef.current || '[Timeout]');
     setCurrentSSR(newSSR);
     advance(newSSR, wordIndex + 1);
-  }, [currentWord, answerStatus, currentSSR, wordIndex, clearTimer, flashFeedback, advance, userInput]);
+  }, [currentWord, answerStatus, currentSSR, wordIndex, clearTimer, flashFeedback, advance]);
 
   // ── Submit handler ────────────────────────────────────────────────────────────
   const handleSubmit = useCallback(() => {
-    if (!currentWord || answerStatus !== 'idle' || userInput.trim().length === 0) return;
+    if (!currentWord || answerStatus !== 'idle' || userInputRef.current.trim().length === 0) return;
     clearTimer();
     stopSpeaking();
 
-    const trimmed   = userInput.trim().toLowerCase();
+    const trimmed   = userInputRef.current.trim().toLowerCase();
     const isCorrect = trimmed === currentWord.text.toLowerCase();
 
     if (isCorrect) {
@@ -213,7 +215,7 @@ export default function AcademicGameScreen() {
       addXPAndCoins(reward.xp, reward.coins);
       addWordToHistory('sss', currentWord.id);
       updateDailyStreak();
-      recordAnswer(true, userInput);
+      recordAnswer(true, userInputRef.current);
       setCurrentSSR(newSSR);
       advance(newSSR, wordIndex + 1);
     } else {
@@ -234,11 +236,11 @@ export default function AcademicGameScreen() {
 
       updateSSR(delta, 0);
       addWordToHistory('sss', currentWord.id);
-      recordAnswer(false, userInput);
+      recordAnswer(false, userInputRef.current);
       setCurrentSSR(newSSR);
       advance(newSSR, wordIndex + 1);
     }
-  }, [currentWord, answerStatus, userInput, currentSSR, spellStreak, wordIndex, clearTimer, flashFeedback, advance]);
+  }, [currentWord, answerStatus, currentSSR, spellStreak, wordIndex, clearTimer, flashFeedback, advance]);
 
   // ── Hint ──────────────────────────────────────────────────────────────────────
   const handleHint = useCallback(() => {

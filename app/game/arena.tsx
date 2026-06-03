@@ -58,6 +58,8 @@ export default function ArenaGameScreen() {
   const [roundIndex, setRoundIndex] = useState(0);
   const [playerScore, setPlayerScore] = useState(0);
   const [userInput, setUserInput] = useState('');
+  const userInputRef = useRef('');
+  userInputRef.current = userInput;
   const [playerAnswerStatus, setPlayerAnswerStatus] = useState<PlayerAnswerStatus>('idle');
   const [timeLeft, setTimeLeft] = useState<number>(TIME_PER_WORD);
   const [isLoading, setIsLoading] = useState(true);
@@ -208,14 +210,14 @@ export default function ArenaGameScreen() {
     playWrong();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     const activeWord = matchWords[roundIndex];
-    if (!activeWord || playerAnswerStatus !== 'idle' || userInput.trim().length === 0) return;
+    if (!activeWord || playerAnswerStatus !== 'idle' || userInputRef.current.trim().length === 0) return;
 
     clearTimer();
     stopSpeaking();
 
-    const trimmed = userInput.trim().toLowerCase();
+    const trimmed = userInputRef.current.trim().toLowerCase();
     const isCorrect = trimmed === activeWord.text.toLowerCase();
 
     if (isCorrect) {
@@ -231,7 +233,7 @@ export default function ArenaGameScreen() {
       setTimeout(() => setAjalaWrong(false), 900);
       playWrong();
     }
-  };
+  }, [matchWords, roundIndex, playerAnswerStatus, clearTimer]);
 
   const handleNextWord = () => {
     // Save played word to profile history

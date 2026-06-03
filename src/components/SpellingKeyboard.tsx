@@ -20,7 +20,7 @@ interface KeyboardKeyProps {
   disabled?: boolean;
 }
 
-function KeyboardKey({ label, onPress, width, height, theme, disabled }: KeyboardKeyProps) {
+const KeyboardKey = React.memo(function KeyboardKey({ label, onPress, width, height, theme, disabled }: KeyboardKeyProps) {
   return (
     <Pressable
       disabled={disabled}
@@ -40,7 +40,7 @@ function KeyboardKey({ label, onPress, width, height, theme, disabled }: Keyboar
       <Text style={[styles.keyText, { color: theme.textPrimary }]}>{label}</Text>
     </Pressable>
   );
-}
+});
 
 interface SpellingKeyboardProps {
   onKeyPress: (key: string) => void;
@@ -79,7 +79,7 @@ const CheckIcon = ({ color }: { color: string }) => (
   </Svg>
 );
 
-export default function SpellingKeyboard({
+const SpellingKeyboard = React.memo(function SpellingKeyboard({
   onKeyPress,
   onDelete,
   onSubmit,
@@ -194,7 +194,9 @@ export default function SpellingKeyboard({
       </View>
     </View>
   );
-}
+});
+
+export default SpellingKeyboard;
 
 const styles = StyleSheet.create({
   container: {

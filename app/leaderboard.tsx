@@ -76,14 +76,14 @@ export default function LeaderboardScreen() {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.bgPrimary }]} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="dark-content" />
       <View style={{ flex: 1 }}>
-        
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity id="leaderboard-back-btn" onPress={() => router.back()} style={styles.backButton}>
             <Text style={[styles.backText, { color: theme.brandPrimary }]}>← Back</Text>
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>Leaderboard 📊</Text>
-          <View style={{ width: 60 }} /> {/* Spacer */}
+          {/* Spacer */}
+          <View style={{ width: 60 }} />
         </View>
 
         {/* Mascot / HUD Info Card */}
@@ -178,7 +178,7 @@ export default function LeaderboardScreen() {
                       { color: theme.textPrimary },
                       isMe && { fontWeight: '700' }
                     ]}>
-                      {competitor.username} {isMe && '(You)'}
+                      {competitor.username}{isMe ? ' (You)' : ''}
                     </Text>
                     <Text style={[styles.rowTitle, { color: theme.textMuted }]}>{competitor.title}</Text>
                   </View>
@@ -193,11 +193,11 @@ export default function LeaderboardScreen() {
                   ]}>
                     {competitor.xp.toLocaleString()} XP
                   </Text>
-                  {competitor.hasPrize && (
+                  {competitor.hasPrize ? (
                     <View style={[styles.prizeBadge, { backgroundColor: '#E6F7FF' }]}>
                       <Text style={styles.prizeBadgeText}>🎁 MTN Data</Text>
                     </View>
-                  )}
+                  ) : null}
                 </View>
               </View>
             );
