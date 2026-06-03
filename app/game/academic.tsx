@@ -82,7 +82,7 @@ export default function AcademicGameScreen() {
 
   // ── Load next word ────────────────────────────────────────────────────────────
   const loadNextWord = useCallback((ssrForSelection: number, _index?: number) => {
-    const next = getNextWord(ssrForSelection, 'sss', 'en', sessionRef.current, word_history.sss);
+    const next = getNextWord(ssrForSelection, 'sss', 'en', sessionRef.current, word_history?.sss || []);
     if (!next) { router.replace('/result' as any); return; }
 
     sessionRef.current = [...sessionRef.current, next.id];
@@ -112,7 +112,7 @@ export default function AcademicGameScreen() {
 
     setTimeout(() => speak(next.text, 'en'), 500);
     progressAnim.setValue(1);
-  }, [word_history.sss, setCurrentWord, router]);
+  }, [word_history?.sss, setCurrentWord, router]);
 
   // ── Advance to next word (or end session) ────────────────────────────────────
   const advance = useCallback((nextSSR: number, nextIdx: number) => {

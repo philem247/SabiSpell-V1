@@ -1,23 +1,27 @@
 import * as Speech from 'expo-speech';
+import * as FileSystem from 'expo-file-system/legacy';
+import { createAudioPlayer } from 'expo-audio';
 
 /**
- * Text-to-Speech Service
+ * Text-to-Speech & Local Audio Playback Service
  *
- * Wraps expo-speech with:
- *  - en-NG locale preference (falls back to 'en' if unavailable)
- *  - Yoruba locale check (yo-NG → yo → en-NG fallback)
- *  - Safe stop guard (checks isSpeaking before stopping)
+ * Wraps expo-speech and expo-audio:
+ *  - Checks if a native-recorded Yoruba audio pack file is downloaded.
+ *  - Plays high-fidelity native audio if available.
+ *  - Falls back to expo-speech with phonetic helper if offline/missing.
  */
 
-// Resolve the best available English locale on this device.
-// expo-speech uses the device's installed TTS engine — en-NG is
-// available on most modern Android devices, but we fall back gracefully.
+const LOCAL_AUDIO_DIR = `${FileSystem.documentDirectory}yoruba_audio/`;
+
+// Keep track of the active local audio player to control/stop playback.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let activeLocalPlayer: any = null;
+
 let resolvedEnLocale: string = 'en-NG';
-let resolvedYoLocale: string = 'en-NG'; // Updated at runtime by checkYorubaAvailable()
+let resolvedYoLocale: string = 'en-NG'; // Updated at runtime
 
 /**
  * Checks if a Yoruba TTS voice is available on this device.
- * Should be called once at app start (e.g. in _layout.tsx or on Wazobia mode load).
  * Falls back to en-NG if no Yoruba voice is installed.
  */
 export async function checkYorubaAvailable(): Promise<boolean> {
@@ -30,7 +34,6 @@ export async function checkYorubaAvailable(): Promise<boolean> {
       resolvedYoLocale = yoVoice.language;
       return true;
     }
-    // Fallback: use en-NG for Yoruba words (better than silence)
     resolvedYoLocale = 'en-NG';
     return false;
   } catch {
@@ -40,59 +43,89 @@ export async function checkYorubaAvailable(): Promise<boolean> {
 }
 
 /**
- * Speaks a word or phrase using TTS.
+ * Speaks a word or phrase, playing the local downloaded high-fidelity pronunciation if available.
  *
  * @param text     The word or phrase to speak.
- * @param language 'en' for English (Academic League) | 'yo' for Yoruba (Wazobia Mode).
- * @param rate     Speech rate — defaults to 0.85 (slightly slower than normal for learning clarity).
- * @param phonetic Optional phonetic transcription for Yoruba words when native Yoruba TTS is unavailable.
+ * @param language 'en' for English | 'yo' for Yoruba.
+ * @param rate     Speech rate.
+ * @param phonetic Optional phonetic transcription fallback.
+ * @param wordId   Optional word ID to resolve local downloaded audio.
  */
-export function speak(
+export async function speak(
   text: string,
   language: 'en' | 'yo' = 'en',
   rate: number = 0.85,
-  phonetic?: string
-): void {
-  const locale = language === 'yo' ? resolvedYoLocale : resolvedEnLocale;
+  phonetic?: string,
+  wordId?: string
+): Promise<void> {
+  // Always stop current speech first
+  stopSpeaking();
 
+  if (language === 'yo' && wordId) {
+    const localUri = `${LOCAL_AUDIO_DIR}${wordId}.mp3`;
+    try {
+      const fileInfo = await FileSystem.getInfoAsync(localUri);
+      if (fileInfo.exists) {
+        activeLocalPlayer = createAudioPlayer(localUri);
+        activeLocalPlayer.playbackRate = rate;
+        activeLocalPlayer.play();
+        return;
+      }
+    } catch (e) {
+      console.warn(`[tts] failed to check or play local audio for ${wordId}:`, e);
+    }
+  }
+
+  // Fallback to text-to-speech
+  const locale = language === 'yo' ? resolvedYoLocale : resolvedEnLocale;
   let textToSpeak = text;
-  // If we are speaking Yoruba, and no native Yoruba TTS voice is available on this device
-  // (locale is en-NG or standard English), use the phonetic pronunciation string instead.
   if (language === 'yo' && (locale === 'en-NG' || locale === 'en' || locale.startsWith('en')) && phonetic) {
     textToSpeak = phonetic;
   }
-
-  // Stop any current speech before starting a new one
-  Speech.stop();
 
   Speech.speak(textToSpeak, {
     language: locale,
     rate,
     pitch: 1.0,
     onError: () => {
-      // Fallback: try speaking with default locale if preferred locale fails
       Speech.speak(textToSpeak, { language: 'en', rate });
     },
   });
 }
 
 /**
- * Speaks a word slowly — used for the "hear it again" button in gameplay HUD.
+ * Speaks a word slowly.
  */
-export function speakSlowly(text: string, language: 'en' | 'yo' = 'en', phonetic?: string): void {
-  speak(text, language, 0.6, phonetic);
+export function speakSlowly(
+  text: string,
+  language: 'en' | 'yo' = 'en',
+  phonetic?: string,
+  wordId?: string
+): void {
+  speak(text, language, 0.6, phonetic, wordId);
 }
 
 /**
- * Stops any currently playing TTS speech.
+ * Stops any currently playing speech.
  */
 export function stopSpeaking(): void {
   Speech.stop();
+  if (activeLocalPlayer) {
+    try {
+      activeLocalPlayer.pause();
+      activeLocalPlayer.remove();
+    } catch (_) {}
+    activeLocalPlayer = null;
+  }
 }
 
 /**
  * Returns whether TTS is currently speaking.
  */
 export async function isSpeaking(): Promise<boolean> {
+  if (activeLocalPlayer) {
+    return activeLocalPlayer.playing;
+  }
   return Speech.isSpeakingAsync();
 }
+

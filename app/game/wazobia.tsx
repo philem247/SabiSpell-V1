@@ -16,9 +16,12 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system/legacy';
+import { Asset } from 'expo-asset';
+import { yorubaAssets } from '../../src/services/yorubaAssets';
 import { useProfileStore } from '../../src/store/profileStore';
 import { useGameStore } from '../../src/store/gameStore';
-import { getNextWord, Word, maskWordInSentence, getProverbForWord, Proverb } from '../../src/services/wordbank';
+import { getNextWord, Word, maskWordInSentence, getProverbForWord, Proverb, loadWordBank } from '../../src/services/wordbank';
 import { calculateSSRDelta } from '../../src/services/ssr';
 import { calculateReward } from '../../src/services/economy';
 import { speak, stopSpeaking } from '../../src/services/tts';
@@ -139,6 +142,8 @@ export default function WazobiaGameScreen() {
   const [isDownloading,      setIsDownloading]    = useState(false);
   const [downloadProgress,   setDownloadProgress] = useState(0);
   const [downloadSpeed,      setDownloadSpeed]    = useState('0 KB/s');
+  const [downloadError,      setDownloadError]    = useState<string | null>(null);
+  const [downloadedCount,    setDownloadedCount]  = useState(0);
   const [currentWord,        setWord]             = useState<Word | null>(null);
   const [wordIndex,          setWordIndex]         = useState(0);
   const [userInput,          setUserInput]         = useState('');
@@ -179,7 +184,7 @@ export default function WazobiaGameScreen() {
   // ── Load next word ─────────────────────────────────────────────────────────
   const loadNextWord = useCallback((ssrForSelection: number, _index?: number) => {
     // Yoruba / wazobia mode
-    const next = getNextWord(ssrForSelection, 'wazobia', 'yo', sessionRef.current, word_history.yoruba);
+    const next = getNextWord(ssrForSelection, 'wazobia', 'yo', sessionRef.current, word_history?.yoruba || []);
     if (!next) { router.replace('/result' as any); return; }
 
     sessionRef.current = [...sessionRef.current, next.id];
@@ -207,9 +212,9 @@ export default function WazobiaGameScreen() {
     setIsLoading(false);
 
     // Speak word in Yoruba using phonetic fallback if needed
-    setTimeout(() => speak(next.text, 'yo', 0.85, next.phonetic), 500);
+    setTimeout(() => speak(next.text, 'yo', 0.85, next.phonetic, next.id), 500);
     progressAnim.setValue(1);
-  }, [word_history.yoruba, setCurrentWord, router]);
+  }, [word_history?.yoruba, setCurrentWord, router]);
 
   // ── Advance to next word ───────────────────────────────────────────────────
   const advance = useCallback((nextSSR: number, nextIdx: number) => {
@@ -407,35 +412,68 @@ export default function WazobiaGameScreen() {
     }
   };
 
-  const startAudioPackDownload = () => {
+  const startAudioPackDownload = async () => {
     setIsDownloading(true);
     setDownloadProgress(0);
-    setDownloadSpeed('320 KB/s');
+    setDownloadedCount(0);
+    setDownloadSpeed('Initializing...');
+    setDownloadError(null);
 
-    let current = 0;
-    const interval = setInterval(() => {
-      current += 0.05;
-      
-      const speeds = ['380 KB/s', '410 KB/s', '350 KB/s', '440 KB/s', '290 KB/s'];
-      const randomSpeed = speeds[Math.floor(Math.random() * speeds.length)];
-      setDownloadSpeed(randomSpeed);
-
-      if (current >= 1.0) {
-        clearInterval(interval);
-        setDownloadProgress(1.0);
-        setDownloadSpeed('Completed');
-        
-        AsyncStorage.setItem('sabispell:wazobia_yo_audio_downloaded', 'true').then(() => {
-          setTimeout(() => {
-            setShowDownloader(false);
-            setIsDownloading(false);
-            startYorubaSession();
-          }, 1200);
-        });
-      } else {
-        setDownloadProgress(current);
+    try {
+      const words = loadWordBank('wazobia', 'yo');
+      const total = words.length;
+      if (total === 0) {
+        throw new Error('No words found in word bank');
       }
-    }, 150);
+
+      // Ensure target directory exists
+      const targetDir = `${FileSystem.documentDirectory}yoruba_audio/`;
+      const dirInfo = await FileSystem.getInfoAsync(targetDir);
+      if (!dirInfo.exists) {
+        await FileSystem.makeDirectoryAsync(targetDir, { intermediates: true });
+      }
+
+      let downloaded = 0;
+
+      for (let i = 0; i < total; i++) {
+        const word = words[i];
+        const assetModule = yorubaAssets[word.id];
+        if (!assetModule) {
+          throw new Error(`Asset not found for word ${word.id}`);
+        }
+
+        const asset = Asset.fromModule(assetModule);
+        await asset.downloadAsync();
+        const localUri = asset.localUri;
+        if (!localUri) {
+          throw new Error(`Failed to resolve local uri for asset ${word.id}`);
+        }
+
+        const destUri = `${targetDir}${word.id}.mp3`;
+        await FileSystem.copyAsync({ from: localUri, to: destUri });
+
+        downloaded++;
+        setDownloadedCount(downloaded);
+        setDownloadProgress(downloaded / total);
+        setDownloadSpeed('Extracting...');
+
+        // Artificial brief delay for realistic progress animation (30ms per file)
+        await new Promise((resolve) => setTimeout(resolve, 30));
+      }
+
+      setDownloadSpeed('Completed');
+      await AsyncStorage.setItem('sabispell:wazobia_yo_audio_downloaded', 'true');
+      
+      setTimeout(() => {
+        setShowDownloader(false);
+        setIsDownloading(false);
+        startYorubaSession();
+      }, 1200);
+    } catch (error) {
+      console.warn('[downloader] audio pack installation failed:', error);
+      setDownloadError('Installation failed. Check device storage and try again.');
+      setIsDownloading(false);
+    }
   };
 
   // ── Cleanup on unmount ─────────────────────────────────────────────────────
@@ -584,9 +622,15 @@ export default function WazobiaGameScreen() {
                   Download Size:
                 </Text>
                 <Text style={[styles.downloadDetailValue, { color: theme.brandPrimary }]}>
-                  1.2 MB
+                  ~500 KB
                 </Text>
               </View>
+
+              {downloadError && (
+                <Text style={{ color: theme.error, fontSize: 13, marginBottom: 16, textAlign: 'center', fontFamily: FontFamily.bodySemiBold }}>
+                  ⚠️ {downloadError}
+                </Text>
+              )}
 
               {isDownloading ? (
                 <View style={styles.progressContainer}>
@@ -608,14 +652,17 @@ export default function WazobiaGameScreen() {
                       {downloadSpeed}
                     </Text>
                     <Text style={[styles.progressSubText, { color: theme.textMuted }]}>
-                      {Math.round(downloadProgress * 1.2 * 100) / 100} MB / 1.2 MB
+                      {downloadedCount} / 50 files
                     </Text>
                   </View>
                 </View>
               ) : (
                 <View style={styles.modalActionsRow}>
                   <TouchableOpacity
-                    onPress={() => setShowDownloader(false)}
+                    onPress={() => {
+                      setDownloadError(null);
+                      setShowDownloader(false);
+                    }}
                     style={[styles.modalCancelBtn, { borderColor: theme.border }]}
                   >
                     <Text style={[styles.modalCancelText, { color: theme.textSecondary }]}>Cancel</Text>
@@ -625,7 +672,7 @@ export default function WazobiaGameScreen() {
                     onPress={startAudioPackDownload}
                     style={[styles.modalConfirmBtn, { backgroundColor: theme.brandPrimary }]}
                   >
-                    <Text style={styles.modalConfirmText}>Download Pack</Text>
+                    <Text style={styles.modalConfirmText}>{downloadError ? 'Retry' : 'Download Pack'}</Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -801,7 +848,7 @@ export default function WazobiaGameScreen() {
         {answerStatus === 'idle' && (
           <View style={styles.inputArea}>
             <View style={styles.chipsRow}>
-              <TouchableOpacity id="wazobia-speak-btn" onPress={() => currentWord && speak(currentWord.text, 'yo', 0.85, currentWord.phonetic)}
+              <TouchableOpacity id="wazobia-speak-btn" onPress={() => currentWord && speak(currentWord.text, 'yo', 0.85, currentWord.phonetic, currentWord.id)}
                 style={[styles.chip, { borderColor: theme.border }]}>
                 <Text style={[styles.chipText, { color: theme.brandPrimary }]}>🔊 Hear Word</Text>
               </TouchableOpacity>

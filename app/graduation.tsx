@@ -47,7 +47,7 @@ export default function GraduationExamScreen() {
     updateProfile,
   } = useProfileStore();
 
-  const isUnlocked = isGraduationUnlocked(word_history.sss);
+  const isUnlocked = isGraduationUnlocked(word_history?.sss || []);
   const threshold = getGraduationThreshold();
 
   // ── State ────────────────────────────────────────────────────────────────────
@@ -386,7 +386,7 @@ export default function GraduationExamScreen() {
               <View style={styles.progressLabelRow}>
                 <Text style={[styles.progressLabelText, { color: theme.textSecondary }]}>Unlock Progress</Text>
                 <Text style={[styles.progressValueText, { color: theme.brandPrimary }]}>
-                  {word_history.sss.length} / {threshold}
+                  {(word_history?.sss || []).length} / {threshold}
                 </Text>
               </View>
               <View style={[styles.lockedProgressTrack, { backgroundColor: theme.bgSecondary }]}>
@@ -395,7 +395,7 @@ export default function GraduationExamScreen() {
                     styles.lockedProgressFill,
                     {
                       backgroundColor: theme.brandPrimary,
-                      width: `${Math.min(100, (word_history.sss.length / threshold) * 100)}%`,
+                      width: `${Math.min(100, ((word_history?.sss || []).length / threshold) * 100)}%`,
                     },
                   ]}
                 />

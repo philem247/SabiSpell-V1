@@ -70,7 +70,7 @@ export function getNextWord(
     if (candidatesList.length === 0) return null;
 
     // Prioritize words that are NOT in the player's long-term history
-    const unseen = candidatesList.filter((w) => !wordHistory.includes(w.id));
+    const unseen = candidatesList.filter((w) => !(wordHistory || []).includes(w.id));
     const finalPool = unseen.length > 0 ? unseen : candidatesList;
 
     // Pick one at random from the pool
