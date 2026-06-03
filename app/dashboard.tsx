@@ -17,6 +17,7 @@ import { EnergyBar } from '../src/components/EnergyBar';
 import { XPBar } from '../src/components/XPBar';
 import { Themes, GlobalColors, FontSizes, FontFamily, Radii, Shadows, Spacing } from '../src/constants/Colors';
 import { AppConfig } from '../src/constants/AppConfig';
+import { initBGM, toggleBGM, isBGMEnabled } from '../src/services/bgm';
 
 const ajalaStandardImg = require('../assets/images/ajala_standard.png');
 const sabiSpellLogoImg = require('../assets/images/sabispell_logo.png');
@@ -44,9 +45,18 @@ export default function DashboardScreen() {
   const [logoTaps, setLogoTaps] = useState(0);
   const [demoPanelVisible, setDemoPanelVisible] = useState(false);
 
+  // BGM preference state
+  const [bgmMuted, setBgmMuted] = useState(true);
+
   // Trigger energy refill check on load
   useEffect(() => {
     checkAndRefillEnergy();
+    
+    // Initialize background music loop and sync state
+    initBGM().then(() => {
+      setBgmMuted(!isBGMEnabled());
+    });
+
     // Set an interval to check energy refill every 10 seconds while on the dashboard
     const interval = setInterval(() => {
       checkAndRefillEnergy();
@@ -108,6 +118,20 @@ export default function DashboardScreen() {
             <View style={[styles.hudBadge, { backgroundColor: '#FFF5E6', borderColor: '#F5A623', borderWidth: 1 }]}>
               <Text style={[styles.hudBadgeText, { color: '#D48806' }]}>🪙 {coins}</Text>
             </View>
+            {/* BGM Toggle Badge */}
+            <TouchableOpacity
+              id="dashboard-bgm-btn"
+              onPress={async () => {
+                const isEnabled = await toggleBGM();
+                setBgmMuted(!isEnabled);
+              }}
+              activeOpacity={0.7}
+              style={[styles.hudBadge, { backgroundColor: '#E6F4FF', borderColor: theme.brandPrimary, borderWidth: 1 }]}
+            >
+              <Text style={[styles.hudBadgeText, { color: theme.brandPrimary }]}>
+                {bgmMuted ? '🔇' : '🎵'}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 

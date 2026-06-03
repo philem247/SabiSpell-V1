@@ -13,10 +13,10 @@ import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 type SoundKey = 'correct' | 'wrong' | 'celebration' | 'gangan';
 
 const soundFiles: Record<SoundKey, ReturnType<typeof require>> = {
-  correct:     require('../../assets/audio/streak_pop.wav'),
-  wrong:       require('../../assets/audio/wrong_wazobia.wav'),
-  celebration: require('../../assets/audio/graduation_fanfare.wav'),
-  gangan:      require('../../assets/audio/gangan_correct.wav'),
+  correct:     require('../../assets/audio/streak_pop.mp3'),
+  wrong:       require('../../assets/audio/wrong_wazobia.mp3'),
+  celebration: require('../../assets/audio/graduation_fanfare.mp3'),
+  gangan:      require('../../assets/audio/gangan_correct.mp3'),
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -50,6 +50,15 @@ export async function initAudio(): Promise<void> {
   });
 }
 
+const durationLimits: Record<SoundKey, number> = {
+  correct: 1200,      // 1.2s for correct pop/chime
+  wrong: 1200,        // 1.2s for incorrect buzz
+  celebration: 6000,  // 6s for fanfare
+  gangan: 3000,       // 3s for talk drum roll
+};
+
+const playTimeouts: Partial<Record<SoundKey, ReturnType<typeof setTimeout>>> = {};
+
 /**
  * Helper to seek to start and play a sound.
  */
@@ -60,24 +69,38 @@ async function playSound(key: SoundKey): Promise<void> {
       player = createAudioPlayer(soundFiles[key] as any);
       playerCache[key] = player;
     }
+
+    if (playTimeouts[key]) {
+      clearTimeout(playTimeouts[key]);
+      delete playTimeouts[key];
+    }
+
     // Seek back to start so it can be replayed instantly
     player.seekTo(0);
     player.play();
+
+    const limit = durationLimits[key];
+    playTimeouts[key] = setTimeout(() => {
+      try {
+        player.pause();
+        player.seekTo(0);
+      } catch (_) {}
+    }, limit);
   } catch (e) {
     console.warn(`[audio] playSound(${key}) failed:`, e);
   }
 }
 
-/** Plays streak_pop.wav — correct Academic League answer. */
+/** Plays streak_pop.mp3 — correct Academic League answer. */
 export function playCorrect(): Promise<void>     { return playSound('correct'); }
 
-/** Plays wrong_wazobia.wav — incorrect answer feedback. */
+/** Plays wrong_wazobia.mp3 — incorrect answer feedback. */
 export function playWrong(): Promise<void>        { return playSound('wrong'); }
 
-/** Plays graduation_fanfare.wav — certificate / graduation celebration. */
+/** Plays graduation_fanfare.mp3 — certificate / graduation celebration. */
 export function playCelebration(): Promise<void>  { return playSound('celebration'); }
 
-/** Plays gangan_correct.wav — correct Yoruba answer (Wazobia Mode). */
+/** Plays gangan_correct.mp3 — correct Yoruba answer (Wazobia Mode). */
 export function playGangan(): Promise<void>       { return playSound('gangan'); }
 
 /**
@@ -88,6 +111,10 @@ export async function unloadAudio(): Promise<void> {
   const keys = Object.keys(playerCache) as SoundKey[];
   keys.forEach((key) => {
     try {
+      if (playTimeouts[key]) {
+        clearTimeout(playTimeouts[key]);
+        delete playTimeouts[key];
+      }
       playerCache[key]?.release();
       delete playerCache[key];
     } catch (_) {}

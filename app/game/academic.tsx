@@ -13,6 +13,7 @@ import { calculateSSRDelta } from '../../src/services/ssr';
 import { calculateReward } from '../../src/services/economy';
 import { speak, stopSpeaking } from '../../src/services/tts';
 import { initAudio, playCorrect, playWrong } from '../../src/services/audio';
+import { pauseBGM, resumeBGM } from '../../src/services/bgm';
 import { Themes, GlobalColors, FontSizes, FontFamily, Radii, Spacing, Shadows } from '../../src/constants/Colors';
 import { AppConfig } from '../../src/constants/AppConfig';
 import AjalaAvatar, { AjalaState } from '../../src/components/AjalaAvatar';
@@ -289,6 +290,7 @@ export default function AcademicGameScreen() {
     setCurrentSSR(academic_ssr);
     loadNextWord(academic_ssr, 0);
     initAudio();
+    pauseBGM();
 
     return () => {
       clearTimer();
@@ -296,6 +298,7 @@ export default function AcademicGameScreen() {
       if (advanceTimerRef.current) {
         clearTimeout(advanceTimerRef.current);
       }
+      resumeBGM();
     };
   }, []);
 
@@ -305,7 +308,14 @@ export default function AcademicGameScreen() {
     clearTimer();
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1) { clearInterval(timerRef.current!); timerRef.current = null; handleTimeout(); return 0; }
+        if (prev <= 1) {
+          clearInterval(timerRef.current!);
+          timerRef.current = null;
+          setTimeout(() => {
+            handleTimeout();
+          }, 0);
+          return 0;
+        }
         return prev - 1;
       });
     }, 1000);

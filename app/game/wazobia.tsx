@@ -26,6 +26,7 @@ import { calculateSSRDelta } from '../../src/services/ssr';
 import { calculateReward } from '../../src/services/economy';
 import { speak, stopSpeaking } from '../../src/services/tts';
 import { initAudio, playWrong, playGangan } from '../../src/services/audio';
+import { pauseBGM, resumeBGM } from '../../src/services/bgm';
 import { Themes, GlobalColors, FontSizes, FontFamily, Radii, Spacing, Shadows } from '../../src/constants/Colors';
 import { AppConfig } from '../../src/constants/AppConfig';
 import AjalaAvatar, { AjalaState } from '../../src/components/AjalaAvatar';
@@ -502,12 +503,14 @@ export default function WazobiaGameScreen() {
 
   // ── Cleanup on unmount ─────────────────────────────────────────────────────
   useEffect(() => {
+    pauseBGM();
     return () => {
       clearTimer();
       stopSpeaking();
       if (advanceTimerRef.current) {
         clearTimeout(advanceTimerRef.current);
       }
+      resumeBGM();
     };
   }, []);
 
