@@ -18,6 +18,7 @@ import { XPBar } from '../src/components/XPBar';
 import { Themes, GlobalColors, FontSizes, FontFamily, Radii, Shadows, Spacing } from '../src/constants/Colors';
 import { AppConfig } from '../src/constants/AppConfig';
 import { initBGM, toggleBGM, isBGMEnabled } from '../src/services/bgm';
+import { DEMO_LEADERBOARD_SSS2, insertLiveUser } from '../src/constants/DemoSeeds';
 
 const ajalaStandardImg = require('../assets/images/ajala_standard.png');
 const sabiSpellLogoImg = require('../assets/images/sabispell_logo.png');
@@ -47,6 +48,16 @@ export default function DashboardScreen() {
 
   // BGM preference state
   const [bgmMuted, setBgmMuted] = useState(true);
+
+  // Calculate current rank for display
+  const defaultUser = {
+    username: username || 'Scholar',
+    title: current_title || 'Scholar',
+    xp: xp || 0,
+  };
+  const sss2Board = insertLiveUser(DEMO_LEADERBOARD_SSS2, defaultUser);
+  const liveUserRow = sss2Board.find((e) => e.isLiveUser);
+  const liveUserRank = liveUserRow ? liveUserRow.rank : 6;
 
   // Trigger energy refill check on load
   useEffect(() => {
@@ -178,6 +189,27 @@ export default function DashboardScreen() {
               </Text>
             </View>
             <Text style={[styles.graduationArrow, { color: theme.brandPrimary }]}>→</Text>
+          </View>
+        </TouchableOpacity>
+
+        {/* Leaderboard CTA */}
+        <TouchableOpacity
+          id="dashboard-leaderboard-btn"
+          activeOpacity={0.88}
+          onPress={() => router.push('/leaderboard')}
+          style={[styles.leaderboardCard, Shadows.card]}
+        >
+          <View style={styles.leaderboardCardInner}>
+            <View style={styles.leaderboardIconWrap}>
+              <Text style={styles.leaderboardIcon}>📊</Text>
+            </View>
+            <View style={styles.leaderboardTextBlock}>
+              <Text style={[styles.leaderboardTitle, { color: theme.textPrimary }]}>Weekly Leaderboard</Text>
+              <Text style={[styles.leaderboardSub, { color: theme.textSecondary }]}>
+                Rank #{liveUserRank} · Compete with classmates for MTN data!
+              </Text>
+            </View>
+            <Text style={[styles.leaderboardArrow, { color: theme.brandPrimary }]}>→</Text>
           </View>
         </TouchableOpacity>
 
@@ -430,6 +462,49 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.body,
   },
   graduationArrow: {
+    fontSize: FontSizes.xl,
+    fontFamily: FontFamily.heading,
+    marginLeft: Spacing.sm,
+  },
+  leaderboardCard: {
+    backgroundColor: GlobalColors.white,
+    borderRadius: Radii.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(10, 110, 189, 0.12)',
+    borderLeftWidth: 5,
+    borderLeftColor: '#0A6EBD',
+  },
+  leaderboardCardInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  leaderboardIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: Radii.md,
+    backgroundColor: 'rgba(10, 110, 189, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: Spacing.sm,
+  },
+  leaderboardIcon: {
+    fontSize: 22,
+  },
+  leaderboardTextBlock: {
+    flex: 1,
+  },
+  leaderboardTitle: {
+    fontSize: FontSizes.base,
+    fontFamily: FontFamily.headingSemi,
+    marginBottom: 2,
+  },
+  leaderboardSub: {
+    fontSize: FontSizes.xs,
+    fontFamily: FontFamily.body,
+  },
+  leaderboardArrow: {
     fontSize: FontSizes.xl,
     fontFamily: FontFamily.heading,
     marginLeft: Spacing.sm,
