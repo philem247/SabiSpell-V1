@@ -13,9 +13,9 @@ import { createAudioPlayer } from 'expo-audio';
 
 const LOCAL_AUDIO_DIR = `${FileSystem.documentDirectory}yoruba_audio/`;
 
-// Keep track of the active local audio player to control/stop playback.
+// Keep track of player cache for Yoruba words to ensure smooth, lag-free playback.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let activeLocalPlayer: any = null;
+const localPlayerCache: Record<string, any> = {};
 
 let resolvedEnLocale: string = 'en-NG';
 let resolvedYoLocale: string = 'en-NG'; // Updated at runtime
@@ -65,10 +65,15 @@ export async function speak(
     const localUri = `${LOCAL_AUDIO_DIR}${wordId}.mp3`;
     try {
       const fileInfo = await FileSystem.getInfoAsync(localUri);
-      if (fileInfo.exists) {
-        activeLocalPlayer = createAudioPlayer(localUri);
-        activeLocalPlayer.playbackRate = rate;
-        activeLocalPlayer.play();
+      if (fileInfo.exists && 'size' in fileInfo && fileInfo.size > 1000) {
+        let player = localPlayerCache[wordId];
+        if (!player) {
+          player = createAudioPlayer(localUri);
+          localPlayerCache[wordId] = player;
+        }
+        player.seekTo(0);
+        player.setPlaybackRate(rate);
+        player.play();
         return;
       }
     } catch (e) {
@@ -110,21 +115,20 @@ export function speakSlowly(
  */
 export function stopSpeaking(): void {
   Speech.stop();
-  if (activeLocalPlayer) {
+  Object.values(localPlayerCache).forEach((player) => {
     try {
-      activeLocalPlayer.pause();
-      activeLocalPlayer.remove();
+      player.pause();
     } catch (_) {}
-    activeLocalPlayer = null;
-  }
+  });
 }
 
 /**
  * Returns whether TTS is currently speaking.
  */
 export async function isSpeaking(): Promise<boolean> {
-  if (activeLocalPlayer) {
-    return activeLocalPlayer.playing;
+  const isAnyLocalPlaying = Object.values(localPlayerCache).some((player) => player.playing);
+  if (isAnyLocalPlaying) {
+    return true;
   }
   return Speech.isSpeakingAsync();
 }

@@ -191,13 +191,13 @@ export default function WazobiaGameScreen() {
     setCurrentWord(next);
     setWord(next);
     
-    // Auto-fill initial spaces or hyphens if any
+    // Auto-fill initial spaces or hyphens if any using grapheme clusters
     let initialInput = '';
     if (next) {
-      while (initialInput.length < next.text.length) {
-        const nextChar = next.text[initialInput.length];
-        if (nextChar === ' ' || nextChar === '-') {
-          initialInput += nextChar;
+      const targetChars = next.text.match(/[\s\S][\u0300-\u036f]*/g) || [];
+      for (const char of targetChars) {
+        if (char === ' ' || char === '-') {
+          initialInput += char;
         } else {
           break;
         }
@@ -358,33 +358,46 @@ export default function WazobiaGameScreen() {
     }
 
     setUserInput(prev => {
+      const targetChars = currentWord.text.match(/[\s\S][\u0300-\u036f]*/g) || [];
+      const prevChars = prev.match(/[\s\S][\u0300-\u036f]*/g) || [];
+
+      if (prevChars.length >= targetChars.length) {
+        return prev;
+      }
+
       let nextInput = prev + key;
-      const targetLength = currentWord.text.length;
-      while (nextInput.length < targetLength) {
-        const nextChar = currentWord.text[nextInput.length];
-        if (nextChar === ' ' || nextChar === '-') {
-          nextInput += nextChar;
+      let nextChars = nextInput.match(/[\s\S][\u0300-\u036f]*/g) || [];
+
+      while (nextChars.length < targetChars.length) {
+        const nextTargetChar = targetChars[nextChars.length];
+        if (nextTargetChar === ' ' || nextTargetChar === '-') {
+          nextInput += nextTargetChar;
+          nextChars = nextInput.match(/[\s\S][\u0300-\u036f]*/g) || [];
         } else {
           break;
         }
       }
-      return nextInput.slice(0, targetLength);
+
+      const finalChars = nextInput.match(/[\s\S][\u0300-\u036f]*/g) || [];
+      return finalChars.slice(0, targetChars.length).join('');
     });
   }, [currentWord]);
 
   const handleKeyDelete = useCallback(() => {
     setUserInput(prev => {
-      if (prev.length === 0) return '';
-      let nextInput = prev.slice(0, -1);
-      while (nextInput.length > 0) {
-        const lastChar = nextInput[nextInput.length - 1];
+      const chars = prev.match(/[\s\S][\u0300-\u036f]*/g) || [];
+      if (chars.length === 0) return '';
+      
+      let nextChars = chars.slice(0, -1);
+      while (nextChars.length > 0) {
+        const lastChar = nextChars[nextChars.length - 1];
         if (lastChar === ' ' || lastChar === '-') {
-          nextInput = nextInput.slice(0, -1);
+          nextChars = nextChars.slice(0, -1);
         } else {
           break;
         }
       }
-      return nextInput;
+      return nextChars.join('');
     });
   }, []);
 
@@ -402,9 +415,20 @@ export default function WazobiaGameScreen() {
   const handleYorubaPress = async () => {
     try {
       const val = await AsyncStorage.getItem('sabispell:wazobia_yo_audio_downloaded');
-      if (val === 'true') {
+      const sampleFile = `${FileSystem.documentDirectory}yoruba_audio/yw_001.mp3`;
+      const fileInfo = await FileSystem.getInfoAsync(sampleFile);
+      const isValid = fileInfo.exists && 'size' in fileInfo && fileInfo.size > 1000;
+
+      if (val === 'true' && isValid) {
         startYorubaSession();
       } else {
+        // If files are corrupted or missing, clear storage & folder to force re-extraction
+        if (val === 'true' || fileInfo.exists) {
+          await AsyncStorage.removeItem('sabispell:wazobia_yo_audio_downloaded');
+          try {
+            await FileSystem.deleteAsync(`${FileSystem.documentDirectory}yoruba_audio/`, { idempotent: true });
+          } catch (_) {}
+        }
         setShowDownloader(true);
       }
     } catch {
@@ -493,7 +517,14 @@ export default function WazobiaGameScreen() {
     clearTimer();
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1) { clearInterval(timerRef.current!); timerRef.current = null; handleTimeout(); return 0; }
+        if (prev <= 1) {
+          clearInterval(timerRef.current!);
+          timerRef.current = null;
+          setTimeout(() => {
+            handleTimeout();
+          }, 0);
+          return 0;
+        }
         return prev - 1;
       });
     }, 1000);
@@ -738,7 +769,11 @@ export default function WazobiaGameScreen() {
         <Text style={[styles.timerLabel, { color: timerColor }]}>{timeLeft}s</Text>
 
         {/* Word Display Area */}
-        <View style={styles.wordArea}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.wordArea}
+          showsVerticalScrollIndicator={false}
+        >
           <AjalaAvatar state="wazobia" size={76} triggerCorrect={ajalaCorrect} triggerWrong={ajalaWrong} />
 
           <Text style={[styles.wordCountLabel, { color: theme.textMuted }]}>
@@ -747,47 +782,50 @@ export default function WazobiaGameScreen() {
 
           {/* Letter Slots */}
           <View style={styles.charSlotsContainer}>
-            {currentWord && currentWord.text.split('').map((char, index) => {
-              if (char === ' ') {
-                return <View key={index} style={styles.charSlotSpace} />;
-              }
-              if (char === '-') {
+            {currentWord &&
+              (currentWord.text.match(/[\s\S][\u0300-\u036f]*/g) || []).map((char, index) => {
+                if (char === ' ') {
+                  return <View key={index} style={styles.charSlotSpace} />;
+                }
+                if (char === '-') {
+                  return (
+                    <View key={index} style={styles.charSlotSpecial}>
+                      <Text style={[styles.charSlotText, { color: theme.textPrimary }]}>-</Text>
+                    </View>
+                  );
+                }
+
+                const targetChars = currentWord.text.match(/[\s\S][\u0300-\u036f]*/g) || [];
+                const userChars = userInput.match(/[\s\S][\u0300-\u036f]*/g) || [];
+                const displayChar = answerStatus === 'correct'
+                  ? char.toUpperCase()
+                  : (userChars[index] || '');
+
+                const isActive = answerStatus === 'idle' && userChars.length === index;
+                const isFilled = !!userChars[index];
+                const isLongWord = targetChars.length > 8;
+
                 return (
-                  <View key={index} style={styles.charSlotSpecial}>
-                    <Text style={[styles.charSlotText, { color: theme.textPrimary }]}>-</Text>
+                  <View
+                    key={index}
+                    style={[
+                      styles.charSlot,
+                      isLongWord && styles.charSlotSmall,
+                      isActive && [styles.charSlotActive, { borderColor: theme.brandPrimary, backgroundColor: theme.brandPrimary + '10' }],
+                      isFilled && [styles.charSlotFilled, { borderColor: theme.brandPrimary }],
+                      { backgroundColor: theme.bgCard, borderColor: theme.border }
+                    ]}
+                  >
+                    <Text style={[
+                      styles.charSlotText,
+                      isLongWord && styles.charSlotTextSmall,
+                      { color: theme.textPrimary }
+                    ]}>
+                      {displayChar}
+                    </Text>
                   </View>
                 );
-              }
-
-              const displayChar = answerStatus === 'correct'
-                ? char.toUpperCase()
-                : (userInput[index] || '');
-
-              const isActive = answerStatus === 'idle' && userInput.length === index;
-              const isFilled = !!userInput[index];
-              const isLongWord = currentWord.text.length > 8;
-
-              return (
-                <View
-                  key={index}
-                  style={[
-                    styles.charSlot,
-                    isLongWord && styles.charSlotSmall,
-                    isActive && [styles.charSlotActive, { borderColor: theme.brandPrimary, backgroundColor: theme.brandPrimary + '10' }],
-                    isFilled && [styles.charSlotFilled, { borderColor: theme.brandPrimary }],
-                    { backgroundColor: theme.bgCard, borderColor: theme.border }
-                  ]}
-                >
-                  <Text style={[
-                    styles.charSlotText,
-                    isLongWord && styles.charSlotTextSmall,
-                    { color: theme.textPrimary }
-                  ]}>
-                    {displayChar}
-                  </Text>
-                </View>
-              );
-            })}
+              })}
           </View>
 
           {/* Tone Guide helper if tone marks are needed */}
@@ -825,7 +863,7 @@ export default function WazobiaGameScreen() {
               )}
             </View>
           )}
-        </View>
+        </ScrollView>
 
         {/* Feedback overlays */}
         {answerStatus !== 'idle' && (
@@ -1150,7 +1188,7 @@ const styles = StyleSheet.create({
   timerFill:      { height: '100%', borderRadius: 3 },
   timerLabel:     { textAlign: 'right', paddingRight: Spacing.base, fontSize: FontSizes.xs, fontFamily: FontFamily.mono, marginTop: 3, marginBottom: Spacing.xs },
 
-  wordArea:       { flex: 1, alignItems: 'center', paddingHorizontal: Spacing.base, paddingTop: Spacing.xs },
+  wordArea:       { alignItems: 'center', paddingHorizontal: Spacing.base, paddingTop: Spacing.xs, paddingBottom: Spacing.md, width: '100%' },
   wordCountLabel: { fontSize: FontSizes.xs, fontFamily: FontFamily.bodySemiBold, marginTop: Spacing.sm, letterSpacing: 0.5 },
   charSlotsContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: Spacing.md, paddingHorizontal: Spacing.md },
   charSlot:       { width: 36, height: 46, borderRadius: 8, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1.5 }, shadowOpacity: 0.05, shadowRadius: 1.5, elevation: 1 },
