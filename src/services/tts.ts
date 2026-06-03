@@ -1,6 +1,7 @@
 import * as Speech from 'expo-speech';
 import * as FileSystem from 'expo-file-system/legacy';
 import { createAudioPlayer } from 'expo-audio';
+import { englishAssets } from './englishAssets';
 
 /**
  * Text-to-Speech & Local Audio Playback Service
@@ -13,7 +14,7 @@ import { createAudioPlayer } from 'expo-audio';
 
 const LOCAL_AUDIO_DIR = `${FileSystem.documentDirectory}yoruba_audio/`;
 
-// Keep track of player cache for Yoruba words to ensure smooth, lag-free playback.
+// Keep track of player cache for Yoruba/English words to ensure smooth, lag-free playback.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const localPlayerCache: Record<string, any> = {};
 
@@ -60,6 +61,22 @@ export async function speak(
 ): Promise<void> {
   // Always stop current speech first
   stopSpeaking();
+
+  if (language === 'en' && wordId && englishAssets[wordId]) {
+    try {
+      let player = localPlayerCache[wordId];
+      if (!player) {
+        player = createAudioPlayer(englishAssets[wordId]);
+        localPlayerCache[wordId] = player;
+      }
+      player.seekTo(0);
+      player.setPlaybackRate(rate);
+      player.play();
+      return;
+    } catch (e) {
+      console.warn(`[tts] failed to play local English audio for ${wordId}:`, e);
+    }
+  }
 
   if (language === 'yo' && wordId) {
     const localUri = `${LOCAL_AUDIO_DIR}${wordId}.mp3`;

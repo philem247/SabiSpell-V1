@@ -143,7 +143,7 @@ export default function GraduationExamScreen() {
     setUserInput(initialInput);
     setIsLoading(false);
 
-    setTimeout(() => speak(nextWord.text, 'en'), 500);
+    setTimeout(() => speak(nextWord.text, 'en', 0.85, undefined, nextWord.id), 500);
   }, [progressAnim]);
 
   // ── Start/Reset Exam ──────────────────────────────────────────────────────────
@@ -723,7 +723,7 @@ export default function GraduationExamScreen() {
         {answerStatus === 'idle' && (
           <View style={styles.inputArea}>
             <View style={styles.chipsRow}>
-              <TouchableOpacity id="graduation-speak-btn" onPress={() => currentWord && speak(currentWord.text, 'en')}
+              <TouchableOpacity id="graduation-speak-btn" onPress={() => currentWord && speak(currentWord.text, 'en', 0.85, undefined, currentWord.id)}
                 style={[styles.chip, { borderColor: theme.border, flex: 0, width: '100%' }]}>
                 <Text style={[styles.chipText, { color: theme.brandPrimary }]}>🔊 Hear Again</Text>
               </TouchableOpacity>

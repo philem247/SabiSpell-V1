@@ -111,7 +111,7 @@ export default function AcademicGameScreen() {
     setTimeLeft(TIME_PER_WORD);
     setIsLoading(false);
 
-    setTimeout(() => speak(next.text, 'en'), 500);
+    setTimeout(() => speak(next.text, 'en', 0.85, undefined, next.id), 500);
     progressAnim.setValue(1);
   }, [word_history?.sss, setCurrentWord, router]);
 
@@ -494,7 +494,7 @@ export default function AcademicGameScreen() {
         {answerStatus === 'idle' && (
           <View style={styles.inputArea}>
             <View style={styles.chipsRow}>
-              <TouchableOpacity id="academic-speak-btn" onPress={() => currentWord && speak(currentWord.text, 'en')}
+              <TouchableOpacity id="academic-speak-btn" onPress={() => currentWord && speak(currentWord.text, 'en', 0.85, undefined, currentWord.id)}
                 style={[styles.chip, { borderColor: theme.border }]}>
                 <Text style={[styles.chipText, { color: theme.brandPrimary }]}>🔊 Hear Again</Text>
               </TouchableOpacity>
