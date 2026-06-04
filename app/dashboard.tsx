@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -9,6 +9,7 @@ import {
   StatusBar,
   Modal,
   Alert,
+  Animated,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -48,6 +49,74 @@ export default function DashboardScreen() {
 
   // BGM preference state
   const [bgmMuted, setBgmMuted] = useState(true);
+
+  // --- Animations ---
+  // 1. Coin counter tick animation
+  const [displayCoins, setDisplayCoins] = useState(coins);
+  const animatedCoins = useRef(new Animated.Value(coins)).current;
+
+  useEffect(() => {
+    Animated.timing(animatedCoins, {
+      toValue: coins,
+      duration: 1000,
+      useNativeDriver: false,
+    }).start();
+  }, [coins]);
+
+  useEffect(() => {
+    const listenerId = animatedCoins.addListener(({ value }) => {
+      setDisplayCoins(Math.round(value));
+    });
+    return () => {
+      animatedCoins.removeListener(listenerId);
+    };
+  }, [animatedCoins]);
+
+  // 2. Coin badge pop-up scale animation
+  const coinScale = useRef(new Animated.Value(1)).current;
+  const isFirstMount = useRef(true);
+
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+    // Pop scale from 1 -> 1.22 -> 1
+    Animated.sequence([
+      Animated.timing(coinScale, {
+        toValue: 1.22,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(coinScale, {
+        toValue: 1.0,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [coins]);
+
+  // 3. Looping Streak Flame Badge pulse animation
+  const streakScale = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const pulseAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(streakScale, {
+          toValue: 1.08,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(streakScale, {
+          toValue: 1.0,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    pulseAnimation.start();
+    return () => pulseAnimation.stop();
+  }, []);
 
   // Calculate current rank for display
   const defaultUser = {
@@ -122,13 +191,29 @@ export default function DashboardScreen() {
           {/* HUD Stats */}
           <View style={styles.statsHUD}>
             {/* Streak */}
-            <View style={[styles.hudBadge, { backgroundColor: '#FFEBE3', borderColor: '#FF6B35', borderWidth: 1 }]}>
+            <Animated.View style={[
+              styles.hudBadge,
+              {
+                backgroundColor: '#FFEBE3',
+                borderColor: '#FF6B35',
+                borderWidth: 1,
+                transform: [{ scale: streakScale }],
+              }
+            ]}>
               <Text style={[styles.hudBadgeText, { color: '#FF6B35' }]}>🔥 {daily_streak}d</Text>
-            </View>
+            </Animated.View>
             {/* Coins */}
-            <View style={[styles.hudBadge, { backgroundColor: '#FFF5E6', borderColor: '#F5A623', borderWidth: 1 }]}>
-              <Text style={[styles.hudBadgeText, { color: '#D48806' }]}>🪙 {coins}</Text>
-            </View>
+            <Animated.View style={[
+              styles.hudBadge,
+              {
+                backgroundColor: '#FFF5E6',
+                borderColor: '#F5A623',
+                borderWidth: 1,
+                transform: [{ scale: coinScale }],
+              }
+            ]}>
+              <Text style={[styles.hudBadgeText, { color: '#D48806' }]}>🪙 {displayCoins}</Text>
+            </Animated.View>
             {/* BGM Toggle Badge */}
             <TouchableOpacity
               id="dashboard-bgm-btn"
