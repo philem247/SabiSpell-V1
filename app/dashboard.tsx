@@ -203,17 +203,23 @@ export default function DashboardScreen() {
               <Text style={[styles.hudBadgeText, { color: '#FF6B35' }]}>🔥 {daily_streak}d</Text>
             </Animated.View>
             {/* Coins */}
-            <Animated.View style={[
-              styles.hudBadge,
-              {
-                backgroundColor: '#FFF5E6',
-                borderColor: '#F5A623',
-                borderWidth: 1,
-                transform: [{ scale: coinScale }],
-              }
-            ]}>
-              <Text style={[styles.hudBadgeText, { color: '#D48806' }]}>🪙 {displayCoins}</Text>
-            </Animated.View>
+            <TouchableOpacity
+              id="dashboard-coins-btn"
+              activeOpacity={0.7}
+              onPress={() => router.push('/shop')}
+            >
+              <Animated.View style={[
+                styles.hudBadge,
+                {
+                  backgroundColor: '#FFF5E6',
+                  borderColor: '#F5A623',
+                  borderWidth: 1,
+                  transform: [{ scale: coinScale }],
+                }
+              ]}>
+                <Text style={[styles.hudBadgeText, { color: '#D48806' }]}>🪙 {displayCoins}</Text>
+              </Animated.View>
+            </TouchableOpacity>
             {/* BGM Toggle Badge */}
             <TouchableOpacity
               id="dashboard-bgm-btn"
@@ -295,6 +301,27 @@ export default function DashboardScreen() {
               </Text>
             </View>
             <Text style={[styles.leaderboardArrow, { color: theme.brandPrimary }]}>→</Text>
+          </View>
+        </TouchableOpacity>
+
+        {/* Sabi Shop CTA */}
+        <TouchableOpacity
+          id="dashboard-shop-btn"
+          activeOpacity={0.88}
+          onPress={() => router.push('/shop')}
+          style={[styles.shopCard, Shadows.card]}
+        >
+          <View style={styles.shopCardInner}>
+            <View style={styles.shopIconWrap}>
+              <Text style={styles.shopIcon}>🛍️</Text>
+            </View>
+            <View style={styles.shopTextBlock}>
+              <Text style={[styles.shopTitle, { color: theme.textPrimary }]}>Sabi Premium Shop</Text>
+              <Text style={[styles.shopSub, { color: theme.textSecondary }]}>
+                Unlock 10-Year WAEC Past Questions & watch ads for coins!
+              </Text>
+            </View>
+            <Text style={[styles.shopArrow, { color: theme.brandPrimary }]}>→</Text>
           </View>
         </TouchableOpacity>
 
@@ -590,6 +617,49 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.body,
   },
   leaderboardArrow: {
+    fontSize: FontSizes.xl,
+    fontFamily: FontFamily.heading,
+    marginLeft: Spacing.sm,
+  },
+  shopCard: {
+    backgroundColor: GlobalColors.white,
+    borderRadius: Radii.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(10, 110, 189, 0.12)',
+    borderLeftWidth: 5,
+    borderLeftColor: '#F5A623',
+  },
+  shopCardInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  shopIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: Radii.md,
+    backgroundColor: 'rgba(245, 166, 35, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: Spacing.sm,
+  },
+  shopIcon: {
+    fontSize: 22,
+  },
+  shopTextBlock: {
+    flex: 1,
+  },
+  shopTitle: {
+    fontSize: FontSizes.base,
+    fontFamily: FontFamily.headingSemi,
+    marginBottom: 2,
+  },
+  shopSub: {
+    fontSize: FontSizes.xs,
+    fontFamily: FontFamily.body,
+  },
+  shopArrow: {
     fontSize: FontSizes.xl,
     fontFamily: FontFamily.heading,
     marginLeft: Spacing.sm,
