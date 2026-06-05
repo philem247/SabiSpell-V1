@@ -470,6 +470,20 @@ export default function DashboardScreen() {
 
             <TouchableOpacity
               onPress={() => {
+                useProfileStore.setState({
+                  isGraduated: true,
+                  graduation_date: new Date().toISOString(),
+                });
+                setDemoPanelVisible(false);
+                Alert.alert('Success', 'Graduation force-unlocked! You are now a certified graduate. 🎓');
+              }}
+              style={[styles.modalButton, { backgroundColor: theme.brandAccent }]}
+            >
+              <Text style={styles.modalButtonText}>Force Unlock Graduation (🎓)</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => {
                 resetProfile();
                 setDemoPanelVisible(false);
                 Alert.alert('Success', 'Profile seed values re-loaded!');
