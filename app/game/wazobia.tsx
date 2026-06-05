@@ -415,7 +415,7 @@ export default function WazobiaGameScreen() {
 
   const handleYorubaPress = async () => {
     try {
-      const val = await AsyncStorage.getItem('sabispell:wazobia_yo_audio_downloaded');
+      const val = await AsyncStorage.getItem('sabispell:wazobia_yo_audio_downloaded_femi_v1');
       const sampleFile = `${FileSystem.documentDirectory}yoruba_audio/yw_001.mp3`;
       const fileInfo = await FileSystem.getInfoAsync(sampleFile);
       const isValid = fileInfo.exists && 'size' in fileInfo && fileInfo.size > 1000;
@@ -425,7 +425,7 @@ export default function WazobiaGameScreen() {
       } else {
         // If files are corrupted or missing, clear storage & folder to force re-extraction
         if (val === 'true' || fileInfo.exists) {
-          await AsyncStorage.removeItem('sabispell:wazobia_yo_audio_downloaded');
+          await AsyncStorage.removeItem('sabispell:wazobia_yo_audio_downloaded_femi_v1');
           try {
             await FileSystem.deleteAsync(`${FileSystem.documentDirectory}yoruba_audio/`, { idempotent: true });
           } catch (_) {}
@@ -487,7 +487,7 @@ export default function WazobiaGameScreen() {
       }
 
       setDownloadSpeed('Completed');
-      await AsyncStorage.setItem('sabispell:wazobia_yo_audio_downloaded', 'true');
+      await AsyncStorage.setItem('sabispell:wazobia_yo_audio_downloaded_femi_v1', 'true');
       
       setTimeout(() => {
         setShowDownloader(false);
