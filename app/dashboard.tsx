@@ -14,15 +14,12 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useProfileStore } from '../src/store/profileStore';
-import { EnergyBar } from '../src/components/EnergyBar';
-import { XPBar } from '../src/components/XPBar';
 import { Themes, GlobalColors, FontSizes, FontFamily, Radii, Shadows, Spacing } from '../src/constants/Colors';
-import { AppConfig } from '../src/constants/AppConfig';
+import { AppConfig, getXPTitle, getNextTitleXP } from '../src/constants/AppConfig';
 import { initBGM, toggleBGM, isBGMEnabled } from '../src/services/bgm';
 import { DEMO_LEADERBOARD_SSS2, insertLiveUser } from '../src/constants/DemoSeeds';
 
 const ajalaStandardImg = require('../assets/images/ajala_standard.png');
-const sabiSpellLogoImg = require('../assets/images/sabispell_logo.png');
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -128,6 +125,34 @@ export default function DashboardScreen() {
   const liveUserRow = sss2Board.find((e) => e.isLiveUser);
   const liveUserRank = liveUserRow ? liveUserRow.rank : 6;
 
+  // XP Calculations for compact Status Hub Row
+  const currentTitleObj = [...AppConfig.XP_TITLES]
+    .reverse()
+    .find((t) => xp >= t.minXP) || AppConfig.XP_TITLES[0];
+  const nextTitleObj = AppConfig.XP_TITLES.find((t) => t.minXP > xp);
+
+  let progressFraction = 1.0;
+  if (nextTitleObj) {
+    const range = nextTitleObj.minXP - currentTitleObj.minXP;
+    progressFraction = range > 0 ? (xp - currentTitleObj.minXP) / range : 0;
+  }
+
+  const dashboardXPProgress = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(dashboardXPProgress, {
+      toValue: progressFraction,
+      duration: 1000,
+      useNativeDriver: false,
+    }).start();
+  }, [progressFraction]);
+
+  const cap = AppConfig.ENERGY_CAP;
+  const energyPips = [];
+  for (let i = 0; i < cap; i++) {
+    energyPips.push(i < energy);
+  }
+
   // Trigger energy refill check on load
   useEffect(() => {
     checkAndRefillEnergy();
@@ -137,10 +162,10 @@ export default function DashboardScreen() {
       setBgmMuted(!isBGMEnabled());
     });
 
-    // Set an interval to check energy refill every 10 seconds while on the dashboard
+    // Set an interval to check energy refill every 30 seconds while on the dashboard
     const interval = setInterval(() => {
       checkAndRefillEnergy();
-    }, 10000);
+    }, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -179,13 +204,16 @@ export default function DashboardScreen() {
         
         {/* Header HUD Row */}
         <View style={styles.hudRow}>
-          {/* Logo / Title (Tap 5 times for hidden panel) */}
-          <TouchableOpacity activeOpacity={0.8} onPress={handleLogoPress} style={styles.branding}>
-            <Image source={sabiSpellLogoImg} style={styles.smallLogo} />
-            <View>
-              <Text style={[styles.usernameText, { color: theme.textPrimary }]}>{username || 'Scholar'}</Text>
-              <Text style={[styles.classText, { color: theme.textSecondary }]}>{declaredClass}</Text>
+          {/* Circular Profile Avatar Button */}
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => router.push('/profile')}
+            style={styles.profileHUDButton}
+          >
+            <View style={[styles.headerAvatarWrap, { borderColor: theme.brandAccent }]}>
+              <Image source={ajalaStandardImg} style={styles.headerAvatar} />
             </View>
+            <Text style={[styles.headerProfileLabel, { color: theme.textPrimary }]}>Profile 👤</Text>
           </TouchableOpacity>
 
           {/* HUD Stats */}
@@ -237,19 +265,78 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Energy Bar widget */}
-        <View style={[styles.energyCard, Shadows.card]}>
-          <EnergyBar energy={energy} themeKey="sss" />
-          <Text style={styles.refillInfoText}>Refills 1 pip every 15 minutes offline</Text>
-        </View>
+        {/* Scholar Status Hub Card */}
+        <View style={[styles.statusHubCard, Shadows.card]}>
+          {/* Energy Row */}
+          <View style={styles.statusRow}>
+            <View style={styles.statusLabelWrap}>
+              <Text style={styles.statusIcon}>⚡</Text>
+              <Text style={[styles.statusLabel, { color: theme.textSecondary }]}>ENERGY</Text>
+            </View>
+            <View style={styles.pipsRow}>
+              {energyPips.map((active, idx) => (
+                <View
+                  key={idx}
+                  style={[
+                    styles.pip,
+                    {
+                      backgroundColor: active ? theme.energyFill : 'rgba(196, 220, 244, 0.2)',
+                      borderColor: active ? theme.brandPrimary : 'rgba(196, 220, 244, 0.4)',
+                    },
+                  ]}
+                />
+              ))}
+            </View>
+            <Text style={[styles.statusValueText, { color: theme.textPrimary }]}>
+              {energy}/{cap}
+            </Text>
+          </View>
 
-        {/* XP Title Progress Bar Card */}
-        <View style={[styles.xpCard, Shadows.card]}>
-          <XPBar xp={xp} themeKey="sss" />
+          {/* Horizontal Divider */}
+          <View style={styles.statusDivider} />
+
+          {/* XP Row */}
+          <View style={styles.statusRow}>
+            <View style={styles.statusLabelWrap}>
+              <Text style={styles.statusIcon}>🏆</Text>
+              <Text style={[styles.statusLabel, { color: theme.textSecondary }]}>{currentTitleObj.title.toUpperCase()}</Text>
+            </View>
+            <View style={styles.xpTrackWrap}>
+              <View style={[styles.xpTrack, { backgroundColor: theme.xpTrack }]}>
+                <Animated.View
+                  style={[
+                    styles.xpFill,
+                    {
+                      backgroundColor: theme.xpFill,
+                      width: dashboardXPProgress.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ['0%', '100%'],
+                      }),
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+            <Text style={[styles.statusValueText, { color: theme.textPrimary }]}>
+              {Math.round(progressFraction * 100)}%
+            </Text>
+          </View>
+
+          {/* Energy Refill Footer (Only show when energy < cap) */}
+          {energy < cap && (
+            <Text style={styles.refillInfoText}>
+              ⚡ Energy refills 1 pip every 15 minutes offline
+            </Text>
+          )}
         </View>
 
         {/* Daily Challenge Card */}
-        <View style={[styles.challengeCard, Shadows.elevated, { backgroundColor: theme.brandSecondary }]}>
+        <TouchableOpacity
+          id="dashboard-challenge-btn"
+          activeOpacity={0.85}
+          onPress={handleModeSelect}
+          style={[styles.challengeCard, Shadows.elevated, { backgroundColor: theme.brandSecondary }]}
+        >
           <View style={styles.challengeHeader}>
             <View style={[styles.challengeBadge, { backgroundColor: theme.brandAccent }]}>
               <Text style={styles.challengeBadgeText}>DAILY CHALLENGE</Text>
@@ -258,7 +345,7 @@ export default function DashboardScreen() {
           </View>
           <Text style={styles.challengeTitle}>WAEC Prep Mastery</Text>
           <Text style={styles.challengeDesc}>Spell 5 words correctly in a row in the SSS 2 Academic League.</Text>
-        </View>
+        </TouchableOpacity>
 
 
 
@@ -283,58 +370,52 @@ export default function DashboardScreen() {
           </View>
         </TouchableOpacity>
 
-        {/* Leaderboard CTA */}
-        <TouchableOpacity
-          id="dashboard-leaderboard-btn"
-          activeOpacity={0.88}
-          onPress={() => router.push('/leaderboard')}
-          style={[styles.leaderboardCard, Shadows.card]}
-        >
-          <View style={styles.leaderboardCardInner}>
-            <View style={styles.leaderboardIconWrap}>
-              <Text style={styles.leaderboardIcon}>📊</Text>
+        {/* Navigation Grid (Leaderboard & Sabi Shop) */}
+        <View style={styles.navGrid}>
+          {/* Leaderboard CTA */}
+          <TouchableOpacity
+            id="dashboard-leaderboard-btn"
+            activeOpacity={0.85}
+            onPress={() => router.push('/leaderboard')}
+            style={[styles.gridCard, { borderLeftColor: '#0A6EBD' }, Shadows.card]}
+          >
+            <View style={[styles.gridIconWrap, { backgroundColor: 'rgba(10, 110, 189, 0.1)' }]}>
+              <Text style={styles.gridIcon}>📊</Text>
             </View>
-            <View style={styles.leaderboardTextBlock}>
-              <Text style={[styles.leaderboardTitle, { color: theme.textPrimary }]}>Weekly Leaderboard</Text>
-              <Text style={[styles.leaderboardSub, { color: theme.textSecondary }]}>
-                Rank #{liveUserRank} · Compete with classmates for MTN data!
-              </Text>
-            </View>
-            <Text style={[styles.leaderboardArrow, { color: theme.brandPrimary }]}>→</Text>
-          </View>
-        </TouchableOpacity>
+            <Text style={[styles.gridTitle, { color: theme.textPrimary }]}>Leaderboard</Text>
+            <Text style={[styles.gridSub, { color: theme.textSecondary }]}>Rank #{liveUserRank}</Text>
+          </TouchableOpacity>
 
-        {/* Sabi Shop CTA */}
-        <TouchableOpacity
-          id="dashboard-shop-btn"
-          activeOpacity={0.88}
-          onPress={() => router.push('/shop')}
-          style={[styles.shopCard, Shadows.card]}
-        >
-          <View style={styles.shopCardInner}>
-            <View style={styles.shopIconWrap}>
-              <Text style={styles.shopIcon}>🛍️</Text>
+          {/* Sabi Shop CTA */}
+          <TouchableOpacity
+            id="dashboard-shop-btn"
+            activeOpacity={0.85}
+            onPress={() => router.push('/shop')}
+            style={[styles.gridCard, { borderLeftColor: '#F5A623' }, Shadows.card]}
+          >
+            <View style={[styles.gridIconWrap, { backgroundColor: 'rgba(245, 166, 35, 0.1)' }]}>
+              <Text style={styles.gridIcon}>🛍️</Text>
             </View>
-            <View style={styles.shopTextBlock}>
-              <Text style={[styles.shopTitle, { color: theme.textPrimary }]}>Sabi Premium Shop</Text>
-              <Text style={[styles.shopSub, { color: theme.textSecondary }]}>
-                Unlock 10-Year WAEC Past Questions & watch ads for coins!
-              </Text>
-            </View>
-            <Text style={[styles.shopArrow, { color: theme.brandPrimary }]}>→</Text>
-          </View>
-        </TouchableOpacity>
+            <Text style={[styles.gridTitle, { color: theme.textPrimary }]}>Sabi Shop</Text>
+            <Text style={[styles.gridSub, { color: theme.textSecondary }]}>Buy Exam Packs</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Mascot Greeting */}
         <View style={styles.mascotSpeechSection}>
           <View style={[styles.speechBubble, Shadows.card]}>
+            <View style={styles.speechBubbleTail} />
             <Text style={[styles.speechText, { color: theme.textPrimary }]}>
-              Ẹ lẹ́yìn, <Text style={styles.boldText}>{username}</Text>! Ready to climb the spelling rankings and unlock graduation today? 🎓
+              Ẹ n lẹ́, <Text style={styles.boldText}>{username}</Text>! Ready to climb the spelling rankings and unlock graduation today? 🎓
             </Text>
           </View>
-          <View style={[styles.mascotBadge, { backgroundColor: theme.bgSecondary, borderColor: theme.brandAccent }]}>
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={handleLogoPress}
+            style={[styles.mascotBadge, { backgroundColor: theme.bgSecondary, borderColor: theme.brandAccent }]}
+          >
             <Image source={ajalaStandardImg} style={styles.ajalaMascot} resizeMode="contain" />
-          </View>
+          </TouchableOpacity>
         </View>
 
       </ScrollView>
@@ -432,22 +513,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  smallLogo: {
-    width: 42,
-    height: 42,
-    borderRadius: Radii.xs,
+  profileMetaBtn: {
+    justifyContent: 'center',
+  },
+  profileHUDButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerAvatarWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
     marginRight: Spacing.sm,
   },
-  usernameText: {
-    fontSize: FontSizes.md,
-    fontFamily: FontFamily.heading,
-    letterSpacing: 0.2,
+  headerAvatar: {
+    width: 24,
+    height: 24,
   },
-  classText: {
-    fontSize: FontSizes.xs,
+  headerProfileLabel: {
+    fontSize: FontSizes.sm,
     fontFamily: FontFamily.bodySemiBold,
-    opacity: 0.8,
-    marginTop: 1,
+    letterSpacing: 0.1,
   },
   statsHUD: {
     flexDirection: 'row',
@@ -464,27 +554,80 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.headingRegular,
     fontWeight: 'bold',
   },
-  energyCard: {
+  statusHubCard: {
     backgroundColor: GlobalColors.white,
     borderRadius: Radii.md,
     padding: Spacing.md,
     marginBottom: Spacing.md,
     borderWidth: 1,
     borderColor: 'rgba(10, 110, 189, 0.08)',
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+  statusLabelWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '32%',
+  },
+  statusIcon: {
+    fontSize: 16,
+    marginRight: 6,
+  },
+  statusLabel: {
+    fontSize: 10,
+    fontFamily: FontFamily.bodySemiBold,
+    letterSpacing: 1.0,
+  },
+  pipsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  pip: {
+    width: 14,
+    height: 18,
+    borderRadius: 4,
+    borderWidth: 1.2,
+    marginHorizontal: 3,
+  },
+  statusValueText: {
+    fontSize: FontSizes.sm,
+    fontFamily: FontFamily.mono,
+    fontWeight: '700',
+    width: '12%',
+    textAlign: 'right',
+  },
+  statusDivider: {
+    height: 1,
+    backgroundColor: 'rgba(10, 110, 189, 0.08)',
+    marginVertical: Spacing.sm,
+  },
+  xpTrackWrap: {
+    flex: 1,
+    paddingHorizontal: Spacing.sm,
+  },
+  xpTrack: {
+    height: 10,
+    borderRadius: Radii.round,
+    overflow: 'hidden',
+    borderWidth: 0.8,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  xpFill: {
+    height: '100%',
+    borderRadius: Radii.round,
   },
   refillInfoText: {
     fontSize: FontSizes.xs,
     fontFamily: FontFamily.body,
     color: '#7A94B0',
     marginTop: Spacing.sm,
-  },
-  xpCard: {
-    backgroundColor: GlobalColors.white,
-    borderRadius: Radii.md,
-    padding: Spacing.md,
-    marginBottom: Spacing.md,
-    borderWidth: 1,
-    borderColor: 'rgba(10, 110, 189, 0.08)',
+    textAlign: 'center',
   },
   challengeCard: {
     borderRadius: Radii.md,
@@ -578,91 +721,39 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.heading,
     marginLeft: Spacing.sm,
   },
-  leaderboardCard: {
+  navGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.lg,
+  },
+  gridCard: {
+    width: '48%',
     backgroundColor: GlobalColors.white,
     borderRadius: Radii.md,
     padding: Spacing.md,
-    marginBottom: Spacing.lg,
     borderWidth: 1,
     borderColor: 'rgba(10, 110, 189, 0.12)',
     borderLeftWidth: 5,
-    borderLeftColor: '#0A6EBD',
   },
-  leaderboardCardInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  leaderboardIconWrap: {
-    width: 44,
-    height: 44,
+  gridIconWrap: {
+    width: 40,
+    height: 40,
     borderRadius: Radii.md,
-    backgroundColor: 'rgba(10, 110, 189, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: Spacing.sm,
+    marginBottom: Spacing.sm,
   },
-  leaderboardIcon: {
-    fontSize: 22,
+  gridIcon: {
+    fontSize: 20,
   },
-  leaderboardTextBlock: {
-    flex: 1,
-  },
-  leaderboardTitle: {
+  gridTitle: {
     fontSize: FontSizes.base,
     fontFamily: FontFamily.headingSemi,
     marginBottom: 2,
   },
-  leaderboardSub: {
+  gridSub: {
     fontSize: FontSizes.xs,
     fontFamily: FontFamily.body,
-  },
-  leaderboardArrow: {
-    fontSize: FontSizes.xl,
-    fontFamily: FontFamily.heading,
-    marginLeft: Spacing.sm,
-  },
-  shopCard: {
-    backgroundColor: GlobalColors.white,
-    borderRadius: Radii.md,
-    padding: Spacing.md,
-    marginBottom: Spacing.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(10, 110, 189, 0.12)',
-    borderLeftWidth: 5,
-    borderLeftColor: '#F5A623',
-  },
-  shopCardInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  shopIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: Radii.md,
-    backgroundColor: 'rgba(245, 166, 35, 0.12)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: Spacing.sm,
-  },
-  shopIcon: {
-    fontSize: 22,
-  },
-  shopTextBlock: {
-    flex: 1,
-  },
-  shopTitle: {
-    fontSize: FontSizes.base,
-    fontFamily: FontFamily.headingSemi,
-    marginBottom: 2,
-  },
-  shopSub: {
-    fontSize: FontSizes.xs,
-    fontFamily: FontFamily.body,
-  },
-  shopArrow: {
-    fontSize: FontSizes.xl,
-    fontFamily: FontFamily.heading,
-    marginLeft: Spacing.sm,
   },
   modeCard: {
     backgroundColor: GlobalColors.white,
@@ -703,8 +794,18 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalColors.white,
     borderRadius: Radii.md,
     padding: Spacing.md,
-    marginRight: Spacing.sm,
+    marginRight: Spacing.lg,
     borderBottomRightRadius: 0,
+    position: 'relative',
+  },
+  speechBubbleTail: {
+    position: 'absolute',
+    bottom: 12,
+    right: -6,
+    width: 12,
+    height: 12,
+    backgroundColor: GlobalColors.white,
+    transform: [{ rotate: '45deg' }],
   },
   speechText: {
     fontSize: FontSizes.base,
