@@ -27,48 +27,6 @@ SabiSpell is built using a modern, lightweight cross-platform architecture:
 - **YarnGPT (Yoruba Voice Synthesis):** The Wazobia Yoruba audio assets are programmatically synthesized using [YarnGPT's](https://yarngpt.ai) Yoruba natural voice model (*Femi*). This model ensures authentic accent tones (acute/grave) and proper vowel expressions, avoiding the robotic or anglicized pronunciations typical of generic TTS engines.
 - **Paystack Checkout:** The premium shop implements a sandbox checkout sheet modeled after [Paystack's](https://paystack.com/) payment interfaces to represent local merchant integration.
 
----
-
-## Getting Started
-
-Follow these steps to run SabiSpell on your local machine or an emulator.
-
-### Prerequisites
-
-Make sure you have the following installed:
-- [Node.js](https://nodejs.org/) (v18 or higher recommended)
-- [npm](https://www.npmjs.com/)
-- [Expo Go](https://expo.dev/go) app installed on your physical iOS or Android device (optional, for physical testing)
-
-### Installation
-
-1. Clone the repository and navigate to the project directory:
-   ```bash
-   cd SabiSpell
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-### Running Locally
-
-1. Start the Expo development server:
-   ```bash
-   npm start
-   ```
-   Alternatively, you can run:
-   ```bash
-   npx expo start
-   ```
-
-2. Open the application:
-   - **Android Emulator:** Press `a` in the terminal to launch the Android emulator.
-   - **iOS Simulator:** Press `i` in the terminal to launch the iOS simulator.
-   - **Physical Device:** Scan the QR code displayed in the terminal with the Expo Go app (Android) or the native camera app (iOS).
-
----
 
 ## Directory Layout
 
