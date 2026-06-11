@@ -30,6 +30,7 @@ import { pauseBGM, resumeBGM } from '../../src/services/bgm';
 import { Themes, GlobalColors, FontSizes, FontFamily, Radii, Spacing, Shadows } from '../../src/constants/Colors';
 import { AppConfig } from '../../src/constants/AppConfig';
 import AjalaAvatar, { AjalaState } from '../../src/components/AjalaAvatar';
+import AnkaraTile from '../../src/components/AnkaraTile';
 
 const WORDS_PER_ROUND = AppConfig.WORDS_PER_ROUND;
 const TIME_PER_WORD   = AppConfig.TIME_PER_WORD_SEC;
@@ -552,6 +553,7 @@ export default function WazobiaGameScreen() {
     return (
       <SafeAreaView style={[styles.safe, { backgroundColor: theme.bgPrimary }]} edges={['top', 'left', 'right']}>
         <StatusBar barStyle="dark-content" />
+        <AnkaraTile />
         <View style={styles.header}>
           <TouchableOpacity id="wazobia-back-btn" onPress={() => router.back()}>
             <Text style={[styles.back, { color: theme.brandPrimary }]}>← Back</Text>
@@ -739,6 +741,7 @@ export default function WazobiaGameScreen() {
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.bgPrimary }]} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="dark-content" />
       <View style={{ flex: 1 }}>
+        <AnkaraTile />
 
         {/* Header */}
         <View style={styles.header}>
