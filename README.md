@@ -1,6 +1,6 @@
 # SabiSpell
 
-SabiSpell is an interactive, gamified adaptive spelling application designed for Nigerian secondary school students (SSS 1–3). It maps directly to national curricula (WAEC, JAMB, NECO) and integrates localized cultural modules to improve spelling accuracy, vocabulary, and linguistic heritage.
+SabiSpell is an interactive, gamified adaptive spelling application designed for Nigerian students. It maps directly to national curricula (WAEC, JAMB, NECO) and integrates localized cultural modules to improve spelling accuracy, vocabulary, and linguistic heritage.
 
 ---
 
