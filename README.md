@@ -33,6 +33,17 @@ npm test         # run the logic tests
 npm run build    # production build (PWA output in web/dist)
 ```
 
+## Deploy
+
+The web app is a static site. Build it and publish the output folder:
+
+```bash
+cd web
+npm run build    # outputs web/dist
+```
+
+Host `web/dist` on any static host. Vercel is the planned target (root directory `web`, output directory `dist`, and a rewrite of all routes to `/index.html` once routing is added). The PWA needs HTTPS to be installable. No hosting is set up yet.
+
 ## Documentation
 
 - [Product requirements and roadmap](docs/PRODUCT.md)

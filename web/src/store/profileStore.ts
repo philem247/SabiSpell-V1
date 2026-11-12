@@ -42,6 +42,15 @@ export function createInitialProfile(now: number = Date.now()): Profile {
   };
 }
 
+// Overlay saved entries onto base, dropping any whose value fails the type check.
+function pickValid<T extends object>(base: T, saved: unknown, isValid: (v: unknown) => boolean): T {
+  const ok =
+    saved && typeof saved === 'object'
+      ? Object.entries(saved).filter(([, v]) => isValid(v))
+      : [];
+  return { ...base, ...Object.fromEntries(ok) };
+}
+
 interface ProfileActions {
   completeOnboarding(username: string, placementSSR: number, now?: number): void;
   addXPAndCoins(xp: number, coins: number): void;
@@ -62,7 +71,7 @@ export const useProfileStore = create<Profile & ProfileActions>()(
       completeOnboarding: (username, placementSSR, now = Date.now()) =>
         set((s) => {
           const name = username.trim();
-          if (!name) return {};
+          if (!name || s.hasOnboarded) return {};
           return {
             username: name,
             hasOnboarded: true,
@@ -113,12 +122,16 @@ export const useProfileStore = create<Profile & ProfileActions>()(
         })),
 
       graduate: (collection, date = todayISO()) =>
-        set((s) => ({ graduations: { ...s.graduations, [collection]: date } })),
+        set((s) => {
+          if (!Object.hasOwn(COLLECTIONS, collection)) return {};
+          return { graduations: { ...s.graduations, [collection]: date } };
+        }),
 
       reset: (now = Date.now()) => set(createInitialProfile(now)),
     }),
     {
       name: Config.STORAGE_KEYS.PROFILE,
+      // Bump the version only together with a `migrate` function, or zustand drops the stored state.
       version: 1,
       storage: createJSONStorage(() => localStorage),
       // Deep-merge per-collection maps so a stored profile lacking a newer collection still gets its defaults. Null top-level values are ignored so corrupt data cannot override defaults.
@@ -129,9 +142,13 @@ export const useProfileStore = create<Profile & ProfileActions>()(
         return {
           ...current,
           ...saved,
-          ssr: { ...current.ssr, ...saved.ssr },
-          word_history: { ...current.word_history, ...saved.word_history },
-          graduations: { ...current.graduations, ...saved.graduations },
+          ssr: pickValid(current.ssr, saved.ssr, (v) => typeof v === 'number' && Number.isFinite(v)),
+          word_history: pickValid(
+            current.word_history,
+            saved.word_history,
+            (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
+          ),
+          graduations: pickValid(current.graduations, saved.graduations, (v) => typeof v === 'string'),
         };
       },
     },

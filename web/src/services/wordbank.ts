@@ -33,6 +33,9 @@ export function updateWordHistory(history: string[], wordId: string): string[] {
 
 export function maskWordInSentence(sentence: string, word: string): string {
   if (!word) return sentence;
-  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return sentence.replace(new RegExp(escaped, 'gi'), '_____');
+  const text = sentence.normalize('NFC');
+  const target = word.normalize('NFC');
+  const escaped = target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Substring masking is intentional: inflected forms inside longer words must not leak the answer.
+  return text.replace(new RegExp(escaped, 'gi'), '_____');
 }

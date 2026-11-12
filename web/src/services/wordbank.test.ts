@@ -64,6 +64,12 @@ describe('maskWordInSentence', () => {
     expect(maskWordInSentence('The cat', '')).toBe('The cat');
   });
 
+  it('matches decomposed and composed Unicode forms', () => {
+    const out = maskWordInSentence('Mo ri ọ̀ ni', 'ọ̀');
+    expect(out).toContain('_____');
+    expect(out).not.toContain('ọ');
+  });
+
   it('treats regex characters literally', () => {
     expect(maskWordInSentence('a.b and axb', 'a.b')).toBe('_____ and axb');
   });

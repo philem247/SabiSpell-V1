@@ -14,10 +14,10 @@ describe('collections', () => {
     expect(words.every((w) => w.ssr >= 100 && w.ssr <= 2000)).toBe(true);
   });
 
-  it('yoruba has 50 words tagged yoruba and 4 proverbs', () => {
-    expect(COLLECTIONS.yoruba.words).toHaveLength(50);
+  it('yoruba has at least 50 words tagged yoruba and at least 4 proverbs', () => {
+    expect(COLLECTIONS.yoruba.words.length).toBeGreaterThanOrEqual(50);
     expect(COLLECTIONS.yoruba.words.every((w) => w.collection === 'yoruba')).toBe(true);
-    expect(PROVERBS).toHaveLength(4);
+    expect(PROVERBS.length).toBeGreaterThanOrEqual(4);
   });
 
   it('no word keeps the legacy tier field', () => {

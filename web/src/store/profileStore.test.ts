@@ -76,6 +76,20 @@ describe('profileStore', () => {
     expect(useProfileStore.getState().graduations).toEqual({ classic: '2026-11-12' });
   });
 
+  it('does not grant starter coins twice', () => {
+    useProfileStore.getState().completeOnboarding('Ade', 1300, 0);
+    useProfileStore.getState().completeOnboarding('Bola', 1900, 0);
+    const s = useProfileStore.getState();
+    expect(s.username).toBe('Ade');
+    expect(s.coins).toBe(150);
+    expect(s.ssr.classic).toBe(1300);
+  });
+
+  it('ignores graduation for an unknown collection', () => {
+    useProfileStore.getState().graduate('bogus' as unknown as CollectionId, '2026-11-12');
+    expect(useProfileStore.getState().graduations).toEqual({});
+  });
+
   it('ignores an empty username', () => {
     useProfileStore.getState().completeOnboarding('   ', 1300, 0);
     const s = useProfileStore.getState();
@@ -138,6 +152,31 @@ describe('profileStore', () => {
     const s = useProfileStore.getState();
     expect(s.xp).toBe(0);
     expect(s.coins).toBe(7);
+  });
+
+  it('drops wrong-typed nested entries on rehydrate', async () => {
+    localStorage.setItem(
+      'sabispell:profile',
+      JSON.stringify({
+        state: {
+          ssr: { classic: 'x', yoruba: 250 },
+          word_history: { classic: null, yoruba: ['yw_001'] },
+          graduations: { classic: 5 },
+        },
+        version: 1,
+      }),
+    );
+    await useProfileStore.persist.rehydrate();
+    const s = useProfileStore.getState();
+    expect(s.ssr).toEqual({ classic: 1100, yoruba: 250 });
+    expect(s.word_history).toEqual({ classic: [], yoruba: ['yw_001'] });
+    expect(s.graduations).toEqual({});
+  });
+
+  it('keeps default ssr when stored ssr is null', async () => {
+    localStorage.setItem('sabispell:profile', JSON.stringify({ state: { ssr: null }, version: 1 }));
+    await useProfileStore.persist.rehydrate();
+    expect(useProfileStore.getState().ssr).toEqual({ classic: 1100, yoruba: 100 });
   });
 
   it('persists to localStorage under the profile key', () => {

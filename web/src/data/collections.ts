@@ -1,3 +1,4 @@
+import { Config } from '../config';
 import classicRaw from './words/classic.json';
 import yorubaRaw from './words/yoruba.json';
 import type { CollectionId, Proverb, Word } from '../types';
@@ -27,7 +28,7 @@ export const COLLECTIONS: Record<CollectionId, Collection> = {
     name: 'Classic',
     description: 'English vocabulary from everyday to advanced, levelled by your skill.',
     free: true,
-    startSSR: 1100,
+    startSSR: Config.SSR_START,
     kFactor: 24,
     energyCost: 1,
     words: toWords(classicRaw as unknown as RawWord[], 'classic'),
