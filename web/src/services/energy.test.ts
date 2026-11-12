@@ -47,6 +47,10 @@ describe('deductEnergy', () => {
     expect(deductEnergy(3, 0, 0, 0)).toEqual({ success: true, energy: 3, lastRefillTs: 0 });
   });
 
+  it('a non-finite amount fails without spending energy', () => {
+    expect(deductEnergy(3, NaN, 0, 0)).toEqual({ success: false, energy: 3, lastRefillTs: 0 });
+  });
+
   it('a negative amount never adds energy', () => {
     expect(deductEnergy(3, -2, 0, 0)).toEqual({ success: true, energy: 3, lastRefillTs: 0 });
   });

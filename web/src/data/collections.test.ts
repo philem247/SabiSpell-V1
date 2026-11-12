@@ -31,16 +31,22 @@ describe('collections', () => {
   it('every word has the required fields', () => {
     for (const id of COLLECTION_IDS) {
       for (const w of COLLECTIONS[id].words) {
-        const ok =
-          typeof w.id === 'string' && w.id.length > 0 &&
-          typeof w.text === 'string' && w.text.length > 0 &&
-          typeof w.ssr === 'number' &&
-          typeof w.definition === 'string' &&
-          typeof w.phonetic === 'string' &&
-          Array.isArray(w.context_sentences);
-        expect(ok, `${id}/${w.id}`).toBe(true);
+        const at = `${id}/${w.id}`;
+        expect(typeof w.id, `${at} id`).toBe('string');
+        expect(w.id.length, `${at} id non-empty`).toBeGreaterThan(0);
+        expect(typeof w.text, `${at} text`).toBe('string');
+        expect(w.text.length, `${at} text non-empty`).toBeGreaterThan(0);
+        expect(typeof w.ssr, `${at} ssr`).toBe('number');
+        expect(typeof w.definition, `${at} definition`).toBe('string');
+        expect(typeof w.phonetic, `${at} phonetic`).toBe('string');
+        expect(Array.isArray(w.context_sentences), `${at} context_sentences`).toBe(true);
       }
     }
+  });
+
+  it('word ids are unique across all collections', () => {
+    const ids = COLLECTION_IDS.flatMap((id) => COLLECTIONS[id].words.map((w) => w.id));
+    expect(new Set(ids).size).toBe(ids.length);
   });
 
   it('uses the per-collection SSR start and K factor', () => {

@@ -35,8 +35,11 @@ export function deductEnergy(
   lastRefillTs: number,
   now: number,
 ): EnergyDeductResult {
-  const cost = Math.max(0, amount);
   const refilled = calculateEnergyRefill(currentEnergy, lastRefillTs, now);
+  if (!Number.isFinite(amount)) {
+    return { success: false, energy: refilled.energy, lastRefillTs: refilled.lastRefillTs };
+  }
+  const cost = Math.max(0, amount);
   if (refilled.energy < cost) {
     return { success: false, energy: refilled.energy, lastRefillTs: refilled.lastRefillTs };
   }

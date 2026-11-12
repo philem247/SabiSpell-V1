@@ -2,6 +2,7 @@ import { Config } from '../config';
 import { PROVERBS } from '../data/collections';
 import type { Proverb, Word } from '../types';
 
+// Word ids must be unique within `words`.
 export function getNextWord(
   playerSSR: number,
   words: Word[],
@@ -12,12 +13,12 @@ export function getNextWord(
   const pool = words.filter((w) => !sessionWords.includes(w.id));
   const windows = [Config.SSR_WORD_PROXIMITY, Config.SSR_WORD_PROXIMITY_WIDE, Infinity];
 
-  for (const window of windows) {
-    const near = pool.filter((w) => Math.abs(w.ssr - playerSSR) <= window);
+  for (const range of windows) {
+    const near = pool.filter((w) => Math.abs(w.ssr - playerSSR) <= range);
     if (near.length === 0) continue;
     const fresh = near.filter((w) => !wordHistory.includes(w.id));
     const choices = fresh.length > 0 ? fresh : near;
-    return choices[Math.floor(rng() * choices.length)];
+    return choices[Math.min(choices.length - 1, Math.floor(rng() * choices.length))];
   }
   return null;
 }
@@ -31,6 +32,7 @@ export function updateWordHistory(history: string[], wordId: string): string[] {
 }
 
 export function maskWordInSentence(sentence: string, word: string): string {
+  if (!word) return sentence;
   const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return sentence.replace(new RegExp(escaped, 'gi'), '_____');
 }

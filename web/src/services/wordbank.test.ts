@@ -35,6 +35,14 @@ describe('getNextWord', () => {
     expect(getNextWord(1100, words, ['a', 'b', 'c'], [], first)?.id).toBe('d');
   });
 
+  it('returns null for an empty word list', () => {
+    expect(getNextWord(1100, [], [], [], first)).toBeNull();
+  });
+
+  it('survives an rng that returns 1', () => {
+    expect(getNextWord(1100, words, [], [], () => 1)?.id).toBe('c');
+  });
+
   it('returns null when every word is used', () => {
     expect(getNextWord(1100, words, ['a', 'b', 'c', 'd'], [], first)).toBeNull();
   });
@@ -50,6 +58,10 @@ describe('updateWordHistory', () => {
 describe('maskWordInSentence', () => {
   it('masks case-insensitively', () => {
     expect(maskWordInSentence('The Aberration was odd', 'aberration')).toBe('The _____ was odd');
+  });
+
+  it('leaves the sentence alone for an empty word', () => {
+    expect(maskWordInSentence('The cat', '')).toBe('The cat');
   });
 
   it('treats regex characters literally', () => {
