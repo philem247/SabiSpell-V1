@@ -1,3 +1,5 @@
+> **Archived.** This document describes the SSS 2 hackathon MVP built on Expo. The current plan is in [../PRODUCT.md](../PRODUCT.md).
+
 # SabiSpell — Hackathon Prototype PRD
 ### Tier Focus: SSS 2 | Timeline: 4 Weeks | Status: LOCKED ✅ | Date: 2026-05-26
 

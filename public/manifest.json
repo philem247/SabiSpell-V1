@@ -1,7 +1,7 @@
 {
   "name": "SabiSpell",
   "short_name": "SabiSpell",
-  "description": "Adaptive spelling league for Nigerian SSS 1-3 students",
+  "description": "Adaptive spelling game for everyone",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

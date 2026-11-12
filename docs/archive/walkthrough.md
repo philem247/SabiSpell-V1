@@ -1,3 +1,5 @@
+> **Archived.** This document describes the SSS 2 hackathon MVP built on Expo. The current plan is in [../PRODUCT.md](../PRODUCT.md).
+
 # Walkthrough — Week 4 — Verification, Rehearsals & Build Phase
 
 This document summarizes the QA validations, rehearsals, and build deliverables completed during the final week of SabiSpell prototype development (Days 25–28).
