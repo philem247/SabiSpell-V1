@@ -1836,4 +1836,4 @@ git status -sb
 git log --oneline -12
 ```
 
-Expected: clean tree except the already-pending `package.json`/`package-lock.json` Expo update (not part of this plan). Report the commit list to the owner. Do not push.
+Expected: clean working tree. Report the commit list to the owner. Do not push.
