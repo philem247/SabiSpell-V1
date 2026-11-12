@@ -1,0 +1,392 @@
+{
+  "words": [
+    {
+      "id": "yw_001", "text": "omi", "ssr": 280, "tier": "wazobia", "language": "yo",
+      "definition": "Water — the clear liquid essential for drinking and life.",
+      "context_sentences": ["Omi mọ́ ni a gbọdọ mu lati jẹ alàáfíà. (We must drink clean water to be healthy.)", "Wọ́n lọ mú omi láti ìdí odò. (They went to fetch water from the river bank.)"],
+      "phonetic": "oh-mee",
+      "tone_guide": "omi — flat tone on both syllables; no rising or falling"
+    },
+    {
+      "id": "yw_002", "text": "ìyá", "ssr": 260, "tier": "wazobia", "language": "yo",
+      "definition": "Mother — the female parent.",
+      "context_sentences": ["Ìyá mi jẹ olùkọ́ ní ilé-ìwé àgbàdo. (My mother is a teacher at the primary school.)", "Ìyá ni ẹni tí ó máa ń tọjú wa. (Mother is the one who always takes care of us.)"],
+      "phonetic": "ee-YAH",
+      "tone_guide": "ì — low tone (grave accent); yá — high tone (acute accent)"
+    },
+    {
+      "id": "yw_003", "text": "bàbá", "ssr": 260, "tier": "wazobia", "language": "yo",
+      "definition": "Father — the male parent.",
+      "context_sentences": ["Bàbá mi lọ sí iṣẹ́ ní òwúrọ̀. (My father went to work in the morning.)", "Bàbá pẹlu ìyá ló mú mi dàgbà dáadáa. (Father and mother raised me well.)"],
+      "phonetic": "BAH-bah",
+      "tone_guide": "bà — low tone; bá — high tone"
+    },
+    {
+      "id": "yw_004", "text": "ọmọ", "ssr": 280, "tier": "wazobia", "language": "yo",
+      "definition": "Child — a young human being.",
+      "context_sentences": ["Ọmọ tó bá gbọ̀ ọ̀rọ̀ àgbàdo máa ń dagba dáadáa. (A child who listens to elders grows up well.)", "Gbogbo ọmọ ni o yẹ kí ó lọ sí ilé-ìwé. (Every child deserves to go to school.)"],
+      "phonetic": "oh-MOH",
+      "tone_guide": "ọmọ — both syllables mid tone; ọ has underdot (open-o sound)"
+    },
+    {
+      "id": "yw_005", "text": "ẹja", "ssr": 280, "tier": "wazobia", "language": "yo",
+      "definition": "Fish — an aquatic creature with fins and scales.",
+      "context_sentences": ["Awọn ọmọ rẹ ran ọ lọwọ ẹja tí ó mú. (Her children helped her with the fish she caught.)", "A máa ń ra ẹja gbígbẹ ní ọjà. (We usually buy dried fish at the market.)"],
+      "phonetic": "EH-jah",
+      "tone_guide": "ẹ — open-e (underdot), mid tone; ja — high tone"
+    },
+    {
+      "id": "yw_006", "text": "igi", "ssr": 280, "tier": "wazobia", "language": "yo",
+      "definition": "Tree or wood — a tall plant with a trunk and branches.",
+      "context_sentences": ["Igi ìrókò jẹ igi ńlá tó wọpọ ní Yorùbáland. (The iroko tree is a large tree common in Yorubaland.)", "Wọ́n gé igi láti kọ́ ilé. (They cut wood to build a house.)"],
+      "phonetic": "ee-gee",
+      "tone_guide": "igi — both syllables mid tone"
+    },
+    {
+      "id": "yw_007", "text": "odò", "ssr": 300, "tier": "wazobia", "language": "yo",
+      "definition": "River — a large natural stream of flowing water.",
+      "context_sentences": ["Odò Ọ̀ya jẹ odò pàtàkì ní Ìlọrin. (The Oya River is an important river in Ilorin.)", "Àwọn ọmọde máa ń wẹ̀ nínú odò ní ọjọ́ àárọ̀. (Children used to swim in the river in the morning.)"],
+      "phonetic": "oh-DOH",
+      "tone_guide": "o — mid tone; dò — low tone (grave accent)"
+    },
+    {
+      "id": "yw_008", "text": "owó", "ssr": 280, "tier": "wazobia", "language": "yo",
+      "definition": "Money — coins and notes used to buy things.",
+      "context_sentences": ["Owó kìí ṣe pàtàkì jù ẹ̀kọ́ lọ. (Money is not more important than education.)", "Ìyá fún mi ní owó láti ra ìwé. (Mother gave me money to buy a book.)"],
+      "phonetic": "oh-WOH",
+      "tone_guide": "o — mid tone; wó — high tone (acute accent)"
+    },
+    {
+      "id": "yw_009", "text": "ọjà", "ssr": 300, "tier": "wazobia", "language": "yo",
+      "definition": "Market — a place where goods are bought and sold.",
+      "context_sentences": ["Ìyá mi lọ sí ọjà ní gbogbo ọjọ́ Àbámẹta. (My mother goes to the market every Wednesday.)", "Ọjà Bodija ní Ìbàdàn jẹ ọjà tó tóbi. (Bodija Market in Ibadan is a large market.)"],
+      "phonetic": "oh-JAH",
+      "tone_guide": "ọ — open-o (underdot), mid tone; jà — low tone"
+    },
+    {
+      "id": "yw_010", "text": "ilé", "ssr": 300, "tier": "wazobia", "language": "yo",
+      "definition": "House or home — a building where people live.",
+      "context_sentences": ["Ilé wa dára tó ní yàrá mẹ́ta. (Our house is fine with three rooms.)", "Ẹ̀kọ́ bẹ̀rẹ̀ sí ní ilé kí ó tó dé ilé-ìwé. (Education starts at home before school.)"],
+      "phonetic": "ee-LEH",
+      "tone_guide": "i — mid tone; lé — high tone"
+    },
+    {
+      "id": "yw_011", "text": "ọlọ́run", "ssr": 400, "tier": "wazobia", "language": "yo",
+      "definition": "God — the supreme deity in Yoruba belief and Christianity.",
+      "context_sentences": ["Ọlọ́run ni olùfẹ́ gbogbo ẹ̀dá. (God is the lover of all creation.)", "A dúpẹ́ lọ́wọ́ Ọlọ́run fún ìmọ̀ tí a gba. (We give thanks to God for the knowledge we receive.)"],
+      "phonetic": "oh-LOH-roon",
+      "tone_guide": "ọ — open-o, mid; lọ́ — high; run — mid"
+    },
+    {
+      "id": "yw_012", "text": "ìmọ̀", "ssr": 450, "tier": "wazobia", "language": "yo",
+      "definition": "Knowledge or understanding — what one knows or has learned.",
+      "context_sentences": ["Ìmọ̀ ni ohun tí kò ṣeé jí lọ́wọ́ ẹnikẹ́ni. (Knowledge is something no one can steal from you.)", "Ẹni tí ó ní ìmọ̀ kò ní ìbẹ̀rù ọjọ́ ọla. (One who has knowledge does not fear tomorrow.)"],
+      "phonetic": "ee-MOH",
+      "tone_guide": "ì — low tone; mọ̀ — low tone with open-o underdot",
+      "proverb_id": "yp_001"
+    },
+    {
+      "id": "yw_013", "text": "àṣà", "ssr": 420, "tier": "wazobia", "language": "yo",
+      "definition": "Culture or tradition — the customs and practices of a people.",
+      "context_sentences": ["Àṣà Yorùbá tó ga ní ọ̀pọ̀lọpọ̀ ìwà rere àti ọ̀wọ̀. (Yoruba culture is rich in good character and respect.)", "A kò gbọdọ jẹ kí àṣà wa parun. (We must not allow our culture to be destroyed.)"],
+      "phonetic": "AH-shah",
+      "tone_guide": "à — low tone; ṣà — low tone with underdot-s",
+      "proverb_id": "yp_002"
+    },
+    {
+      "id": "yw_014", "text": "ẹ̀kọ́", "ssr": 420, "tier": "wazobia", "language": "yo",
+      "definition": "Education or a lesson — learning that develops the mind.",
+      "context_sentences": ["Ẹ̀kọ́ ni ìmọ̀ràn tí ẹni gbogbo nílò. (Education is the knowledge that everyone needs.)", "Bí a ò bá ti ẹ̀kọ́ fún ọmọ wa, a ti kuna bí ìdílé. (If we do not educate our children, we have failed as a family.)"],
+      "phonetic": "EH-koh",
+      "tone_guide": "ẹ̀ — open-e with low tone; kó — high tone"
+    },
+    {
+      "id": "yw_015", "text": "ìlú", "ssr": 350, "tier": "wazobia", "language": "yo",
+      "definition": "Town or city — a populated settlement.",
+      "context_sentences": ["Ìlú Ìbàdàn jẹ ìlú tó tóbi ní Yorùbáland. (Ibadan is the largest city in Yorubaland.)", "Gbogbo ìlú ní ìṣẹlẹ rẹ àti ìtàn tirẹ. (Every town has its own history and story.)"],
+      "phonetic": "ee-LOO",
+      "tone_guide": "ì — low tone; lú — high tone"
+    },
+    {
+      "id": "yw_016", "text": "ìdílé", "ssr": 380, "tier": "wazobia", "language": "yo",
+      "definition": "Family — a group of people related by blood or marriage.",
+      "context_sentences": ["Ìdílé ní àkọ́kọ́ nínú gbogbo nǹkan. (Family comes first above all things.)", "Ìjọpọ̀ ìdílé ló mú kí àwọn ènìyàn sán páàpàá. (Family unity is what keeps people stronger.)"],
+      "phonetic": "ee-dee-LEH",
+      "tone_guide": "ì — low; dí — high; lé — high"
+    },
+    {
+      "id": "yw_017", "text": "àánú", "ssr": 400, "tier": "wazobia", "language": "yo",
+      "definition": "Compassion or mercy — deep sympathy for others' suffering.",
+      "context_sentences": ["Àánú jẹ ìwà rere pàtàkì nínú ẹ̀sìn Yorùbá. (Compassion is an important virtue in Yoruba culture.)", "A gbọdọ̀ ní àánú fún àwọn tó ń jìyà. (We must show compassion to those who are suffering.)"],
+      "phonetic": "AH-ah-noo",
+      "tone_guide": "àá — starts low, rises; nú — high tone"
+    },
+    {
+      "id": "yw_018", "text": "ìgbàgbọ́", "ssr": 450, "tier": "wazobia", "language": "yo",
+      "definition": "Faith or belief — trust and confidence in something unseen.",
+      "context_sentences": ["Ìgbàgbọ́ ló mú kí àwọn baba wa kọjá ìpọnju. (Faith is what carried our ancestors through hardship.)", "Ní ìgbàgbọ́ ni ẹni gbogbo ní iwaju rẹ. (In faith, everyone has their future.)"],
+      "phonetic": "ee-gbah-BOH",
+      "tone_guide": "ì — low; gbà — low; gbọ́ — high with open-o"
+    },
+    {
+      "id": "yw_019", "text": "ọgbọ́n", "ssr": 420, "tier": "wazobia", "language": "yo",
+      "definition": "Wisdom — the ability to think and act using knowledge and good judgment.",
+      "context_sentences": ["Ọgbọ́n àgbàdo kọjá ọgbọ́n ọ̀dọ́. (The wisdom of elders surpasses the cleverness of youth.)", "Kíkọ́ ẹ̀kọ́ ló mú ọgbọ́n wá. (It is through learning that wisdom comes.)"],
+      "phonetic": "oh-GBOHN",
+      "tone_guide": "ọ — open-o, mid; gbọ́n — high tone with open-o",
+      "proverb_id": "yp_003"
+    },
+    {
+      "id": "yw_020", "text": "ìjọba", "ssr": 500, "tier": "wazobia", "language": "yo",
+      "definition": "Government — the group of people that rules or controls a country.",
+      "context_sentences": ["Ìjọba ni ó ní ojúṣe láti tọjú àwọn ará orílẹ̀-èdè. (Government has the responsibility to care for the citizens.)", "Àwọn ọ̀dọ́ gbọdọ̀ mọ bí ìjọba ṣe ń ṣiṣẹ́. (Young people must understand how government works.)"],
+      "phonetic": "ee-JOH-bah",
+      "tone_guide": "ì — low; jo — mid; ba — mid"
+    },
+    {
+      "id": "yw_021", "text": "ẹ̀sìn", "ssr": 460, "tier": "wazobia", "language": "yo",
+      "definition": "Religion — a system of belief in and worship of a divine power.",
+      "context_sentences": ["Yorùbá ní ẹ̀sìn ìbílẹ̀ tó ti pẹ́ tẹ́lẹ̀ kí àwọn ará òkè òkun tó dé. (Yoruba had indigenous religion long before outsiders arrived.)", "A gbọdọ̀ bọ̀wọ̀ fún ẹ̀sìn ẹni kọ̀ọ̀kan. (We must respect each person's religion.)"],
+      "phonetic": "EH-sheen",
+      "tone_guide": "ẹ̀ — open-e, low; sìn — low tone"
+    },
+    {
+      "id": "yw_022", "text": "àgbára", "ssr": 440, "tier": "wazobia", "language": "yo",
+      "definition": "Power or strength — the ability to do something or exert force.",
+      "context_sentences": ["Àgbára ìmọ̀ jẹ ẹni tó yani lẹ́nu jù. (The power of knowledge is the most impressive of all.)", "Pẹ̀lú àgbára ìṣọ̀kan, a lè ṣe ohun gbogbo. (With the strength of unity, we can do all things.)"],
+      "phonetic": "ah-GBAH-rah",
+      "tone_guide": "à — low; gbá — high; ra — mid"
+    },
+    {
+      "id": "yw_023", "text": "ojú", "ssr": 280, "tier": "wazobia", "language": "yo",
+      "definition": "Eye or face — the organ of sight; also used to mean 'face' or 'front'.",
+      "context_sentences": ["Ojú rẹ jó rẹ, o mọ̀ pé ọ̀rẹ rẹ ní ìdùnnú. (One look at your face, you can tell your friend is happy.)", "Màá fi ojú rẹ mọ̀ ọ tán. (I will recognize you by your face.)"],
+      "phonetic": "oh-JOO",
+      "tone_guide": "o — mid; jú — high tone"
+    },
+    {
+      "id": "yw_024", "text": "àkókò", "ssr": 400, "tier": "wazobia", "language": "yo",
+      "definition": "Time — the indefinite continued progress of events.",
+      "context_sentences": ["Àkókò tí ó ti kọjá kò ṣeépadà. (Time that has passed cannot be brought back.)", "Lo àkókò rẹ dáadáa kí o má ṣe bínú lọjọ ọla. (Use your time well so you do not regret it tomorrow.)"],
+      "phonetic": "ah-KOH-koh",
+      "tone_guide": "à — low; kó — high; kò — low",
+      "proverb_id": "yp_004"
+    },
+    {
+      "id": "yw_025", "text": "àárọ̀", "ssr": 320, "tier": "wazobia", "language": "yo",
+      "definition": "Morning — the early part of the day after sunrise.",
+      "context_sentences": ["Àárọ̀ dídé ní ìpẹ̀kun yorí si àṣeyọrí. (Waking up in the morning leads to success.)", "Àwọn agbẹ̀ máa ń jáde ní àárọ̀ kí wọ́n tó mú ojú orun wọlé. (Farmers go out in the early morning before the sun is fully up.)"],
+      "phonetic": "AH-ah-ROH",
+      "tone_guide": "àá — starts low, extends; rọ̀ — low tone with open-o"
+    },
+    {
+      "id": "yw_026", "text": "ìrọ̀lẹ́", "ssr": 340, "tier": "wazobia", "language": "yo",
+      "definition": "Evening — the time of day between afternoon and night.",
+      "context_sentences": ["Ní ìrọ̀lẹ́, àwọn ọmọ gbà kọ̀kọ̀ láti àwọn àgbàdo. (In the evening, children hear stories from the elders.)", "Afẹ́fẹ́ ìrọ̀lẹ́ tún mú ìtura wá. (The evening breeze brings comfort.)"],
+      "phonetic": "ee-ROH-leh",
+      "tone_guide": "ì — low; rọ̀ — low, open-o; lé — high"
+    },
+    {
+      "id": "yw_027", "text": "òru", "ssr": 300, "tier": "wazobia", "language": "yo",
+      "definition": "Night — the time of darkness after sunset.",
+      "context_sentences": ["Ní òru, àwọn ìràwọ̀ máa ń tàn ní ojú ọrun. (At night, the stars shine in the sky.)", "Má lo jìnnà ní òru nítorí ewu. (Do not go far at night because of danger.)"],
+      "phonetic": "OH-roo",
+      "tone_guide": "ò — low tone; ru — mid tone"
+    },
+    {
+      "id": "yw_028", "text": "ìfẹ́", "ssr": 350, "tier": "wazobia", "language": "yo",
+      "definition": "Love — a strong feeling of deep affection.",
+      "context_sentences": ["Ìfẹ́ tó jinlẹ̀ jù ni ìfẹ́ ìyá fún ọmọ. (The deepest love is a mother's love for her child.)", "Pẹ̀lú ìfẹ́ àti ìmọ̀, a lè kọ́ orílẹ̀-èdè tó dára. (With love and knowledge, we can build a good nation.)"],
+      "phonetic": "ee-FEH",
+      "tone_guide": "ì — low; fẹ́ — high tone with open-e"
+    },
+    {
+      "id": "yw_029", "text": "ìtẹ̀síwájú", "ssr": 550, "tier": "wazobia", "language": "yo",
+      "definition": "Progress — forward movement and improvement toward a goal.",
+      "context_sentences": ["Ẹ̀kọ́ ló mú ìtẹ̀síwájú wá fún ìdílé àti orílẹ̀-èdè. (Education brings progress to family and nation.)", "Ìtẹ̀síwájú Nàìjíríà ní ojú ìfojúsọ́nà rere. (Nigeria's progress has a bright future ahead.)"],
+      "phonetic": "ee-teh-see-WAH-joo",
+      "tone_guide": "ì — low; tẹ̀ — low, open-e; sí — high; wá — high; jú — high"
+    },
+    {
+      "id": "yw_030", "text": "àjọṣepọ̀", "ssr": 580, "tier": "wazobia", "language": "yo",
+      "definition": "Cooperation or unity — working together for a common purpose.",
+      "context_sentences": ["Àjọṣepọ̀ àwọn ará ìlú ló kọ́ brid naa. (The cooperation of the townspeople built that bridge.)", "Àjọṣepọ̀ ló mú agbára wá fún orílẹ̀-èdè. (Cooperation brings strength to a nation.)"],
+      "phonetic": "ah-JOH-sheh-POH",
+      "tone_guide": "à — low; jọ — mid, open-o; ṣe — mid; pọ̀ — low, open-o"
+    },
+    {
+      "id": "yw_031", "text": "adìye", "ssr": 300, "tier": "wazobia", "language": "yo",
+      "definition": "Chicken — the common domestic bird raised for eggs and meat.",
+      "context_sentences": ["Bẹ́ẹ̀ ni adìye jẹ ohun àmúlò ní ọpọlọpọ igba ìṣẹlẹ Yorùbá. (The chicken is used in many Yoruba ceremonies.)", "Ìyá ran ọmọ rẹ lọ ra adìye láti ọjà. (Mother sent her child to buy a chicken from the market.)"],
+      "phonetic": "ah-dee-YEH",
+      "tone_guide": "a — mid; dì — low; ye — mid"
+    },
+    {
+      "id": "yw_032", "text": "agbado", "ssr": 320, "tier": "wazobia", "language": "yo",
+      "definition": "Corn or maize — a tall grain plant with yellow kernels.",
+      "context_sentences": ["Agbado jẹ oúnjẹ tó wọpọ jù ní àwọn ìlú Yorùbá. (Corn is the most common food in Yoruba towns.)", "Àwọn ọmọde fẹ́ràn jíjẹ agbado tó dára. (Children love eating well-roasted corn.)"],
+      "phonetic": "ahg-BAH-doh",
+      "tone_guide": "a — mid; gbà — low; do — mid"
+    },
+    {
+      "id": "yw_033", "text": "ẹlẹdẹ", "ssr": 350, "tier": "wazobia", "language": "yo",
+      "definition": "Pig — a domestic animal with a snout, raised for its meat.",
+      "context_sentences": ["Ẹlẹdẹ kò wọpọ ní àwọn ìlú Mùsùlùmí ní Yorùbáland. (Pigs are not common in Muslim Yoruba towns.)", "Ẹlẹdẹ máa ń wà nínú ọ̀pọ̀lọpọ̀ àṣà àti ìtàn àgbàdo. (The pig appears in many folk tales and traditions.)"],
+      "phonetic": "EH-leh-deh",
+      "tone_guide": "ẹ — open-e, mid; lẹ — open-e, mid; dẹ — open-e, mid"
+    },
+    {
+      "id": "yw_034", "text": "àgbò", "ssr": 320, "tier": "wazobia", "language": "yo",
+      "definition": "Ram — a male sheep, often used in celebrations and ceremonies.",
+      "context_sentences": ["Àgbò ló ń jẹ ní Ọjọ́ Ìyájọ̀ àwọn Mùsùlùmí. (The ram is slaughtered on Eid al-Adha for Muslims.)", "Bàbá ra àgbò fún àjọyọ̀ ìdílé. (Father bought a ram for the family celebration.)"],
+      "phonetic": "AHG-boh",
+      "tone_guide": "à — low; gbò — low, open-o"
+    },
+    {
+      "id": "yw_035", "text": "ẹ̀jẹ̀", "ssr": 350, "tier": "wazobia", "language": "yo",
+      "definition": "Blood — the red liquid that circulates in the body.",
+      "context_sentences": ["Ẹ̀jẹ̀ ènìyàn ṣe pàtàkì nínú ìmọ̀ ìṣègùn. (Human blood is important in medical science.)", "Ìjọba sọ pé wọ́n nílò ẹ̀jẹ̀ fún àwọn àrùn. (The government said they need blood donations for patients.)"],
+      "phonetic": "EH-jeh",
+      "tone_guide": "ẹ̀ — open-e, low; jẹ̀ — open-e, low"
+    },
+    {
+      "id": "yw_036", "text": "ìbẹ̀rù", "ssr": 420, "tier": "wazobia", "language": "yo",
+      "definition": "Fear — an unpleasant feeling caused by the threat of danger.",
+      "context_sentences": ["Ìbẹ̀rù Ọlọ́run ló jẹ ìbẹ̀rẹ̀ ọgbọ́n. (The fear of God is the beginning of wisdom.)", "Ìbẹ̀rù ló mú kí ó sáré kúrò ní ipò ewu. (Fear made him run away from the dangerous place.)"],
+      "phonetic": "ee-BEH-roo",
+      "tone_guide": "ì — low; bẹ̀ — open-e, low; rù — low tone"
+    },
+    {
+      "id": "yw_037", "text": "ìdánimọ̀", "ssr": 580, "tier": "wazobia", "language": "yo",
+      "definition": "Identity — the characteristics and qualities that define who a person is.",
+      "context_sentences": ["Ìdánimọ̀ Yorùbá wà nínú èdè, àṣà, àti ẹ̀sìn wa. (Yoruba identity lives in our language, culture, and religion.)", "Ẹ mọ ìdánimọ̀ yín kí àwọn mìíràn mọ yín. (Know your identity so others can recognize you.)"],
+      "phonetic": "ee-dah-nee-MOH",
+      "tone_guide": "ì — low; dá — high; ni — mid; mọ̀ — low, open-o"
+    },
+    {
+      "id": "yw_038", "text": "ìsopọ̀", "ssr": 500, "tier": "wazobia", "language": "yo",
+      "definition": "Connection or bond — a link between people or things.",
+      "context_sentences": ["Ìsopọ̀ wa pẹ̀lú àwọn àbúrò àti àgbàdo jẹ pàtàkì. (Our connection with siblings and elders is important.)", "Inú yó mi dun tí ìsopọ̀ mi pẹ̀lú ìdílé mi ba lagbara. (I am happy when my bond with my family is strong.)"],
+      "phonetic": "ee-SOH-poh",
+      "tone_guide": "ì — low; so — mid; pọ̀ — low, open-o"
+    },
+    {
+      "id": "yw_039", "text": "ìbànújẹ́", "ssr": 460, "tier": "wazobia", "language": "yo",
+      "definition": "Sadness or grief — a feeling of deep sorrow.",
+      "context_sentences": ["Ìbànújẹ́ tó tẹ́ ọkàn kan mú ẹni náà sún mọ́ Ọlọ́run. (Grief that weighs on a heart draws a person closer to God.)", "Ẹ máa gbé ìbànújẹ́ sẹ́yìn, ọjọ́ ọla ní ìmọ̀lẹ̀. (Let sorrow go, tomorrow has light.)"],
+      "phonetic": "ee-bah-noo-JEH",
+      "tone_guide": "ì — low; bà — low; nú — high; jẹ́ — high, open-e"
+    },
+    {
+      "id": "yw_040", "text": "obìnrin", "ssr": 380, "tier": "wazobia", "language": "yo",
+      "definition": "Woman — an adult female human being.",
+      "context_sentences": ["Obìnrin Yorùbá ní agbára tó jinlẹ̀ ní ìdílé àti ní ọjà. (Yoruba women have deep power in the home and in the market.)", "Gbogbo obìnrin ní ẹtọ́ sí ẹ̀kọ́. (Every woman has a right to education.)"],
+      "phonetic": "oh-BEE-reen",
+      "tone_guide": "o — mid; bì — low; nrin — mid"
+    },
+    {
+      "id": "yw_041", "text": "ọkùnrin", "ssr": 380, "tier": "wazobia", "language": "yo",
+      "definition": "Man — an adult male human being.",
+      "context_sentences": ["Ọkùnrin tó dára ní ọkàn ìfẹ́ àti ìlera. (A good man has a heart of love and health.)", "Ọkùnrin àti obìnrin ní ojúṣe fún ìdílé. (Both men and women have responsibilities for the family.)"],
+      "phonetic": "oh-KOON-reen",
+      "tone_guide": "ọ — open-o, mid; kù — low; nrin — mid"
+    },
+    {
+      "id": "yw_042", "text": "òkè", "ssr": 340, "tier": "wazobia", "language": "yo",
+      "definition": "Hill or mountain — a raised area of land.",
+      "context_sentences": ["Òkè Ìbàdàn ni orí ìlú náà. (The Ibadan hills are at the top of that city.)", "Àwọn ọmọde fẹ́ràn gùn òkè ní àárọ̀. (The children loved to climb the hill in the morning.)"],
+      "phonetic": "OH-keh",
+      "tone_guide": "ò — low; kè — low tone (both low)"
+    },
+    {
+      "id": "yw_043", "text": "ẹnu", "ssr": 280, "tier": "wazobia", "language": "yo",
+      "definition": "Mouth — the opening in the face used for eating and speaking.",
+      "context_sentences": ["Ẹnu tó bá sọ ọ̀rọ̀ rere ló ń gbà ìbùkún. (The mouth that speaks good words receives blessings.)", "Pa ẹnu rẹ mọ́ nígbà tí o bá ń jẹun. (Keep your mouth clean when you are eating.)"],
+      "phonetic": "EH-noo",
+      "tone_guide": "ẹ — open-e, mid; nu — mid"
+    },
+    {
+      "id": "yw_044", "text": "ìpinlẹ̀", "ssr": 480, "tier": "wazobia", "language": "yo",
+      "definition": "State — a territorial and political unit within a country.",
+      "context_sentences": ["Nàìjíríà ní ìpinlẹ̀ mọ́kànlélọ́gbọ̀n. (Nigeria has thirty-six states.)", "Ìpinlẹ̀ Ọ̀yọ́ jẹ ìpinlẹ̀ àgbà nínú ìtàn Yorùbá. (Oyo State is a great state in Yoruba history.)"],
+      "phonetic": "ee-peen-LEH",
+      "tone_guide": "ì — low; pín — high; lẹ̀ — low, open-e"
+    },
+    {
+      "id": "yw_045", "text": "ìgbàdùn", "ssr": 460, "tier": "wazobia", "language": "yo",
+      "definition": "Enjoyment or pleasure — the state of feeling joy and satisfaction.",
+      "context_sentences": ["Ìgbàdùn tó dára ni ìgbàdùn tí kò ní ìpalára. (Good enjoyment is enjoyment that causes no harm.)", "Ìgbàdùn ìdílé ló dára jù gbogbo ohun lọ. (The pleasure of family is better than all things.)"],
+      "phonetic": "ee-gbah-DOON",
+      "tone_guide": "ì — low; gbà — low; dùn — low tone"
+    },
+    {
+      "id": "yw_046", "text": "ọrọ̀", "ssr": 380, "tier": "wazobia", "language": "yo",
+      "definition": "Matter, speech, or wealth — depending on tone, it means either 'word/matter' or 'wealth'.",
+      "context_sentences": ["Ọrọ̀ àgbàdo jẹ ọgbọ́n. (The words of elders are wisdom.)", "Ẹni tó ní ẹ̀kọ́ ló ní ọrọ̀ tóótọ́. (One who has education has true wealth.)"],
+      "phonetic": "OH-roh",
+      "tone_guide": "ọ — open-o, mid; rọ̀ — open-o, low tone"
+    },
+    {
+      "id": "yw_047", "text": "ìmúrasílẹ̀", "ssr": 600, "tier": "wazobia", "language": "yo",
+      "definition": "Preparation — the act of getting ready for something.",
+      "context_sentences": ["Ìmúrasílẹ̀ ló máa ń mú àṣeyọrí wá. (Preparation is what usually brings success.)", "Ìmúrasílẹ̀ rẹ fún ìdánwò jẹ pàtàkì. (Your preparation for the exam is important.)"],
+      "phonetic": "ee-moo-rah-SEE-leh",
+      "tone_guide": "ì — low; mú — high; ra — mid; sí — high; lẹ̀ — low, open-e"
+    },
+    {
+      "id": "yw_048", "text": "àṣeyọrí", "ssr": 540, "tier": "wazobia", "language": "yo",
+      "definition": "Success or achievement — reaching a goal or desired outcome.",
+      "context_sentences": ["Àṣeyọrí jẹ èso ìmúrasílẹ̀ àti iṣẹ́ líle. (Success is the fruit of preparation and hard work.)", "Kò sí àṣeyọrí láìsí iṣẹ́ líle àti ìfẹ́. (There is no success without hard work and love.)"],
+      "phonetic": "ah-sheh-YOH-ree",
+      "tone_guide": "à — low; ṣe — mid; yọ — open-o, mid; rí — high"
+    },
+    {
+      "id": "yw_049", "text": "ìbẹ̀rẹ̀", "ssr": 400, "tier": "wazobia", "language": "yo",
+      "definition": "Beginning or start — the point at which something commences.",
+      "context_sentences": ["Ìbẹ̀rẹ̀ rere ni ìlàjì ọ̀nà. (A good beginning is half the journey.)", "Gbogbo nǹkan ńlá ní ìbẹ̀rẹ̀ kékeré. (Every great thing has a small beginning.)"],
+      "phonetic": "ee-BEH-reh",
+      "tone_guide": "ì — low; bẹ̀ — open-e, low; rẹ̀ — open-e, low"
+    },
+    {
+      "id": "yw_050", "text": "ẹbọ", "ssr": 400, "tier": "wazobia", "language": "yo",
+      "definition": "Offering or sacrifice — something given to a deity in Yoruba tradition.",
+      "context_sentences": ["Àwọn àgbàdo ń ṣe ẹbọ ní àwọn ọjọ́ àjọyọ̀ ìbílẹ̀. (Elders make offerings on traditional festival days.)", "Ẹbọ ìmọ̀ ni kíkọ́ ẹ̀kọ́ fún ọmọ. (Educating a child is the greatest offering of knowledge.)"],
+      "phonetic": "EH-boh",
+      "tone_guide": "ẹ — open-e, mid; bọ — open-o, mid"
+    }
+  ],
+  "proverbs": [
+    {
+      "id": "yp_001",
+      "language": "yo",
+      "original": "Ìmọ̀ kò lọ sí oko; ẹni tó mọ òun tó máa mọ.",
+      "translation": "Knowledge does not go to the farm; the one who knows shall always know.",
+      "word_id": "yw_012",
+      "tone_guide": "ì — low; mọ̀ — low-open-o; tó — high; mọ — mid"
+    },
+    {
+      "id": "yp_002",
+      "language": "yo",
+      "original": "Àṣà tí a kò gbà jẹ àṣà tí yóò parun.",
+      "translation": "A culture that is not embraced is a culture that will perish.",
+      "word_id": "yw_013",
+      "tone_guide": "à — low; ṣà — low with underdot-s; kò — low; gbà — low; parun — mid"
+    },
+    {
+      "id": "yp_003",
+      "language": "yo",
+      "original": "Ọgbọ́n àgbàdo kọjá ọgbọ́n ọ̀dọ́.",
+      "translation": "The wisdom of elders surpasses the cleverness of the young.",
+      "word_id": "yw_019",
+      "tone_guide": "ọ — open-o; gbọ́n — high, open-o; à — low; gbà — low; kọ — open-o, mid; já — high"
+    },
+    {
+      "id": "yp_004",
+      "language": "yo",
+      "original": "Àkókò tí ó ti kọjá kò ṣeépadà.",
+      "translation": "Time that has passed cannot be brought back.",
+      "word_id": "yw_024",
+      "tone_guide": "à — low; kó — high; kò — low; kọ — open-o; já — high; kò — low; ṣeé — high"
+    }
+  ]
+}
