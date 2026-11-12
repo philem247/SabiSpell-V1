@@ -17,6 +17,7 @@ export function calculateReward(
   const baseXP = baseCoins * 2;
   const streak =
     Config.STREAK_MULTIPLIERS.find((s) => currentStreak >= s.minStreak)?.multiplier ?? 1;
+  // The cap is a guard: today's maximum is 1.5 * 1.5 = 2.25.
   const multiplier = Math.min(
     Config.REWARD_MULTIPLIER_CAP,
     streak * (isDailyChallenge ? Config.DAILY_CHALLENGE_MULTIPLIER : 1),

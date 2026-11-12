@@ -15,6 +15,18 @@ describe('calculateReward', () => {
     expect(calculateReward(1220, true, 5)).toEqual({ xp: 28, coins: 14 });
   });
 
+  it('streak below the first tier gives no bonus', () => {
+    expect(calculateReward(1220, true, 2)).toEqual({ xp: 22, coins: 11 });
+  });
+
+  it('streak 4 still uses the 3-tier', () => {
+    expect(calculateReward(1220, true, 4)).toEqual({ xp: 24, coins: 12 });
+  });
+
+  it('streak 9 still uses the 5-tier', () => {
+    expect(calculateReward(1220, true, 9)).toEqual({ xp: 28, coins: 14 });
+  });
+
   it('multiplies streak by the daily challenge bonus', () => {
     expect(calculateReward(1220, true, 10, true)).toEqual({ xp: 50, coins: 25 });
   });

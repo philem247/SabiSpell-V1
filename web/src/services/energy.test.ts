@@ -20,6 +20,10 @@ describe('calculateEnergyRefill', () => {
   it('caps energy and resets the timestamp when fully refilled', () => {
     expect(calculateEnergyRefill(1, 0, 10 * INTERVAL)).toEqual({ energy: 5, lastRefillTs: 10 * INTERVAL });
   });
+
+  it('restarts the timer when the clock moves backwards', () => {
+    expect(calculateEnergyRefill(2, 5_000_000, 1_000_000)).toEqual({ energy: 2, lastRefillTs: 1_000_000 });
+  });
 });
 
 describe('deductEnergy', () => {
@@ -36,8 +40,14 @@ describe('deductEnergy', () => {
   });
 
   it('refills before checking', () => {
-    const result = deductEnergy(0, 2, 0, 2 * INTERVAL);
-    expect(result.success).toBe(true);
-    expect(result.energy).toBe(0);
+    expect(deductEnergy(0, 2, 0, 2 * INTERVAL)).toEqual({ success: true, energy: 0, lastRefillTs: 2 * INTERVAL });
+  });
+
+  it('a zero amount changes nothing', () => {
+    expect(deductEnergy(3, 0, 0, 0)).toEqual({ success: true, energy: 3, lastRefillTs: 0 });
+  });
+
+  it('a negative amount never adds energy', () => {
+    expect(deductEnergy(3, -2, 0, 0)).toEqual({ success: true, energy: 3, lastRefillTs: 0 });
   });
 });

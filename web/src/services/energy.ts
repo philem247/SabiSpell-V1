@@ -19,6 +19,8 @@ export function calculateEnergyRefill(
   if (currentEnergy >= Config.ENERGY_CAP) {
     return { energy: Config.ENERGY_CAP, lastRefillTs: now };
   }
+  // Clock moved backwards: restart the timer instead of stalling until it catches up.
+  if (now < lastRefillTs) return { energy: currentEnergy, lastRefillTs: now };
   const pips = Math.floor((now - lastRefillTs) / Config.ENERGY_REFILL_INTERVAL_MS);
   if (pips <= 0) return { energy: currentEnergy, lastRefillTs };
 
@@ -33,14 +35,15 @@ export function deductEnergy(
   lastRefillTs: number,
   now: number,
 ): EnergyDeductResult {
+  const cost = Math.max(0, amount);
   const refilled = calculateEnergyRefill(currentEnergy, lastRefillTs, now);
-  if (refilled.energy < amount) {
+  if (refilled.energy < cost) {
     return { success: false, energy: refilled.energy, lastRefillTs: refilled.lastRefillTs };
   }
   const wasFull = refilled.energy >= Config.ENERGY_CAP;
   return {
     success: true,
-    energy: refilled.energy - amount,
+    energy: refilled.energy - cost,
     lastRefillTs: wasFull ? now : refilled.lastRefillTs,
   };
 }

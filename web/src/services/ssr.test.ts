@@ -21,6 +21,14 @@ describe('calculateSSRDelta', () => {
   it('never pushes SSR below the min', () => {
     expect(calculateSSRDelta(100, 100, false, 24)).toBe(0);
   });
+
+  it('clips a gain that would overshoot the max', () => {
+    expect(calculateSSRDelta(1995, 1995, true, 24)).toBe(5);
+  });
+
+  it('clips a loss that would undershoot the min', () => {
+    expect(calculateSSRDelta(105, 105, false, 24)).toBe(-5);
+  });
 });
 
 describe('clampSSR', () => {

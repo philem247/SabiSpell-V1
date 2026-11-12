@@ -28,6 +28,21 @@ describe('collections', () => {
     }
   });
 
+  it('every word has the required fields', () => {
+    for (const id of COLLECTION_IDS) {
+      for (const w of COLLECTIONS[id].words) {
+        const ok =
+          typeof w.id === 'string' && w.id.length > 0 &&
+          typeof w.text === 'string' && w.text.length > 0 &&
+          typeof w.ssr === 'number' &&
+          typeof w.definition === 'string' &&
+          typeof w.phonetic === 'string' &&
+          Array.isArray(w.context_sentences);
+        expect(ok, `${id}/${w.id}`).toBe(true);
+      }
+    }
+  });
+
   it('uses the per-collection SSR start and K factor', () => {
     expect(COLLECTIONS.classic.startSSR).toBe(1100);
     expect(COLLECTIONS.classic.kFactor).toBe(24);
