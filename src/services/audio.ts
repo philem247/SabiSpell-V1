@@ -1,13 +1,14 @@
 /**
  * Audio Service
  *
- * Manages preloading and playback of all SabiSpell WAV sound effects.
+ * Manages preloading and playback of all SabiSpell mp3 sound effects.
  * Uses expo-audio's imperative API for low-latency playback.
  *
  * Call `initAudio()` once on first gameplay screen mount to preload all
  * sounds for low-latency playback.
  */
 
+import { Platform } from 'react-native';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 
 type SoundKey = 'correct' | 'wrong' | 'celebration' | 'gangan';
@@ -31,15 +32,17 @@ export async function initAudio(): Promise<void> {
   if (audioInitialised) return;
   audioInitialised = true;
 
-  try {
-    await setAudioModeAsync({
-      playsInSilentMode: true,
-      allowsRecording: false,
-    });
-  } catch (e) {
-    console.warn('[audio] setAudioModeAsync failed:', e);
+  if (Platform.OS !== 'web') {
+    try {
+      await setAudioModeAsync({
+        playsInSilentMode: true,
+        allowsRecording: false,
+      });
+    } catch (e) {
+      console.warn('[audio] setAudioModeAsync failed:', e);
+    }
   }
-  
+
   const keys = Object.keys(soundFiles) as SoundKey[];
   keys.forEach((key) => {
     try {

@@ -1,18 +1,15 @@
 import * as Speech from 'expo-speech';
-import * as FileSystem from 'expo-file-system/legacy';
 import { createAudioPlayer } from 'expo-audio';
 import { englishAssets } from './englishAssets';
+import { yorubaAssets } from './yorubaAssets';
 
 /**
  * Text-to-Speech & Local Audio Playback Service
  *
  * Wraps expo-speech and expo-audio:
- *  - Checks if a native-recorded Yoruba audio pack file is downloaded.
- *  - Plays high-fidelity native audio if available.
- *  - Falls back to expo-speech with phonetic helper if offline/missing.
+ *  - Plays bundled Yoruba/English recordings when available.
+ *  - Falls back to expo-speech with phonetic helper if the recording is missing.
  */
-
-const LOCAL_AUDIO_DIR = `${FileSystem.documentDirectory}yoruba_audio/`;
 
 // Keep track of player cache for Yoruba/English words to ensure smooth, lag-free playback.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,7 +41,7 @@ export async function checkYorubaAvailable(): Promise<boolean> {
 }
 
 /**
- * Speaks a word or phrase, playing the local downloaded high-fidelity pronunciation if available.
+ * Speaks a word or phrase, playing the bundled pronunciation if available.
  *
  * @param text     The word or phrase to speak.
  * @param language 'en' for English | 'yo' for Yoruba.
@@ -78,23 +75,19 @@ export async function speak(
     }
   }
 
-  if (language === 'yo' && wordId) {
-    const localUri = `${LOCAL_AUDIO_DIR}${wordId}.mp3`;
+  if (language === 'yo' && wordId && yorubaAssets[wordId]) {
     try {
-      const fileInfo = await FileSystem.getInfoAsync(localUri);
-      if (fileInfo.exists && 'size' in fileInfo && fileInfo.size > 1000) {
-        let player = localPlayerCache[wordId];
-        if (!player) {
-          player = createAudioPlayer(localUri);
-          localPlayerCache[wordId] = player;
-        }
-        player.seekTo(0);
-        player.setPlaybackRate(rate);
-        player.play();
-        return;
+      let player = localPlayerCache[wordId];
+      if (!player) {
+        player = createAudioPlayer(yorubaAssets[wordId]);
+        localPlayerCache[wordId] = player;
       }
+      player.seekTo(0);
+      player.setPlaybackRate(rate);
+      player.play();
+      return;
     } catch (e) {
-      console.warn(`[tts] failed to check or play local audio for ${wordId}:`, e);
+      console.warn(`[tts] failed to play Yoruba audio for ${wordId}:`, e);
     }
   }
 

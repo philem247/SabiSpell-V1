@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   StyleSheet, View, Text, TouchableOpacity,
-  Animated, Platform, StatusBar, Modal, ScrollView,
+  Animated, StatusBar, Modal, ScrollView,
 } from 'react-native';
 import SpellingKeyboard from '../../src/components/SpellingKeyboard';
 import { useRouter } from 'expo-router';

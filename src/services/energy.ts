@@ -60,7 +60,7 @@ export function calculateEnergyRefill(
  * Attempts to deduct energy, first applying any pending wall-clock refills.
  *
  * Rules:
- * - Run calculateEnergyRefill first to catch up on any offline pips.
+ * - Run calculateEnergyRefill first to catch up on any pips earned while away.
  * - Check if the refilled energy has enough pips to cover the amount.
  * - If insufficient, return success = false with unchanged refilled states.
  * - If sufficient, subtract amount, and if energy was at capacity, update last refill timestamp to now.

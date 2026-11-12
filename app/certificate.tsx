@@ -8,6 +8,7 @@ import {
   StatusBar,
   Alert,
   Dimensions,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,7 +18,6 @@ import CertificateSVG from '../src/components/CertificateSVG';
 import AjalaAvatar from '../src/components/AjalaAvatar';
 import { initAudio, playCelebration } from '../src/services/audio';
 import { captureRef } from 'react-native-view-shot';
-import * as Sharing from 'expo-sharing';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -104,17 +104,28 @@ export default function CertificateScreen() {
       const uri = await captureRef(certificateRef, {
         format: 'png',
         quality: 0.98,
+        ...(Platform.OS === 'web' ? { result: 'data-uri' as const } : {}),
       });
 
-      const isSharingAvailable = await Sharing.isAvailableAsync();
-      if (isSharingAvailable) {
-        await Sharing.shareAsync(uri, {
-          mimeType: 'image/png',
-          dialogTitle: 'Share your SabiSpell Graduation Certificate!',
-          UTI: 'public.png',
-        });
-      } else {
-        Alert.alert('Sharing Unavailable', 'Native sharing is not supported on this platform.');
+      if (Platform.OS === 'web') {
+        const blob = await (await fetch(uri)).blob();
+        const file = new File([blob], 'sabispell-certificate.png', { type: 'image/png' });
+        const nav = navigator as Navigator;
+        if (nav.canShare && nav.canShare({ files: [file] })) {
+          try {
+            await nav.share({ files: [file], title: 'My SabiSpell Graduation Certificate' });
+            return;
+          } catch (e) {
+            if ((e as Error)?.name === 'AbortError') return;
+          }
+        }
+        const a = document.createElement('a');
+        a.href = uri;
+        a.download = 'sabispell-certificate.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        return;
       }
     } catch (error) {
       console.error('[Certificate] Sharing failed:', error);

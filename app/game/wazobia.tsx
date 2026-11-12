@@ -15,13 +15,9 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as FileSystem from 'expo-file-system/legacy';
-import { Asset } from 'expo-asset';
-import { yorubaAssets } from '../../src/services/yorubaAssets';
 import { useProfileStore } from '../../src/store/profileStore';
 import { useGameStore } from '../../src/store/gameStore';
-import { getNextWord, Word, maskWordInSentence, getProverbForWord, Proverb, loadWordBank } from '../../src/services/wordbank';
+import { getNextWord, Word, maskWordInSentence, getProverbForWord, Proverb } from '../../src/services/wordbank';
 import { calculateSSRDelta } from '../../src/services/ssr';
 import { calculateReward } from '../../src/services/economy';
 import { speak, stopSpeaking } from '../../src/services/tts';
@@ -140,12 +136,6 @@ export default function WazobiaGameScreen() {
 
   // ── State ──────────────────────────────────────────────────────────────────
   const [selectedTongue,     setSelectedTongue]   = useState<'yoruba' | null>(null);
-  const [showDownloader,     setShowDownloader]   = useState(false);
-  const [isDownloading,      setIsDownloading]    = useState(false);
-  const [downloadProgress,   setDownloadProgress] = useState(0);
-  const [downloadSpeed,      setDownloadSpeed]    = useState('0 KB/s');
-  const [downloadError,      setDownloadError]    = useState<string | null>(null);
-  const [downloadedCount,    setDownloadedCount]  = useState(0);
   const [currentWord,        setWord]             = useState<Word | null>(null);
   const [wordIndex,          setWordIndex]         = useState(0);
   const [userInput,          setUserInput]         = useState('');
@@ -414,94 +404,6 @@ export default function WazobiaGameScreen() {
     initAudio();
   };
 
-  const handleYorubaPress = async () => {
-    try {
-      const val = await AsyncStorage.getItem('sabispell:wazobia_yo_audio_downloaded_femi_v1');
-      const sampleFile = `${FileSystem.documentDirectory}yoruba_audio/yw_001.mp3`;
-      const fileInfo = await FileSystem.getInfoAsync(sampleFile);
-      const isValid = fileInfo.exists && 'size' in fileInfo && fileInfo.size > 1000;
-
-      if (val === 'true' && isValid) {
-        startYorubaSession();
-      } else {
-        // If files are corrupted or missing, clear storage & folder to force re-extraction
-        if (val === 'true' || fileInfo.exists) {
-          await AsyncStorage.removeItem('sabispell:wazobia_yo_audio_downloaded_femi_v1');
-          try {
-            await FileSystem.deleteAsync(`${FileSystem.documentDirectory}yoruba_audio/`, { idempotent: true });
-          } catch (_) {}
-        }
-        setShowDownloader(true);
-      }
-    } catch {
-      setShowDownloader(true);
-    }
-  };
-
-  const startAudioPackDownload = async () => {
-    setIsDownloading(true);
-    setDownloadProgress(0);
-    setDownloadedCount(0);
-    setDownloadSpeed('Initializing...');
-    setDownloadError(null);
-
-    try {
-      const words = loadWordBank('wazobia', 'yo');
-      const total = words.length;
-      if (total === 0) {
-        throw new Error('No words found in word bank');
-      }
-
-      // Ensure target directory exists
-      const targetDir = `${FileSystem.documentDirectory}yoruba_audio/`;
-      const dirInfo = await FileSystem.getInfoAsync(targetDir);
-      if (!dirInfo.exists) {
-        await FileSystem.makeDirectoryAsync(targetDir, { intermediates: true });
-      }
-
-      let downloaded = 0;
-
-      for (let i = 0; i < total; i++) {
-        const word = words[i];
-        const assetModule = yorubaAssets[word.id];
-        if (!assetModule) {
-          throw new Error(`Asset not found for word ${word.id}`);
-        }
-
-        const asset = Asset.fromModule(assetModule);
-        await asset.downloadAsync();
-        const localUri = asset.localUri;
-        if (!localUri) {
-          throw new Error(`Failed to resolve local uri for asset ${word.id}`);
-        }
-
-        const destUri = `${targetDir}${word.id}.mp3`;
-        await FileSystem.copyAsync({ from: localUri, to: destUri });
-
-        downloaded++;
-        setDownloadedCount(downloaded);
-        setDownloadProgress(downloaded / total);
-        setDownloadSpeed('Extracting...');
-
-        // Artificial brief delay for realistic progress animation (30ms per file)
-        await new Promise((resolve) => setTimeout(resolve, 30));
-      }
-
-      setDownloadSpeed('Completed');
-      await AsyncStorage.setItem('sabispell:wazobia_yo_audio_downloaded_femi_v1', 'true');
-      
-      setTimeout(() => {
-        setShowDownloader(false);
-        setIsDownloading(false);
-        startYorubaSession();
-      }, 1200);
-    } catch (error) {
-      console.warn('[downloader] audio pack installation failed:', error);
-      setDownloadError('Installation failed. Check device storage and try again.');
-      setIsDownloading(false);
-    }
-  };
-
   // ── Cleanup on unmount ─────────────────────────────────────────────────────
   useEffect(() => {
     pauseBGM();
@@ -573,7 +475,7 @@ export default function WazobiaGameScreen() {
             {/* YORUBA CARD */}
             <TouchableOpacity
               id="tongue-card-yoruba"
-              onPress={handleYorubaPress}
+              onPress={startYorubaSession}
               style={[styles.tongueCard, Shadows.card, { borderColor: theme.border, borderLeftColor: theme.brandPrimary }]}
               activeOpacity={0.85}
             >
@@ -630,91 +532,6 @@ export default function WazobiaGameScreen() {
           </View>
         </ScrollView>
 
-        {/* Yoruba Audio Pack Downloader Modal */}
-        <Modal
-          visible={showDownloader}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => {
-            if (!isDownloading) setShowDownloader(false);
-          }}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={[styles.modalCard, Shadows.modal]}>
-              <View style={[styles.modalEmojiContainer, { backgroundColor: theme.brandPrimary + '15' }]}>
-                <Text style={styles.modalEmojiText}>🔊</Text>
-              </View>
-              
-              <Text style={[styles.modalTitleText, { color: theme.textPrimary }]}>
-                Yoruba Voice Data Pack
-              </Text>
-              
-              <Text style={[styles.modalMessageText, { color: theme.textSecondary }]}>
-                SabiSpell requires a high-fidelity audio pack to pronounce Yoruba words with native tone accents. This guarantees perfect offline pronunciation.
-              </Text>
-
-              <View style={styles.downloadDetailRow}>
-                <Text style={[styles.downloadDetailLabel, { color: theme.textMuted }]}>
-                  Download Size:
-                </Text>
-                <Text style={[styles.downloadDetailValue, { color: theme.brandPrimary }]}>
-                  ~500 KB
-                </Text>
-              </View>
-
-              {downloadError && (
-                <Text style={{ color: theme.error, fontSize: 13, marginBottom: 16, textAlign: 'center', fontFamily: FontFamily.bodySemiBold }}>
-                  ⚠️ {downloadError}
-                </Text>
-              )}
-
-              {isDownloading ? (
-                <View style={styles.progressContainer}>
-                  <Text style={[styles.progressLabel, { color: theme.textSecondary }]}>
-                    {downloadProgress === 1.0 
-                      ? 'Installing voice pack...' 
-                      : `Downloading... ${Math.round(downloadProgress * 100)}%`}
-                  </Text>
-                  
-                  <View style={[styles.downloadProgressTrack, { backgroundColor: theme.bgSecondary }]}>
-                    <View style={[styles.downloadProgressFill, {
-                      backgroundColor: theme.brandPrimary,
-                      width: `${downloadProgress * 100}%`
-                    }]} />
-                  </View>
-
-                  <View style={styles.progressSubRow}>
-                    <Text style={[styles.progressSubText, { color: theme.textMuted }]}>
-                      {downloadSpeed}
-                    </Text>
-                    <Text style={[styles.progressSubText, { color: theme.textMuted }]}>
-                      {downloadedCount} / 50 files
-                    </Text>
-                  </View>
-                </View>
-              ) : (
-                <View style={styles.modalActionsRow}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      setDownloadError(null);
-                      setShowDownloader(false);
-                    }}
-                    style={[styles.modalCancelBtn, { borderColor: theme.border }]}
-                  >
-                    <Text style={[styles.modalCancelText, { color: theme.textSecondary }]}>Cancel</Text>
-                  </TouchableOpacity>
-                  
-                  <TouchableOpacity
-                    onPress={startAudioPackDownload}
-                    style={[styles.modalConfirmBtn, { backgroundColor: theme.brandPrimary }]}
-                  >
-                    <Text style={styles.modalConfirmText}>{downloadError ? 'Retry' : 'Download Pack'}</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          </View>
-        </Modal>
       </SafeAreaView>
     );
   }
@@ -1317,23 +1134,4 @@ const styles = StyleSheet.create({
   modalCancelText:     { fontSize: FontSizes.base, fontFamily: FontFamily.headingSemi },
   modalConfirmBtn:     { flex: 1, height: 48, borderRadius: Radii.md, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 3, elevation: 2 },
   modalConfirmText:    { fontSize: FontSizes.base, fontFamily: FontFamily.headingSemi, color: '#FFFFFF' },
-  downloadDetailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    backgroundColor: '#FAFAFA',
-    padding: Spacing.sm,
-    borderRadius: Radii.sm,
-    marginBottom: Spacing.md,
-    borderWidth: 1,
-    borderColor: '#EEEEEE',
-  },
-  downloadDetailLabel: { fontSize: FontSizes.sm, fontFamily: FontFamily.bodySemiBold },
-  downloadDetailValue: { fontSize: FontSizes.sm, fontFamily: FontFamily.mono, fontWeight: 'bold' },
-  progressContainer: { width: '100%', alignItems: 'stretch', gap: 6 },
-  progressLabel: { fontSize: FontSizes.sm, fontFamily: FontFamily.bodySemiBold, textAlign: 'center', marginBottom: 2 },
-  downloadProgressTrack: { height: 8, borderRadius: 4, overflow: 'hidden', width: '100%' },
-  downloadProgressFill: { height: '100%', borderRadius: 4 },
-  progressSubRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 2 },
-  progressSubText: { fontSize: FontSizes.xs, fontFamily: FontFamily.mono },
 });

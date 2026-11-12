@@ -325,7 +325,7 @@ export default function DashboardScreen() {
           {/* Energy Refill Footer (Only show when energy < cap) */}
           {energy < cap && (
             <Text style={styles.refillInfoText}>
-              ⚡ Energy refills 1 pip every 15 minutes offline
+              ⚡ Energy refills 1 pip every 15 minutes
             </Text>
           )}
         </View>
