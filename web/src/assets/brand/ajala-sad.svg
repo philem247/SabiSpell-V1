@@ -1,0 +1,56 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Generated illustration">
+<g id="feet">
+<path id="Vector" d="M420 773C402 781 386 803 392 819C398 835 438 834 470 825C482 822 482 806 474 787L420 773Z" fill="#F5B82E" stroke="#513326" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_2" d="M604 773C622 781 638 803 632 819C626 835 586 834 554 825C542 822 542 806 550 787L604 773Z" fill="#F5B82E" stroke="#513326" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_3" d="M421 809L418 825M603 809L606 825" stroke="#513326" stroke-width="12" stroke-linecap="round"/>
+</g>
+<g id="body">
+<path id="Vector_4" d="M406 564C377 609 370 659 379 722C386 777 435 803 512 803C589 803 638 777 645 722C654 659 647 609 618 564H406Z" fill="#ED922E" stroke="#513326" stroke-width="12" stroke-linejoin="round"/>
+<path id="Vector_5" d="M512 628C463 628 424 672 425 726C426 770 463 789 512 789C561 789 598 770 599 726C600 672 561 628 512 628Z" fill="#FFF0CE" stroke="#513326" stroke-width="12" stroke-linejoin="round"/>
+</g>
+<g id="hanging-wings">
+<g id="Vector_6">
+<path d="M392 612C354 624 335 676 337 725C338 755 350 775 367 775C388 773 405 725 412 681C416 657 412 632 405 621" fill="#DC7D26"/>
+<path d="M392 612C354 624 335 676 337 725C338 755 350 775 367 775C388 773 405 725 412 681C416 657 412 632 405 621" stroke="#513326" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g id="Vector_7">
+<path d="M632 612C670 624 689 676 687 725C686 755 674 775 657 775C636 773 619 725 612 681C608 657 612 632 619 621" fill="#DC7D26"/>
+<path d="M632 612C670 624 689 676 687 725C686 755 674 775 657 775C636 773 619 725 612 681C608 657 612 632 619 621" stroke="#513326" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+<g id="head">
+<path id="Vector_8" d="M290 322C270 305 260 276 269 262C280 248 306 274 343 274C387 245 447 237 512 240C577 237 637 245 681 274C718 274 744 248 755 262C764 276 754 305 734 322C768 357 785 402 785 451C785 565 686 648 512 648C338 648 239 565 239 451C239 402 256 357 290 322Z" fill="#ED922E" stroke="#513326" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_9" d="M512 337C475 292 398 292 348 324C293 359 277 423 293 482C314 557 411 606 512 624C613 606 710 557 731 482C747 423 731 359 676 324C626 292 549 292 512 337Z" fill="#FFF0CE" stroke="#513326" stroke-width="12" stroke-linejoin="round"/>
+</g>
+<g id="eyes">
+<path id="Vector_10" d="M490 440C490 485.287 453.287 522 408 522C362.713 522 326 485.287 326 440C326 398 364 384 408 384C452 384 490 398 490 440Z" fill="white" stroke="#513326" stroke-width="5" stroke-linejoin="round"/>
+<path id="Vector_11" d="M698 440C698 485.287 661.287 522 616 522C570.713 522 534 485.287 534 440C534 398 572 384 616 384C660 384 698 398 698 440Z" fill="white" stroke="#513326" stroke-width="5" stroke-linejoin="round"/>
+<path id="Vector_12" d="M408 493C426.778 493 442 475.091 442 453C442 430.909 426.778 413 408 413C389.222 413 374 430.909 374 453C374 475.091 389.222 493 408 493Z" fill="#513326"/>
+<path id="Vector_13" d="M616 493C634.778 493 650 475.091 650 453C650 430.909 634.778 413 616 413C597.222 413 582 430.909 582 453C582 475.091 597.222 493 616 493Z" fill="#513326"/>
+<path id="Vector_14" d="M398 450C404.627 450 410 444.627 410 438C410 431.373 404.627 426 398 426C391.373 426 386 431.373 386 438C386 444.627 391.373 450 398 450Z" fill="white"/>
+<path id="Vector_15" d="M606 450C612.627 450 618 444.627 618 438C618 431.373 612.627 426 606 426C599.373 426 594 431.373 594 438C594 444.627 599.373 450 606 450Z" fill="white"/>
+<path id="Vector_16" d="M419 474C422.314 474 425 471.314 425 468C425 464.686 422.314 462 419 462C415.686 462 413 464.686 413 468C413 471.314 415.686 474 419 474Z" fill="white"/>
+<path id="Vector_17" d="M627 474C630.314 474 633 471.314 633 468C633 464.686 630.314 462 627 462C623.686 462 621 464.686 621 468C621 471.314 623.686 474 627 474Z" fill="white"/>
+</g>
+<g id="glasses">
+<path id="Vector_18" d="M315 432L292 421M709 432L732 421M499 435C506 425 518 425 525 435" stroke="#0A6EBD" stroke-width="12" stroke-linecap="round"/>
+<path id="Vector_19" d="M408 532C458.81 532 500 490.81 500 440C500 389.19 458.81 348 408 348C357.19 348 316 389.19 316 440C316 490.81 357.19 532 408 532Z" stroke="#0A6EBD" stroke-width="12"/>
+<path id="Vector_20" d="M616 532C666.81 532 708 490.81 708 440C708 389.19 666.81 348 616 348C565.19 348 524 389.19 524 440C524 490.81 565.19 532 616 532Z" stroke="#0A6EBD" stroke-width="12"/>
+</g>
+<g id="sad-expression">
+<path id="Vector_21" d="M361 340C392 343 428 331 448 314M576 314C596 331 632 343 663 340" stroke="#513326" stroke-width="12" stroke-linecap="round"/>
+<path id="Vector_22" d="M489 509C504.333 501 519.667 501 535 509L512 540L489 509Z" fill="#F39A28" stroke="#513326" stroke-width="12" stroke-linejoin="round"/>
+<path id="Vector_23" d="M491 576C505 562 519 562 533 576" stroke="#513326" stroke-width="12" stroke-linecap="round"/>
+<path id="Vector_24" d="M648 512C645 524 646 537 642 550C639 561 634 569 634 578C634 597 662 597 662 578C662 567 654 559 652 548C650 536 652 523 648 512Z" fill="#52B5E4" stroke="#0A6EBD" stroke-width="6"/>
+</g>
+<g id="graduation-cap">
+<path id="Vector_25" d="M379 229L565 251V293C502.333 305.667 439.333 303.333 376 286L379 229Z" fill="#095A9A" stroke="#513326" stroke-width="12"/>
+<path id="Vector_26" d="M312 212L497 164L679 248L493 292L312 212Z" fill="#0A6EBD" stroke="#513326" stroke-width="12" stroke-linejoin="round"/>
+<path id="Vector_27" d="M496 229L666 269C692 275 711 272 711 285" stroke="#F5B82E" stroke-width="12"/>
+<path id="Vector_28" d="M496 238C503.18 238 509 233.971 509 229C509 224.029 503.18 220 496 220C488.82 220 483 224.029 483 229C483 233.971 488.82 238 496 238Z" fill="#F5B82E" stroke="#513326" stroke-width="8"/>
+<path id="Vector_29" d="M702.765 283.658C707.706 279.671 712.922 280.169 718.412 285.153L725 312.067C715.667 317.549 706.333 317.3 697 311.319L702.765 283.658Z" fill="#F5B82E" stroke="#513326" stroke-width="8" stroke-linejoin="round"/>
+<path id="Vector_30" d="M710.5 292L709 307" stroke="#CE8E20" stroke-width="5" stroke-linecap="round"/>
+</g>
+</g>
+</svg>
