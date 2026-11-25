@@ -270,7 +270,7 @@ Verified in the installed package `@hugeicons/core-free-icons@4.4.0` (Stroke Rou
 | cross | `Cancel01Icon` | same glyph as close |
 | check | `Tick02Icon` | |
 | star | `StarIcon` | |
-| backspace | `ArrowLeft01Icon` | **MISSING**: no backspace glyph exists in the free set (only trash-style `Delete0xIcon`). Fallback is a left arrow; the button that uses it is named "Delete last letter", so the icon stays decorative. |
+| backspace | `ArrowLeft01Icon` | **MISSING**: no backspace glyph exists in the free set (only trash-style `Delete01Icon`). Fallback is a left arrow; the button that uses it is named "Delete last letter", so the icon stays decorative. |
 
 - [ ] **Step 1: Install**
 

@@ -20,6 +20,15 @@
   --color-cream: #fff0d1;
   --color-surface: #ffffff;
   --color-background: #f6f9fd;
+  --color-border: #dde6ef;
+  --color-border-strong: #7b8ea3;
+  --color-page-tint: #eaf4fc;
+  --color-muted: #5a6b7b;
+  --color-text-gold: #8a5a00;
+  --color-success-text: #1f7a43;
+  --color-danger-text: #b3261e;
+  --color-streak: #b35a0a;
+  --color-danger-50: #fdecea;
 
   --font-sans: 'Baloo 2', 'Nunito', ui-sans-serif, system-ui, sans-serif;
 
@@ -35,4 +44,56 @@ body {
   background: var(--color-background);
   color: var(--color-ink);
   font-family: var(--font-sans);
+}
+
+html {
+  font-size: 100%;
+  /* Keeps focused elements clear of the sticky bottom nav (WCAG 2.4.11). */
+  scroll-padding-bottom: 6rem;
+}
+
+/* Focus ring: 2px white inner, 3px ink outer, 2px offset. Follows the element radius. */
+:focus-visible {
+  outline: 3px solid var(--color-ink);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 3px solid CanvasText;
+    box-shadow: none;
+  }
+}
+
+/* Motion: 1 means animate, 0 means do not. Components read this through useReducedMotion. */
+:root {
+  --motion-scale: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-scale: 0;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:root[data-reduce-motion="true"] {
+  --motion-scale: 0;
+}
+
+:root[data-reduce-motion="true"] *,
+:root[data-reduce-motion="true"] *::before,
+:root[data-reduce-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
